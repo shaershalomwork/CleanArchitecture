@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Clean Architecture Solution Template
 
 [![Build](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/build.yml/badge.svg)](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/build.yml)
@@ -110,6 +109,3 @@ If you are having problems, please let me know by [raising a new issue](https://
 
 This project is licensed under the [MIT License](LICENSE).
 =======
-# CleanArchitecture
-template for mizrahi
->>>>>>> e0f6ad80edac31a1363efcf1cda0ac88a2861d5e
