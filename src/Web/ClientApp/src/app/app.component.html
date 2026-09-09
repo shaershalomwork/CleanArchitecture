@@ -1,4 +1,25 @@
-<app-nav-menu></app-nav-menu>
-<main>
-  <router-outlet></router-outlet>
+<main class="container">
+  <header><div><p class="eyebrow">CUSTOMER SERVICES</p><h1>Customer overview</h1></div>
+    <nav><ng-container *ngIf="name(); else signIn"><span>{{name()}}</span><button class="secondary" (click)="logout()">Sign out</button></ng-container>
+      <ng-template #signIn><a href="/auth/login?returnUrl=/">Sign in</a></ng-template></nav>
+  </header>
+  <p>Look up a customer and their latest billing summary.</p>
+  <form (ngSubmit)="load()"><label for="customer-id">Customer ID</label><div class="search">
+    <input id="customer-id" name="customerId" [(ngModel)]="customerId" required maxlength="50" pattern="[A-Za-z0-9-]+" />
+    <button [disabled]="busy() || !name()" [attr.aria-busy]="busy()">Look up</button>
+  </div></form>
+  <p *ngIf="!name()">Sign in to look up customer information.</p>
+  <p *ngIf="connectionError()" role="alert">{{connectionError()}}</p>
+  <section *ngIf="result() as outcome" aria-live="polite">
+    <h2>{{outcome.status === 'Success' ? 'Complete' : outcome.status === 'Warning' ? 'Partial data' : 'Unable to load customer'}}</h2>
+    <aside *ngIf="outcome.issues?.length" [class]="outcome.status?.toLowerCase()" role="status">
+      <p *ngFor="let issue of outcome.issues">{{issue.message}} <small>({{issue.code}})</small></p>
+    </aside>
+    <article *ngIf="outcome.data as data"><h3>{{data.displayName}}</h3><dl>
+      <dt>Customer ID</dt><dd>{{data.customerId}}</dd>
+      <dt>Outstanding balance</dt><dd>{{data.billingAvailable ? data.outstandingBalance + ' ' + data.currency : 'Unavailable'}}</dd>
+      <dt>Payment attention</dt><dd>{{data.hasOutstandingBalance == null ? 'Unknown' : data.hasOutstandingBalance ? 'Outstanding balance' : 'No outstanding balance'}}</dd>
+    </dl></article>
+    <small *ngIf="outcome.correlationId">Reference: {{outcome.correlationId}}</small>
+  </section>
 </main>

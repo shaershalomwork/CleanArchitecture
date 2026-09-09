@@ -1,62 +1,38 @@
-name: Release
-
+name: Release organizational template
 on:
   release:
     types: [published]
-
 permissions:
   contents: read
-
 jobs:
+  verify:
+    uses: ./.github/workflows/build.yml
+  templates:
+    uses: ./.github/workflows/test-templates.yml
+    with:
+      version: ${{ github.ref_name }}
   publish:
-    name: Publish to NuGet.org
-
+    needs: [verify, templates]
+    environment: template-release
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v7
-        name: Checkout
-
-      - uses: nuget/setup-nuget@v4
-        name: Set up NuGet
+      - uses: actions/setup-dotnet@v6
         with:
-          nuget-version: 'latest'
-
-      - name: Install Mono
-        run: sudo apt-get update && sudo apt-get install -y mono-complete
-
-      - name: Extract version
-        id: version
-        run: echo "value=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
-
-      - name: Update template version
-        run: |
-          jq --arg v "${{ steps.version.outputs.value }}" \
-            '.symbols.caPackageVersion.parameters.value = $v' \
-            .template.config/template.json > tmp.json && mv tmp.json .template.config/template.json
-
-      - name: Update nuspec release notes
+          global-json-file: global.json
+      - uses: actions/download-artifact@v4
+        with:
+          name: tested-package-None-SqlServer
+          path: artifacts/template-packages
+      - name: Publish tested package to configured organizational feed
+        shell: pwsh
         env:
-          RELEASE_NOTES: ${{ github.event.release.body }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          TEMPLATE_FEED_URL: ${{ vars.TEMPLATE_FEED_URL }}
+          TEMPLATE_FEED_API_KEY: ${{ secrets.TEMPLATE_FEED_API_KEY }}
         run: |
-          python3 - <<'EOF'
-          import os, xml.etree.ElementTree as ET
-          ET.register_namespace('', 'http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd')
-          tree = ET.parse('CleanArchitecture.nuspec')
-          root = tree.getroot()
-          ns = {'n': 'http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd'}
-          root.find('.//n:releaseNotes', ns).text = os.environ.get('RELEASE_NOTES', '')
-          tree.write('CleanArchitecture.nuspec', xml_declaration=True, encoding='utf-8')
-          EOF
-
-      - name: Pack
-        run: nuget pack CleanArchitecture.nuspec -NoDefaultExcludes -Version ${{ steps.version.outputs.value }}
-        
-      - name: Upload package artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: nuget-package
-          path: '*.nupkg'
-
-      - name: Publish
-        run: nuget push *.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}} -SkipDuplicate
+          if (!$env:TEMPLATE_FEED_URL -or !$env:TEMPLATE_FEED_API_KEY) { throw 'Configure the organizational feed before releasing.' }
+          $version = $env:RELEASE_TAG.TrimStart('v')
+          $package = Get-Item "artifacts/template-packages/DataCentric.Integration.Solution.Template.$version.nupkg"
+          dotnet nuget push $package.FullName --source $env:TEMPLATE_FEED_URL --api-key $env:TEMPLATE_FEED_API_KEY --skip-duplicate
+          if ($LASTEXITCODE -ne 0) { throw 'Package publication failed.' }

@@ -1,77 +1,47 @@
-name: Test Templates
-
+name: Test packaged templates
 on:
+  pull_request:
+    branches: [main]
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
-
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        default: '0.1.0'
 permissions:
   contents: read
-
 jobs:
-  test-template:
-    name: ${{ matrix.client-framework }}-${{ matrix.database }}
+  templates:
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
-        client-framework: [angular, react, none]
-        database: [sqlite, sqlserver, postgresql]
-
+        client: [None, Angular]
+        provider: [SqlServer, SQLite]
     steps:
-    - uses: actions/checkout@v7
-      name: Checkout code
-
-    - name: Install .NET
-      uses: actions/setup-dotnet@v6
-
-    - name: Install Node & cache npm packages
-      if: matrix.client-framework != 'none'
-      uses: actions/setup-node@v7
-      with:
-        node-version: '24.x'
-        cache: 'npm'
-        cache-dependency-path: |
-          src/Web/ClientApp/package-lock.json
-          src/Web/ClientApp-React/package-lock.json
-
-    - name: Cache NuGet packages
-      uses: actions/cache@v6
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ matrix.client-framework }}-${{ matrix.database }}-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-
-    - name: Install template
-      run: dotnet new install .
-
-    - name: Generate solution
-      run: |
-        dotnet new ca-sln \
-          --client-framework ${{ matrix.client-framework }} \
-          --database ${{ matrix.database }} \
-          --name CleanArchitecture \
-          --output generated \
-          --no-update-check
-
-    - name: Build solution
-      working-directory: generated
-      run: dotnet build --configuration Release
-
-    - name: Build client app
-      if: matrix.client-framework != 'none'
-      working-directory: generated/src/Web/ClientApp
-      run: |
-        npm ci
-        npm run build
-
-    - name: Install Playwright browsers
-      if: matrix.client-framework != 'none'
-      working-directory: generated
-      run: pwsh artifacts/bin/Web.AcceptanceTests/release/playwright.ps1 install --with-deps chromium
-
-    - name: Test solution
-      working-directory: generated
-      run: dotnet test --no-build --configuration Release
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+      - name: Verify actual package and published application
+        shell: pwsh
+        env:
+          TEMPLATE_VERSION: ${{ inputs.version || '0.1.0' }}
+          TEMPLATE_CLIENT: ${{ matrix.client }}
+          CUSTOMER_PROVIDER: ${{ matrix.provider }}
+        run: ./build/test.ps1 -ClientFramework $env:TEMPLATE_CLIENT -CustomerProvider $env:CUSTOMER_PROVIDER -Version $env:TEMPLATE_VERSION.TrimStart('v') -BrowserTests
+      - uses: actions/upload-artifact@v7
+        if: success()
+        with:
+          name: tested-package-${{ matrix.client }}-${{ matrix.provider }}
+          path: artifacts/template-packages/*.nupkg
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: template-logs-${{ matrix.client }}-${{ matrix.provider }}
+          path: artifacts/template-tests/**/server*.log

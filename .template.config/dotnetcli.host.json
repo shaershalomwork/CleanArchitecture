@@ -5,10 +5,6 @@
       "longName": "client-framework",
       "shortName": "cf"
     },
-    "Database": {
-      "longName": "database",
-      "shortName": "db"
-    },
     "appHostHttpPort": {
       "isHidden": true
     },

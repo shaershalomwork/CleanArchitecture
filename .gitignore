@@ -41,7 +41,6 @@ bld/
 # Auto-generated OpenAPI specification and TypeScript API clients
 src/Web/wwwroot/openapi/v1.json
 src/Web/ClientApp/src/app/web-api-client.ts
-src/Web/ClientApp-React/src/web-api-client.ts
 
 # Visual Studio 2017 auto generated files
 Generated\ Files/
@@ -486,7 +485,7 @@ $RECYCLE.BIN/
 *.swp
 .azure
 
-# SQLite database files
+# Local database files
 *.db
 *.db-shm
 *.db-wal

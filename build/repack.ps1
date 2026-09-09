@@ -1,12 +1,13 @@
-$ErrorActionPreference = "Stop"
-
+param([ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$')][string]$Version = '0.1.0')
+$ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$name = "Clean.Architecture.Solution.Template.0.0.0.nupkg"
-$pkg  = Join-Path $root "artifacts\$name"
-
-Set-Location $root
-
-dotnet new uninstall Clean.Architecture.Solution.Template 2>$null
-nuget pack "CleanArchitecture.nuspec" -NoDefaultExcludes -OutputDirectory "artifacts"
-dotnet new install $pkg --force
-Remove-Item $pkg -Force 2>$null
+$metadata = Join-Path $root '.template.config/template.json'
+$original = [IO.File]::ReadAllText($metadata)
+try {
+    $config = $original | ConvertFrom-Json
+    $config.symbols.caPackageVersion.parameters.value = $Version
+    [IO.File]::WriteAllText($metadata, ($config | ConvertTo-Json -Depth 30))
+    dotnet pack "$root/build/Template.csproj" -p:PackageVersion=$Version -o "$root/artifacts/template-packages"
+    if ($LASTEXITCODE -ne 0) { throw 'Template packaging failed.' }
+} finally { [IO.File]::WriteAllText($metadata, $original) }
+Write-Host "Candidate package is in artifacts/template-packages. Run build/test.ps1 before installing or releasing."

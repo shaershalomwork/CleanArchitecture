@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/template",
-  "author": "JasonTaylorDev",
+  "author": "Data-centric baseline maintainers",
   "classifications": [
     "Angular",
     "API",
@@ -9,15 +9,15 @@
     "Cloud",
     "NUnit",
     "Playwright",
-    "React",
     "Test",
     "Web",
-    "Web API"],
-  "name": "Clean Architecture Solution",
-  "description": "A Clean Architecture Solution Template supporting Angular, React, and Web API-only apps built with ASP.NET Core and Aspire.",
-  "identity": "Clean.Architecture.Solution.CSharp",
-  "groupIdentity": "Clean.Architecture.Solution",
-  "shortName": "ca-sln",
+    "Web API"
+  ],
+  "name": "Data-Centric Integration Solution",
+  "description": "C# integration baseline with explicit source adapters, unified results and offline development.",
+  "identity": "DataCentric.Integration.Solution.CSharp",
+  "groupIdentity": "DataCentric.Integration.Solution",
+  "shortName": "di-sln",
   "tags": {
     "language": "C#",
     "type": "project"
@@ -204,26 +204,30 @@
     "caPackageVersion": {
       "type": "generated",
       "generator": "constant",
-      "replaces": "caPackageVersion",
+      "replaces": "__BaselineVersion__",
       "parameters": {
-        "value": "0.0.0"
+        "value": "0.1.0"
       }
     },
-    "caRepositoryUrl": {
-      "type": "generated",
-      "generator": "constant",
-      "replaces": "caRepositoryUrl",
-      "parameters": {
-        "value": "https://github.com/jasontaylordev/CleanArchitecture"
-      }
+    "CustomerProvider": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [{ "choice": "SqlServer" }, { "choice": "SQLite" }],
+      "defaultValue": "SqlServer",
+      "description": "Database provider for the live customer source"
     },
-    "caDocsUrl": {
+    "CustomerProviderSetting": {
       "type": "generated",
-      "generator": "constant",
-      "replaces": "caDocsUrl",
+      "generator": "join",
       "parameters": {
-        "value": "https://cleanarchitecture.jasontaylor.dev"
-      }
+        "symbols": [
+          { "type": "const", "value": "\"Provider\": \"" },
+          { "type": "ref", "value": "CustomerProvider" },
+          { "type": "const", "value": "\"" }
+        ],
+        "separator": ""
+      },
+      "replaces": "\"Provider\": \"SqlServer\""
     },
     "ClientFramework": {
       "type": "parameter",
@@ -234,60 +238,21 @@
           "description": "Use Angular"
         },
         {
-          "choice": "React",
-          "description": "Use React"
-        },
-        {
           "choice": "None",
           "description": "Web API only"
         }
       ],
-      "defaultValue": "Angular",
-      "description": "The type of client framework to use"
+      "defaultValue": "None",
+      "description": "The type of client framework to use",
+      "replaces": "__ClientFramework__"
     },
     "UseAngular": {
       "type": "computed",
       "value": "(ClientFramework == \"Angular\")"
     },
-    "UseReact": {
-      "type": "computed",
-      "value": "(ClientFramework == \"React\")"
-    },
     "UseApiOnly": {
       "type": "computed",
       "value": "(ClientFramework == \"None\")"
-    },
-    "Database": {
-      "type": "parameter",
-      "datatype": "choice",
-      "choices": [
-        {
-          "choice": "postgresql",
-          "description": "PostgreSQL"
-        },
-        {
-          "choice": "sqlite",
-          "description": "SQLite"
-        },
-        {
-          "choice": "sqlserver",
-          "description": "SQL Server"
-        }
-      ],
-      "defaultValue": "sqlite",
-      "description": "The database type to use."
-    },
-    "UsePostgreSQL": {
-      "type": "computed",
-      "value": "(Database == \"postgresql\")"
-    },
-    "UseSqlite": {
-      "type": "computed",
-      "value": "(Database == \"sqlite\")"
-    },
-    "UseSqlServer": {
-      "type": "computed",
-      "value": "(Database == \"sqlserver\")"
     }
   },
   "sources": [
@@ -295,101 +260,36 @@
       "source": "./",
       "target": "./",
       "exclude": [
-        ".azure/**/*",
-        ".template.config/**/*",
-        "templates/**/*",
-        "**/*.filelist",
-        "**/*.user",
-        "**/*.lock.json",
+        ".git/**",
+        ".github/**",
+        ".template.config/**",
+        "templates/**",
+        "artifacts/**",
+        "**/node_modules/**",
+        "**/bin/**",
+        "**/obj/**",
+        "**/TestResults/**",
+        "**/.angular/**",
+        "**/dist/**",
         "*.nuspec",
-        "src/Web/appsettings.json",
-        "src/Web/appsettings.PostgreSQL.json",
-        "src/Web/appsettings.SQLite.json",
-        "src/Web/appsettings.SQLServer.json",
-        "tests/Application.FunctionalTests/PostgreSQLTestcontainersTestDatabase.cs",
-        "tests/Application.FunctionalTests/PostgreSQLTestDatabase.cs",
-        "tests/Application.FunctionalTests/SqliteTestDatabase.cs",
-        "tests/Application.FunctionalTests/SqlTestcontainersTestDatabase.cs",
-        "tests/Application.FunctionalTests/SqlTestDatabase.cs",
-        "tests/Application.FunctionalTests/appsettings.json",
-        "tests/Application.FunctionalTests/appsettings.PostgreSQL.json",
-        "tests/Application.FunctionalTests/appsettings.SQLServer.json"
+        "build/Template.csproj",
+        "build/repack.ps1",
+        "build/test.ps1",
+        "README.md",
+        "src/Web/wwwroot/openapi/**",
+        "src/Web/ClientApp/src/app/web-api-client.ts",
+        "**/*.user"
       ],
       "rename": {
         "README-template.md": "README.md"
       },
       "modifiers": [
         {
-          "condition": "(!UseApiOnly)",
-          "exclude": [
-            "src/Web/Infrastructure/BearerSecuritySchemeTransformer.cs"
-          ]
-        },
-        {
-          "condition": "(UseAngular)",
-          "exclude": [
-            "src/Web/ClientApp-React/**",
-            "src/Web/Web-webapi.http"
-          ]
-        },
-        {
-          "condition": "(UseReact)",
+          "condition": "UseApiOnly",
           "exclude": [
             "src/Web/ClientApp/**",
-            "src/Web/Web-webapi.http"
-          ],
-          "rename": {
-            "ClientApp-React": "ClientApp"
-          }
-        },
-        {
-          "condition": "(UseApiOnly)",
-          "exclude": [
-            "src/Web/ClientApp/**",
-            "src/Web/ClientApp-React/**",
-            "src/Web/Pages/**",
-            "src/Web/Web.http",
             "tests/Web.AcceptanceTests/**"
-          ],
-          "rename": {
-            "Web-webapi.http": "Web.http"
-          }
-        },
-        {
-          "condition": "(UsePostgreSQL)",
-          "include": [
-            "src/Web/appsettings.PostgreSQL.json",
-            "tests/Application.FunctionalTests/PostgreSQLTestcontainersTestDatabase.cs",
-            "tests/Application.FunctionalTests/PostgreSQLTestDatabase.cs",
-            "tests/Application.FunctionalTests/appsettings.PostgreSQL.json"
-          ],
-          "rename": {
-            "src/Web/appsettings.PostgreSQL.json": "src/Web/appsettings.json",
-            "tests/Application.FunctionalTests/appsettings.PostgreSQL.json": "tests/Application.FunctionalTests/appsettings.json"
-          }
-        },
-        {
-          "condition": "(UseSqlServer)",
-          "include": [
-            "src/Web/appsettings.SQLServer.json",
-            "tests/Application.FunctionalTests/SqlTestcontainersTestDatabase.cs",
-            "tests/Application.FunctionalTests/SqlTestDatabase.cs",
-            "tests/Application.FunctionalTests/appsettings.SQLServer.json"
-          ],
-          "rename": {
-            "src/Web/appsettings.SQLServer.json": "src/Web/appsettings.json",
-            "tests/Application.FunctionalTests/appsettings.SQLServer.json": "tests/Application.FunctionalTests/appsettings.json"
-          }
-        },
-        {
-          "condition": "(UseSqlite)",
-          "include": [
-            "src/Web/appsettings.SQLite.json",
-            "tests/Application.FunctionalTests/SqliteTestDatabase.cs"
-          ],
-          "rename": {
-            "src/Web/appsettings.SQLite.json": "src/Web/appsettings.json"
-          }
+          ]
         }
       ]
     }

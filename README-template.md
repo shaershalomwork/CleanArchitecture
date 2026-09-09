@@ -1,61 +1,45 @@
-﻿# CleanArchitecture
+# CleanArchitecture
 
-The project was generated using the [Clean.Architecture.Solution.Template](caRepositoryUrl) version caPackageVersion.
+Generated from DataCentric.Integration.Solution.Template version __BaselineVersion__, based on upstream commit 705d77f.
+See .template-version.json for provenance.
+Open the [interactive HTML handbook](docs/template-guide.html) in a browser for an offline, illustrated guide to the architecture and end-to-end development workflow.
+The live customer source supports SQL Server and SQLite. See [SQLite setup](docs/sqlite.md) for the database contract and configuration.
 
-## Build
+## Run locally
 
-Run `dotnet build` to build the solution.
+Install the SDK selected by global.json. For Angular, install Node 24 as well.
 
-## Run
-
-To run the application:
-
-```bash
-dotnet run --project .\src\AppHost
+```powershell
+dotnet build
+dotnet run --project src/Web --launch-profile https
 ```
 
-The Aspire dashboard will open automatically, showing the application URLs and logs.
+Development uses fake sources and demo sign-in. API-only opens Scalar; sign in at /auth/login?returnUrl=/scalar.
+For Angular, run `dotnet run --project src/AppHost` and open the frontend URL from the dashboard.
+The fake IDs are CUST-001 (complete), CUST-WARN (partial), CUST-FAIL (required-source failure), CUST-MISSING (not found).
 
-## Code Styles & Formatting
+## Verify
 
-The template includes [EditorConfig](https://editorconfig.org/) support to help maintain consistent coding styles for multiple developers working on the same project across various editors and IDEs. The **.editorconfig** file defines the coding styles applicable to this solution.
-
-## Code Scaffolding
-
-The template includes support to scaffold new commands and queries.
-
-Start in the `.\src\Application\` folder.
-
-Create a new command:
-
-```
-dotnet new ca-usecase --name CreateTodoList --feature-name TodoLists --usecase-type command --return-type int
+```powershell
+pwsh build/verify.ps1
+pwsh build/verify.ps1 -SourceIntegration
 ```
 
-Create a new query:
+The default suite requires no corporate connections or Docker. SourceIntegration starts a disposable SQL Server and requires Docker.
+Browser tests require TEST_BASE_URL pointing to the published Development application and the Playwright browser installed.
+Production configuration rejects fake sources and development authentication.
 
-```
-dotnet new ca-usecase -n GetTodos -fn TodoLists -ut query -rt TodosVm
-```
+## Add a use case
 
-If you encounter the error *"No templates or subcommands found matching: 'ca-usecase'."*, install the template and try again:
+Run inside src/Application:
 
-```bash
-dotnet new install Clean.Architecture.Solution.Template::caPackageVersion
-```
-
-## Test
-
-The solution contains unit, integration, and functional tests.
-
-To run the tests:
-```bash
-dotnet test
+```powershell
+dotnet new di-usecase -n GetReport -fn Reports -ut query -rt NoData --RootNamespace CleanArchitecture.Application
+dotnet new di-usecase -n SubmitReport -fn Reports -ut command --RootNamespace CleanArchitecture.Application
 ```
 
-## Architectural Decisions
+The return type is the payload of OperationResult<T>. Replace NoData with an Application model for data-returning queries.
+The stub returns USE_CASE.NOT_IMPLEMENTED until real behavior is added. Inject narrow source interfaces, never a context or nested mediator.
+Install the matching DataCentric.Integration.Solution.Template version if the item template is unavailable.
 
-Key design decisions are documented as [Architecture Decision Records](docs/decisions/).
-
-## Help
-To learn more about the template go to the [project website](caDocsUrl). Here you can find additional guidance, request new features, report a bug, and discuss the template with other users.
+Read [the integration guide](docs/integration-guide.md), [licensing](docs/dependencies.md), and [upgrade policy](docs/template-maintenance.md) before connecting real systems.

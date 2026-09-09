@@ -1,12 +1,10 @@
-# Architectural Decision Records
+# Architectural decisions
 
-This directory contains Architecture Decision Records (ADRs) for the Clean Architecture Solution Template.
+| ADR | Decision | Status |
+| --- | --- | --- |
+| ADR-001 | EF Core in Application | Superseded by ADR-004 |
+| ADR-002 | Aspire orchestration/testing | Amended: optional development; disposable source tests only |
+| ADR-003 | MediatR contracts in Domain | Superseded by ADR-004 |
+| [ADR-004](ADR-004-Data-Centric-Integration.md) | Data-centric integration | Accepted |
 
-An ADR captures a significant architectural decision: the context that led to it, the decision itself, the rationale behind it, and its consequences. Use [ADR-000-template.md](ADR-000-template.md) when adding a new record.
-
-| ADR | Title | Date | Status |
-|---|---|---|---|
-| [ADR-001](ADR-001-Use-EFCore-In-Application-Layer.md) | Use EF Core in the Application Layer | 2024-02-29 | Accepted |
-| [ADR-002](ADR-002-Aspire-For-Orchestration-And-Testing.md) | Aspire for Orchestration and Testing | 2026-03-12 | Accepted |
-| [ADR-003](ADR-003-MediatR-Contracts-In-Domain.md) | MediatR.Contracts Reference in Domain | 2026-03-16 | Accepted |
-
+Older ADR text is retained as historical context. ADR-004 governs the current baseline.

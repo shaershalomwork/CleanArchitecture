@@ -20,10 +20,10 @@
     <Project Path="tests/Application.FunctionalTests/Application.FunctionalTests.csproj" />
     <Project Path="tests/TestAppHost/TestAppHost.csproj" />
     <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" />
-    <Project Path="tests/Domain.UnitTests/Domain.UnitTests.csproj" />
     <Project Path="tests/Infrastructure.IntegrationTests/Infrastructure.IntegrationTests.csproj" />
     <!--#if (!UseApiOnly)-->
     <Project Path="tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj" />
     <!--#endif-->
+    <Project Path="tests/ArchitectureTests/ArchitectureTests.csproj" />
   </Folder>
 </Solution>

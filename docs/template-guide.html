@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="An illustrated, interactive developer and maintainer handbook for the Data-Centric Integration Solution Template.">
+<title>Integration, explained · Template handbook</title>
+<style>
+:root{--ink:#172d3c;--muted:#536977;--paper:#fff;--ground:#f4f7f8;--line:#d5e1e6;--blue:#175ecc;--teal:#007b78;--soft:#eaf2ff;--good:#126447;--warn:#855000;--bad:#b4323d;--nav:250px;color-scheme:light}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:30px}body{margin:0;background:var(--ground);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:var(--blue);text-underline-offset:3px}a:hover{color:var(--teal)}button,input,select{font:inherit}button,select{cursor:pointer}button{border:1px solid var(--line);border-radius:7px;padding:7px 13px;color:var(--ink);background:white;font-weight:600}button:hover{border-color:var(--blue);background:var(--soft)}button[aria-pressed=true]{background:var(--blue);border-color:var(--blue);color:white}button:disabled{cursor:default;opacity:.45}input,select{width:100%;border:1px solid #9cafbc;border-radius:6px;background:white;color:var(--ink);padding:8px 10px}input:invalid{border-color:var(--bad)}:focus-visible{outline:3px solid var(--blue);outline-offset:4px}[hidden]{display:none!important}.skip{position:fixed;left:20px;top:-80px;background:white;padding:10px;z-index:20}.skip:focus{top:10px}.rail{position:fixed;inset:0 auto 0 0;width:var(--nav);background:#fdfefe;border-right:1px solid var(--line);padding:30px 20px;overflow:auto;z-index:5}.brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:-.4px;text-decoration:none;color:var(--ink);line-height:1.25}.brand-mark{display:grid;place-items:center;background:var(--ink);color:#a8e6db;border-radius:9px;width:36px;height:38px;font-family:monospace;font-size:20px}.rail small{display:block;color:var(--muted);font-size:11px;letter-spacing:1.3px;text-transform:uppercase;margin:24px 0 10px}.rail nav a{display:flex;gap:10px;align-items:baseline;padding:6px 10px;margin:3px 0;border-radius:6px;text-decoration:none;color:var(--muted);font-size:13px;line-height:1.5}.rail nav a span{font-size:10px;color:#72818c;font-variant-numeric:tabular-nums}.rail nav a[aria-current=true]{background:var(--soft);color:var(--blue);font-weight:700}.rail nav a:hover{background:var(--ground)}.rail-footer{border-top:1px solid var(--line);padding-top:15px;margin-top:24px;font-size:12px;color:var(--muted)}.search-label{font-size:12px;font-weight:650;display:block;margin-top:28px}.search-meta{font-size:11px;min-height:20px;color:var(--muted)}main{margin-left:var(--nav)}.wrap{max-width:1090px;margin:auto;padding:45px 60px 70px}.topline{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px;color:var(--muted);margin-bottom:42px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:750;color:var(--teal)}h1,h2,h3,h4{line-height:1.2;letter-spacing:-.035em;color:var(--ink)}h1{font-size:clamp(44px,5.5vw,76px);font-weight:750;margin:16px 0 22px;max-width:760px}h1 em{font-style:normal;color:var(--teal)}h2{font-size:32px;margin:10px 0 20px}h3{font-size:21px;margin:32px 0 12px}h4{font-size:17px;margin:22px 0 10px}p{margin:12px 0 18px}ul,ol{padding-left:23px}li{margin:7px 0}.lede{font-size:19px;line-height:1.7;color:var(--muted);max-width:710px}.tags{display:flex;gap:7px;flex-wrap:wrap;margin:24px 0}.tag{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:3px 8px;background:white;color:var(--muted)}.hero-map{margin:32px 0;background:var(--ink);border-radius:14px;padding:24px 30px;color:white}.hero-map .eyebrow{color:#9fddd0}.hero-map p{color:#c7d8e1;margin:8px 0 0;font-size:13px}.hero-flow{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:20px 0;font-weight:650}.hero-flow b{color:#9fddd0}.hero-flow span{display:block;font-size:11px;color:#c7d8e1;font-weight:400}.chapter{border-top:1px solid var(--line);padding-top:44px;margin-top:60px;scroll-margin-top:30px}.chapter-no{font-family:monospace;font-size:12px;color:var(--teal);letter-spacing:1px}.intro{color:var(--muted);font-size:17px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.panel{border:1px solid var(--line);border-radius:10px;padding:20px 24px;background:white;margin:20px 0;min-width:0}.panel h3:first-child,.panel h4:first-child{margin-top:0}.callout{padding:16px 20px;border-left:3px solid var(--teal);background:#eaf5f2;border-radius:0 7px 7px 0;margin:24px 0}.callout p{margin:5px 0;font-size:14px}.callout.warning{border-color:#a66b00;background:#fff5df}.callout strong{font-size:14px}.small,.caption{font-size:13px;color:var(--muted)}.caption{margin:12px 0 0}.source{font-size:12px;color:var(--muted);margin-top:18px;overflow-wrap:anywhere}.source code{font-size:11px}code{font-family:Consolas,"Cascadia Code",monospace;font-size:.87em;background:#e8eef2;border-radius:3px;padding:2px 4px;overflow-wrap:anywhere}pre{position:relative;background:#132938;color:#e3edf4;padding:20px 22px;border-radius:8px;overflow:auto;line-height:1.65;font-size:13px;margin:12px 0 20px;tab-size:4}pre code{padding:0;background:none;color:inherit;overflow-wrap:normal;font-size:inherit}pre.has-copy{padding-top:48px}.copy{position:absolute;right:8px;top:8px;background:#254456;color:#e3edf4;border-color:#507080;font-size:11px;padding:3px 9px}.copy:hover{background:#37576b;color:white}.code-label{font-size:11px;color:var(--muted);font-weight:650;letter-spacing:.4px;margin-top:24px}.table-wrap{overflow:auto;margin:20px 0;border:1px solid var(--line);border-radius:8px}table{border-collapse:collapse;width:100%;text-align:left;font-size:13px;background:white}th{background:#eaf0f3;color:var(--ink);font-size:11px;letter-spacing:.4px;text-transform:uppercase}th,td{padding:13px 15px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}td:first-child{font-weight:600}table code{font-size:12px}.controls{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;align-items:center}.fields{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:14px;margin:18px 0}.fields label,.field-label{font-size:12px;font-weight:700}.fields select,.fields input{margin-top:6px}.error{color:var(--bad);font-size:13px;min-height:20px}.diagram{background:white;border:1px solid var(--line);border-radius:10px;padding:22px;margin:22px 0;overflow:auto}.diagram svg{display:block;width:100%;height:auto;min-width:620px}.diagram text{font-family:system-ui,sans-serif;fill:var(--ink);font-size:14px}.diagram .sub{fill:var(--muted);font-size:11px}.diagram .node{fill:#f2f7fb;stroke:#adc1d1;stroke-width:1.4}.diagram .edge{stroke:#69859a;stroke-width:1.7;fill:none;marker-end:url(#arrow)}.diagram .highlight .node{fill:#e1efff;stroke:var(--blue);stroke-width:2.4}.diagram .highlight text:first-of-type{fill:var(--blue);font-weight:700}.diagram .optional .node{fill:#eaf5f2;stroke:#69aaa1}.diagram .diagram-title{font-size:12px;font-weight:700;margin-bottom:16px}.diagram .legend{font-size:12px;color:var(--muted);margin-top:14px}.detail{border-left:3px solid var(--blue);padding:12px 18px;background:var(--soft);font-size:14px;min-height:92px}.detail p{margin:5px 0}.badge{display:inline-block;font-size:12px;font-weight:750;padding:4px 9px;border-radius:5px;background:var(--soft);color:var(--blue)}.badge.good{background:#e2f3e9;color:var(--good)}.badge.warn{background:#fff0ce;color:var(--warn)}.badge.bad{background:#ffe8eb;color:var(--bad)}.outcome-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.scenario-lanes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}.lane{border:1px solid var(--line);border-radius:6px;background:var(--ground);padding:14px}.lane b{display:block;font-size:13px}.lane span{font-size:12px;color:var(--muted)}.pipeline{padding:16px;border:1px solid #a9bfd0;border-radius:8px;background:#f2f7fc;margin:10px 0}.pipeline strong{font-size:13px}.pipeline p{font-size:12px;margin:4px 0}.pipeline .pipeline{margin:12px 0 0;background:white}.steps{counter-reset:step;list-style:none;padding:0}.steps>li{position:relative;padding:0 0 15px 42px;counter-increment:step}.steps>li:before{content:counter(step,decimal-leading-zero);position:absolute;left:0;top:0;font:600 12px/28px monospace;background:var(--soft);color:var(--blue);width:28px;text-align:center;border-radius:5px}.steps>li strong{font-size:15px}details{border:1px solid var(--line);border-radius:7px;margin:13px 0;background:white;padding:13px 18px}summary{cursor:pointer;font-weight:650;font-size:14px}details[open] summary{margin-bottom:16px}.glossary{display:grid;grid-template-columns:170px 1fr;gap:12px 24px;font-size:14px}.glossary dt{font-weight:750}.glossary dd{margin:0}.footer{margin-top:60px;border-top:1px solid var(--line);padding-top:24px;color:var(--muted);font-size:12px}.mobile-toggle{display:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.reading-paths a{font-weight:650}.no-match{font-size:12px;color:var(--muted)}
+.code-label,.detail,.lane{overflow-wrap:anywhere}
+@media(max-width:1150px){:root{--nav:225px}.wrap{padding:35px}.fields{grid-template-columns:1fr 1fr}.fields label:first-child{grid-column:1/-1}}
+@media(max-width:800px){.rail{position:relative;width:auto;height:auto;padding:18px 22px}.rail nav{display:grid;grid-template-columns:1fr 1fr}.rail-footer{display:none}.rail small{margin-top:14px}.rail .search-label{margin-top:16px}.mobile-toggle{display:block;float:right;margin-top:-36px}.rail.nav-closed .nav-body{display:none}main{margin-left:0}.wrap{padding:26px 22px 50px}.topline{margin-bottom:26px}h1{font-size:49px}h2{font-size:28px}.grid{grid-template-columns:1fr;gap:0}.chapter{margin-top:42px;padding-top:32px}.hero-map{padding:22px}.hero-flow{font-size:14px}.hero-flow span{font-size:10px}.diagram{padding:16px}.glossary{grid-template-columns:1fr;gap:5px}.glossary dd{margin-bottom:15px}}
+@media(max-width:480px){h1{font-size:41px}.hero-flow{align-items:flex-start;gap:10px;flex-direction:column}.hero-flow b{transform:rotate(90deg);align-self:center}.fields,.scenario-lanes{grid-template-columns:1fr}.fields label:first-child{grid-column:auto}.topline{align-items:flex-start;font-size:11px}.panel{padding:17px}.controls button{font-size:12px}.rail nav a{padding-left:0}pre{font-size:12px;padding-left:15px;padding-right:15px}.outcome-head{align-items:flex-start}.diagram svg{min-width:590px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{@page{margin:16mm}body{background:white;font-size:10pt;color:#111}.rail,.topline button,.enhancement,.copy,.controls,.skip{display:none!important}main{margin:0}.wrap{max-width:none;padding:0}h1{font-size:36pt}h2{font-size:23pt}h3{font-size:15pt}.chapter{margin-top:25px;padding-top:20px}.hero-map{background:#eef3f5;color:#111}.hero-map p,.hero-map span,.hero-map .eyebrow,.hero-flow b{color:#333}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f2f4f5;color:#111;font-size:8pt;border:1px solid #ccc;padding:12px!important}pre code{white-space:pre-wrap;overflow-wrap:anywhere}.diagram{overflow:visible;padding:10px;break-inside:avoid}.diagram svg{min-width:0}.panel,.callout,.table-wrap{break-inside:avoid}.table-wrap{overflow:visible}th,td{padding:7px;font-size:9pt}details>*{display:block!important}summary{list-style:none}.grid{gap:14px}a{color:#111}h2,h3,h4,.code-label{break-after:avoid}.caption,.small{font-size:9pt}.footer{font-size:8pt}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to handbook</a>
+<aside class="rail" aria-label="Handbook navigation">
+ <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">di</span><span>Integration<br>handbook</span></a>
+ <button id="menu-toggle" class="mobile-toggle enhancement" aria-expanded="true" aria-controls="navigation-body" hidden>Contents</button>
+ <div class="nav-body" id="navigation-body">
+ <div class="enhancement" hidden><label class="search-label" for="guide-search">Find a topic</label><input type="search" id="guide-search" placeholder="Try retries, SQLite, OIDC…" autocomplete="off"><div class="search-meta" id="search-meta" role="status" aria-live="polite"></div></div>
+ <small>Your learning path</small>
+ <nav id="contents" aria-label="Chapters">
+ <a href="#orientation"><span>01</span>Start with the purpose</a><a href="#quick-start"><span>02</span>Run &amp; generate</a><a href="#architecture"><span>03</span>Understand the architecture</a><a href="#request"><span>04</span>Follow a request</a><a href="#results"><span>05</span>Read the results</a><a href="#sources"><span>06</span>Connect real sources</a><a href="#features"><span>07</span>Build a feature</a><a href="#reliability"><span>08</span>Design for failure</a><a href="#security"><span>09</span>Authenticate &amp; configure</a><a href="#testing"><span>10</span>Verify the system</a><a href="#operations"><span>11</span>Operate &amp; maintain</a><a href="#reference"><span>12</span>Troubleshooting &amp; glossary</a>
+ </nav><p id="no-match" class="no-match" hidden>No matching chapters. Try a source name or a shorter term.</p>
+ </div>
+ <div class="rail-footer">One template. Explicit boundaries.<br>Local-first learning.<br><a href="decisions/ADR-004-Data-Centric-Integration.md">Read the governing decision ↗</a></div>
+</aside>
+<main id="main" tabindex="-1"><div class="wrap">
+ <div class="topline"><span>DATA-CENTRIC INTEGRATION / DEVELOPER EDITION</span><button id="print-guide" class="enhancement" hidden>Print / save PDF</button></div>
+ <header>
+ <div class="eyebrow">The template, from first run to release</div>
+ <h1>Integration,<br><em>explained.</em></h1>
+ <p class="lede">Understand the boundaries. Follow the data. Build a capability you can trust. A practical field guide to the Data-Centric Integration Solution Template.</p>
+ <div class="tags"><span class="tag">.NET 10</span><span class="tag">API-only + Angular</span><span class="tag">SQL Server + SQLite</span><span class="tag">Developers &amp; maintainers</span><span class="tag">Works offline</span></div>
+ <div class="hero-map"><div class="eyebrow">The central idea</div><div class="hero-flow"><div>External systems<span>Own the records</span></div><b aria-hidden="true">→</b><div>Application use cases<span>Combine &amp; interpret</span></div><b aria-hidden="true">→</b><div>Explicit outcomes<span>Success · Warning · Error</span></div></div><p>A result tells the caller what is available, what failed, and whether the available data is still useful.</p></div>
+ <p class="small">Based on the current repository and accepted ADR-004. Version pins describe this baseline, not a claim about the latest upstream releases. Diagrams and response examples are local illustrations; they do not contact a running application.</p>
+ <noscript><div class="callout"><strong>The complete handbook is available without JavaScript.</strong><p>Use the contents links, static diagrams, scenario table, and command examples. Interactive controls become available when JavaScript is enabled.</p></div></noscript>
+ </header>
+
+<section class="chapter" id="orientation" aria-labelledby="orientation-title">
+ <div class="chapter-no">01 / ORIENTATION</div><h2 id="orientation-title">Start with the purpose</h2>
+ <p class="intro">This baseline is built for applications that read and coordinate existing organizational systems. The data lives elsewhere; your application owns the interpretation.</p>
+ <p>Imagine a support screen that needs a customer identity from a registry and an outstanding balance from a billing service. Those systems have different protocols, availability, and contracts. A use case brings their capabilities together and decides whether a partial answer is acceptable. The UI receives a single, deliberate response.</p>
+ <div class="grid reading-paths"><div class="panel"><h3>Building an application?</h3><p>Start at <a href="#quick-start">first run</a>, follow <a href="#request">the customer request</a>, then work through <a href="#features">a new feature</a>. Use the configuration and testing chapters before connecting live sources.</p></div><div class="panel"><h3>Maintaining the baseline?</h3><p>Read <a href="#architecture">the dependency rules</a> and <a href="#testing">verification matrix</a>, then use <a href="#operations">the release workflow</a>. Generated applications are independent copies with recorded provenance.</p></div></div>
+ <h3>What is included</h3>
+ <p>ASP.NET Core minimal endpoints, MediatR top-level dispatch, FluentValidation, explicit result types, Dapper source adapters, deterministic fakes, optional Angular, optional Aspire diagnostics, and layered tests. SQL Server is the default live customer provider; SQLite is another supported choice.</p>
+ <p>The package is <code>DataCentric.Integration.Solution.Template</code>. Its project template is <code>di-sln</code>; its item template is <code>di-usecase</code>. The default generated project is API-only. Both source providers remain available at runtime; the generation option selects the initial customer-provider setting.</p>
+ <div class="callout"><strong>Read the current architecture, then the historical context.</strong><p>This is derived from Jason Taylor’s Clean Architecture, with a different integration model. EF Core sample persistence, local Identity, Todo samples, AutoMapper, and React have been removed. ADR-004 supersedes ADR-001 and ADR-003 and amends ADR-002. The intentionally empty Domain is a design choice.</p></div>
+ <p class="source">Reference: <a href="decisions/ADR-004-Data-Centric-Integration.md">ADR-004</a> · <a href="decisions/README.md">decision index</a></p>
+</section>
+
+<section class="chapter" id="quick-start" aria-labelledby="quick-start-title">
+ <div class="chapter-no">02 / FIRST RUN</div><h2 id="quick-start-title">Run it, then make it yours</h2>
+ <p class="intro">The shortest route to a working API uses fake sources and a demo identity. No corporate credentials or database are needed.</p>
+ <div class="table-wrap"><table><thead><tr><th>Prerequisite</th><th>When needed</th></tr></thead><tbody><tr><td>.NET SDK 10.0.400</td><td>The baseline’s <code>global.json</code> selects this SDK with <code>latestFeature</code> roll-forward. Confirm with <code>dotnet --version</code> from the project root.</td></tr><tr><td>PowerShell 7 (<code>pwsh</code>)</td><td>Packaging and verification scripts. Commands below use PowerShell syntax.</td></tr><tr><td>Node.js 24 + npm</td><td>Angular development, client generation, and Angular publishing. Not required for an API-only consuming application.</td></tr><tr><td>NuGet feed access</td><td>Initial restore or missing cached dependencies. “Offline tests” means no corporate sources; it does not promise a network-free restore.</td></tr><tr><td>Docker / Playwright browser</td><td>Docker only for opt-in SQL Server fixture tests; a Playwright browser for browser acceptance tests.</td></tr></tbody></table></div>
+ <h3>A. Develop this repository</h3>
+ <p>The source checkout uses template condition markers. For an actual Angular or API-only variant, generate a project using path B. To explore the repository’s API, use the HTTPS URL printed by Web.</p>
+ <div class="code-label">WORKING DIRECTORY: REPOSITORY ROOT · PREREQUISITE: PINNED SDK</div>
+ <pre><code>dotnet restore
+dotnet dev-certs https --trust
+dotnet build
+dotnet run --project src/Web --launch-profile https</code></pre>
+ <p>At that HTTPS origin, open <code>/auth/login?returnUrl=/scalar</code>. The development sign-in creates a fixed demo reader with <code>customers.read</code>. In Scalar, call <code>GET /api/customers/CUST-001/overview</code>. The expected response is <strong>HTTP 200 / Success</strong> with a balance of 125.50 USD.</p>
+ <p><code>CUST-WARN</code> demonstrates partial billing, <code>CUST-FAIL</code> fails the required registry, and <code>CUST-MISSING</code> is a missing customer. The <a href="#results">outcome explorer</a> explains each response.</p>
+ <h3>B. Package, install, and generate</h3>
+ <p>The local package workflow below is available to maintainers in the template repository. Consumers can instead install the matching package version from their configured organizational NuGet feed.</p>
+ <div class="code-label">WORKING DIRECTORY: TEMPLATE REPOSITORY ROOT · PREREQUISITES: SDK + POWERSHELL 7</div>
+ <pre><code>pwsh build/repack.ps1 -Version 0.1.0
+dotnet new install ./artifacts/template-packages/DataCentric.Integration.Solution.Template.0.1.0.nupkg</code></pre>
+ <div class="panel"><h3>Choose your application</h3><p class="small">Run the generated commands from a parent directory where the new project folder should live. Installing the package above makes both templates available.</p>
+ <div class="fields enhancement" hidden><label>Project name<input id="project-name" value="MyIntegration" pattern="[A-Za-z][A-Za-z0-9_]*" maxlength="60" aria-describedby="command-error"></label><label>Frontend<select id="client-framework"><option value="None">API-only (None)</option><option value="Angular">Angular</option></select></label><label>Live customer provider<select id="customer-provider"><option value="SqlServer">SQL Server</option><option value="SQLite">SQLite</option></select></label></div>
+ <p id="command-error" class="error enhancement" role="status" hidden></p>
+ <div class="code-label">WORKING DIRECTORY: PARENT OF NEW PROJECT · PACKAGE ALREADY INSTALLED</div>
+ <pre><code id="generated-command">dotnet new di-sln -n MyIntegration -cf None --CustomerProvider SqlServer
+Set-Location MyIntegration
+dotnet build
+dotnet run --project src/Web --launch-profile https</code></pre>
+ <p id="command-explanation" class="small">API-only opens Scalar. Sign in at /auth/login?returnUrl=/scalar on the HTTPS origin. Development still uses fake sources, regardless of the selected live provider.</p>
+ </div>
+ <details><summary>All variants and advanced template options</summary><div class="code-label">WORKING DIRECTORY: PARENT OF EACH DISTINCT NEW PROJECT</div><pre><code>dotnet new di-sln -n ApiSql -cf None --CustomerProvider SqlServer
+dotnet new di-sln -n ApiSqlite -cf None --CustomerProvider SQLite
+dotnet new di-sln -n PortalSql -cf Angular --CustomerProvider SqlServer
+dotnet new di-sln -n PortalSqlite -cf Angular --CustomerProvider SQLite</code></pre><p><code>-cf None</code> and <code>--CustomerProvider SqlServer</code> are defaults. The template also accepts Web and AppHost port parameters; inspect their exact names with <code>dotnet new di-sln --help</code>. Generated ports can differ from the repository’s ports. Always use launch output or the Aspire dashboard.</p></details>
+ <h3>C. Run an Angular variant</h3><p>From the generated Angular project root, build Web first so its OpenAPI document exists, install client dependencies, and start AppHost. Open the frontend URL in the Aspire dashboard; the frontend proxy connects it to Web.</p>
+ <div class="code-label">WORKING DIRECTORY: GENERATED ANGULAR PROJECT ROOT · PREREQUISITES: SDK + NODE 24</div>
+ <pre><code>dotnet dev-certs https --trust
+dotnet build
+npm --prefix src/Web/ClientApp ci
+dotnet run --project src/AppHost</code></pre>
+ <p>AppHost orchestrates the development processes. It is optional for the API itself: Web can run independently. The Angular client generates its API client before starting and building. Do not edit the generated client by hand.</p>
+ <p class="source">Source map: <code>global.json</code>, <code>.template.config/template.json</code>, <code>src/AppHost/Program.cs</code>, <code>src/Web/ClientApp/package.json</code></p>
+</section>
+
+<section class="chapter" id="architecture" aria-labelledby="architecture-title">
+ <div class="chapter-no">03 / THE STRUCTURE</div><h2 id="architecture-title">Put each decision in its layer</h2>
+ <p class="intro">Application defines the capabilities it needs. Infrastructure implements those capabilities. Web translates between callers and use cases.</p>
+ <div class="diagram"><div class="diagram-title">Project dependencies · an arrow means “references”</div>
+ <svg viewBox="0 0 820 325" role="img" aria-labelledby="arch-svg-title arch-svg-desc"><title id="arch-svg-title">Compile-time dependency map</title><desc id="arch-svg-desc">Web references Application, Infrastructure and ServiceDefaults. Infrastructure references Application. Application references Domain. AppHost references Web and Shared for development orchestration.</desc><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#69859a"/></marker></defs>
+ <path class="edge" d="M146 80H280"/><path class="edge" d="M440 80H465"/><path class="edge" d="M625 80H650"/><path class="edge" d="M350 105V210H465"/><path class="edge" d="M385 105V275H280"/><path class="edge" d="M545 185V105"/><path class="edge" d="M80 105V165"/>
+ <g data-layer-node="AppHost"><rect class="node" x="15" y="50" width="130" height="55" rx="7"/><text x="80" y="74" text-anchor="middle">AppHost</text><text class="sub" x="80" y="92" text-anchor="middle">Dev orchestration</text></g>
+ <g data-layer-node="Web"><rect class="node" x="280" y="50" width="160" height="55" rx="7"/><text x="360" y="74" text-anchor="middle">Web</text><text class="sub" x="360" y="92" text-anchor="middle">HTTP &amp; identity</text></g>
+ <g data-layer-node="Application"><rect class="node" x="465" y="50" width="160" height="55" rx="7"/><text x="545" y="74" text-anchor="middle">Application</text><text class="sub" x="545" y="92" text-anchor="middle">Use cases &amp; contracts</text></g>
+ <g data-layer-node="Domain"><rect class="node" x="650" y="50" width="150" height="55" rx="7"/><text x="725" y="74" text-anchor="middle">Domain</text><text class="sub" x="725" y="92" text-anchor="middle">Owned invariants</text></g>
+ <g data-layer-node="Infrastructure"><rect class="node" x="465" y="185" width="160" height="55" rx="7"/><text x="545" y="209" text-anchor="middle">Infrastructure</text><text class="sub" x="545" y="227" text-anchor="middle">SQL / HTTP / resilience</text></g>
+ <g data-layer-node="ServiceDefaults"><rect class="node" x="105" y="247" width="175" height="55" rx="7"/><text x="192" y="271" text-anchor="middle">ServiceDefaults</text><text class="sub" x="192" y="289" text-anchor="middle">Telemetry &amp; health</text></g>
+ <g data-layer-node="Shared"><rect class="node" x="15" y="165" width="130" height="55" rx="7"/><text x="80" y="190" text-anchor="middle">Shared</text><text class="sub" x="80" y="208" text-anchor="middle">Resource names</text></g>
+ </svg><p class="legend">Application has no SQL, HTTP, Web, or Infrastructure dependency. The runtime call through an interface is a different relationship, shown in chapter 04.</p></div>
+ <div class="controls enhancement" id="layer-controls" role="group" aria-label="Explore a project" hidden><button data-layer="Web" aria-pressed="false">Web</button><button data-layer="Application" aria-pressed="true">Application</button><button data-layer="Infrastructure" aria-pressed="false">Infrastructure</button><button data-layer="Domain" aria-pressed="false">Domain</button><button data-layer="AppHost" aria-pressed="false">AppHost</button><button data-layer="ServiceDefaults" aria-pressed="false">ServiceDefaults</button><button data-layer="Shared" aria-pressed="false">Shared</button></div>
+ <div class="detail" id="layer-detail" aria-live="polite"><strong>Application · the integration policy</strong><p>Owns use cases, validation, aggregation models, narrow source interfaces, and OperationResult&lt;T&gt;. It decides whether partial data is usable. It references Domain, never a transport implementation.</p></div>
+ <div class="table-wrap"><table><thead><tr><th>Project</th><th>Owns</th><th>Keep out</th></tr></thead><tbody><tr><td>Web</td><td>Endpoint binding, authentication, permissions, public response DTOs, HTTP status translation, composition root.</td><td>SQL queries and source degradation policy.</td></tr><tr><td>Application</td><td>Queries/commands, validators, source contracts, aggregation and result semantics.</td><td>Dapper, SqlClient, SQLite, HttpClient, nested mediator dispatch.</td></tr><tr><td>Infrastructure</td><td>Adapters, external DTOs, credentials, connection lifetimes, execution policies and source telemetry.</td><td>Web response shapes and workflow decisions about partial data.</td></tr><tr><td>Domain</td><td>Future application-owned entities, value objects and invariants.</td><td>External records disguised as aggregates; persistence or mediator dependencies.</td></tr><tr><td>AppHost / Shared</td><td>Local process orchestration and stable resource-name constants.</td><td>A mandatory runtime dependency on the dashboard.</td></tr><tr><td>ServiceDefaults</td><td>OpenTelemetry, service discovery, liveness/readiness endpoint registration.</td><td>Blanket retries on every HTTP client.</td></tr></tbody></table></div>
+ <h3>How the pieces meet at runtime</h3><p><code>Program.cs</code> registers ServiceDefaults, optional Key Vault, Application, Infrastructure, and Web. Application scans its assembly for handlers and validators. Infrastructure selects the adapter for each interface from validated configuration. A handler asks for <code>ICustomerSourceAdapter</code>; the container supplies its fake, SQL Server, or SQLite implementation.</p>
+ <p>MediatR dispatch happens at the entry point. Handlers and adapters call narrow capabilities directly; they do not send another mediator request. Architecture tests enforce the constructor and assembly boundaries. Use manual mapping at each boundary so an upstream payload cannot silently become the public API.</p>
+ <p class="source">Source map: each project’s <code>DependencyInjection.cs</code>, <code>tests/ArchitectureTests/DependencyTests.cs</code></p>
+</section>
+<section class="chapter" id="request" aria-labelledby="request-title">
+ <div class="chapter-no">04 / RUNTIME</div><h2 id="request-title">Follow one customer request</h2>
+ <p class="intro">A single endpoint combines two independent reads. The customer is required. Billing is optional only under an explicit, narrow failure policy.</p>
+ <div class="diagram"><div class="diagram-title">Runtime flow · arrows show work moving through the system</div>
+ <svg viewBox="0 0 830 370" role="img" aria-labelledby="request-svg-title request-svg-desc"><title id="request-svg-title">Customer overview request flow</title><desc id="request-svg-desc">The authenticated endpoint sends a query through logging, exception handling, and validation. The handler starts customer and billing lookups together and awaits both. It aggregates the outcomes, then Web maps the response for the client.</desc>
+ <path class="edge" d="M165 57H210"/><path class="edge" d="M425 57H470"/><path class="edge" d="M595 83V140H205V175"/><path class="edge" d="M595 140V175"/><path class="edge" d="M205 230V268H395V292"/><path class="edge" d="M595 230V268H395"/><path class="edge" d="M510 319H575"/>
+ <g data-step-node="0"><rect class="node" x="15" y="30" width="150" height="55" rx="7"/><text x="90" y="53" text-anchor="middle">1. Web endpoint</text><text class="sub" x="90" y="73" text-anchor="middle">Identity + permission</text></g>
+ <g data-step-node="1"><rect class="node" x="210" y="30" width="215" height="55" rx="7"/><text x="317" y="53" text-anchor="middle">2. MediatR pipeline</text><text class="sub" x="317" y="73" text-anchor="middle">Log → catch → validate</text></g>
+ <g data-step-node="2"><rect class="node" x="470" y="30" width="250" height="55" rx="7"/><text x="595" y="53" text-anchor="middle">3. Query handler</text><text class="sub" x="595" y="73" text-anchor="middle">Start both tasks · await WhenAll</text></g>
+ <g data-step-node="3"><rect class="node" x="80" y="175" width="250" height="55" rx="7"/><text x="205" y="198" text-anchor="middle">4a. Customer registry</text><text class="sub" x="205" y="218" text-anchor="middle">Required · SQL Server / SQLite / fake</text></g>
+ <g data-step-node="3" class="optional"><rect class="node" x="470" y="175" width="250" height="55" rx="7"/><text x="595" y="198" text-anchor="middle">4b. Billing summary</text><text class="sub" x="595" y="218" text-anchor="middle">Conditionally optional · HTTP / fake</text></g>
+ <g data-step-node="4"><rect class="node" x="280" y="292" width="230" height="55" rx="7"/><text x="395" y="315" text-anchor="middle">5. Aggregate results</text><text class="sub" x="395" y="335" text-anchor="middle">Apply the degradation policy</text></g>
+ <g data-step-node="5"><rect class="node" x="575" y="292" width="240" height="55" rx="7"/><text x="695" y="315" text-anchor="middle">6. Map HTTP → render UI</text><text class="sub" x="695" y="335" text-anchor="middle">Status + data + issues + correlation</text></g>
+ </svg><p class="caption">Both adapters use SourceExecutor. The diagram shows logical stages, not measured durations. Parallel observations are not an atomic cross-system snapshot.</p></div>
+ <div class="controls enhancement" hidden><button id="step-back" disabled>← Previous</button><span id="step-count" class="small">Step 1 of 6</span><button id="step-next">Next →</button></div>
+ <div class="detail" id="step-detail" aria-live="polite"><strong>1. Establish identity and permission</strong><p>Web establishes a correlation ID. The customer endpoint requires an authenticated user with permissions=customers.read. A denied request never reaches the handler.</p></div>
+ <ol class="steps"><li><strong>Bind and authorize.</strong> Web accepts <code>customerId</code> from the route, enforces <code>CustomerOverview.Read</code>, and sends <code>GetCustomerOverviewQuery</code> with the request cancellation token.</li><li><strong>Apply cross-cutting behaviors.</strong> Registration order is logging, unhandled-exception conversion, then validation. The validator checks nonempty IDs, at most 50 characters, using letters, digits, and hyphens. Validation failures return structured issues before source I/O.</li><li><strong>Start both source calls.</strong> The handler starts the customer task and billing task before <code>Task.WhenAll</code>. It awaits both, then inspects outcomes. There is no early return that abandons the other read.</li><li><strong>Execute each adapter.</strong> Fakes return deterministic scenarios; live adapters validate upstream contracts. SourceExecutor owns resilience and categorized technical failures. Cancellation travels through the calls.</li><li><strong>Decide whether the answer is usable.</strong> Required-customer failure wins, including when both sources fail. Only billing <code>TIMEOUT</code>, <code>UNAVAILABLE</code>, and <code>CIRCUIT_OPEN</code> allow partial data.</li><li><strong>Translate for the caller.</strong> Web maps to its own response DTO and HTTP status. Angular reads the envelope, displaying complete, partial, or failed results. Network failures have a separate UI message.</li></ol>
+ <div class="code-label">ANNOTATED CORE · EXISTING GetCustomerOverviewQueryHandler</div><pre><code>var customerTask = customers.GetCustomerAsync(request.CustomerId, cancellationToken);
+var billingTask = billing.GetSummaryAsync(request.CustomerId, cancellationToken);
+await Task.WhenAll(customerTask, billingTask);
+
+// Inspect the required customer first.
+// Then decide whether billing's exact issue codes permit partial data.
+// Never replace unavailable billing with a fabricated zero.</code></pre>
+ <p class="source">Source map: <code>src/Application/Customers/Queries/GetCustomerOverview/GetCustomerOverview.cs</code>, <code>src/Web/Endpoints/Customers.cs</code>, <code>src/Web/ClientApp/src/app/app.component.ts</code></p>
+</section>
+
+<section class="chapter" id="results" aria-labelledby="results-title">
+ <div class="chapter-no">05 / THE CONTRACT</div><h2 id="results-title">An HTTP status is only half the story</h2>
+ <p class="intro">HTTP 200 says the request returned a usable answer. The result status says whether that answer is complete.</p>
+ <div class="table-wrap"><table><thead><tr><th>Outcome</th><th>Data</th><th>Issues</th><th>Meaning</th></tr></thead><tbody><tr><td><span class="badge good">Success</span></td><td>Required; non-null</td><td>None</td><td>The requested operation completed without reported issues.</td></tr><tr><td><span class="badge warn">Warning</span></td><td>Required; non-null</td><td>One or more</td><td>The workflow explicitly permits using this data with limitations.</td></tr><tr><td><span class="badge bad">Error</span></td><td>No usable data</td><td>One or more</td><td>The operation cannot provide a usable answer.</td></tr></tbody></table></div>
+ <p>Application’s <code>OperationResult&lt;T&gt;</code> enforces these invariants. Reading <code>Data</code> on Error throws; check <code>HasData</code> first. <code>Map</code> transforms available data while preserving status and issues. <code>NoData</code> is a non-null value type for successful commands with no payload.</p>
+ <p>Web serializes a separate <code>ApiOperationResponse&lt;T&gt;</code>: <code>status</code>, <code>data</code>, <code>issues</code>, and <code>correlationId</code>. Errors serialize <code>data: null</code>. Issues carry stable <code>code</code>, safe <code>message</code>, <code>category</code>, <code>correlationId</code>, and optional <code>target</code>. Categories are Validation, Business, Technical, and Authorization.</p>
+ <div class="panel" id="outcome-explorer"><div class="outcome-head"><h3>Explore the outcome</h3><span class="badge good" id="outcome-badge">200 · Success</span></div>
+ <div class="enhancement" hidden><label class="field-label" for="scenario">Choose a scenario</label><select id="scenario"><option value="complete">CUST-001 · complete answer</option><option value="partial">CUST-WARN · billing timeout</option><option value="required">CUST-FAIL · required source unavailable</option><option value="missing">CUST-MISSING · customer not found</option><option value="invalid">invalid_id · validation failure</option><option value="zero">Illustration · legitimate zero balance</option><option value="billing-auth">Illustration · billing credential failure</option><option value="billing-payload">Illustration · malformed billing payload</option><option value="billing-missing">Illustration · billing record missing</option></select></div>
+ <div class="scenario-lanes"><div class="lane"><b>Customer registry</b><span id="customer-lane">Success · required customer is available</span></div><div class="lane"><b>Billing service</b><span id="billing-lane">Success · balance 125.50 USD</span></div></div>
+ <p id="outcome-explanation" aria-live="polite">Both sources return usable data. Billing is available and the positive balance makes hasOutstandingBalance true.</p>
+ <pre><code id="outcome-json">{
+  "status": "Success",
+  "data": {
+    "customerId": "CUST-001",
+    "displayName": "Example Customer",
+    "billingAvailable": true,
+    "outstandingBalance": 125.50,
+    "currency": "USD",
+    "hasOutstandingBalance": true,
+    "customerObservedAt": "2026-09-09T09:00:00Z",
+    "billingObservedAt": "2026-09-09T09:00:01Z"
+  },
+  "issues": [],
+  "correlationId": "0123456789abcdef0123456789abcdef"
+}</code></pre><p class="caption">Illustrative responses with synthetic timestamps and trace IDs. The first four IDs are built-in fakes; invalid_id is a validator example. Zero balance and hard billing failures are explanatory cases, not additional magic fake IDs.</p></div>
+ <h3>The behavior at a glance</h3><div class="table-wrap"><table><thead><tr><th>Input or condition</th><th>HTTP / result</th><th>What the client should understand</th></tr></thead><tbody><tr><td>CUST-001</td><td>200 / Success</td><td>Billing available; 125.50 USD; attention is true.</td></tr><tr><td>CUST-WARN</td><td>200 / Warning</td><td>Billing unavailable; balance, currency, billing observation and attention are null. Issue: BILLING.TIMEOUT.</td></tr><tr><td>CUST-FAIL</td><td>503 / Error</td><td>CUSTOMER.UNAVAILABLE; no usable overview.</td></tr><tr><td>CUST-MISSING</td><td>404 / Error</td><td>CUSTOMER.NOT_FOUND; requested customer is absent.</td></tr><tr><td>invalid_id</td><td>400 / Error</td><td>CUSTOMER.INVALID_ID; sources are not called.</td></tr><tr><td>Valid zero balance</td><td>200 / Success</td><td>Billing available; balance 0; attention false.</td></tr><tr><td>Billing credentials, malformed data, or missing record</td><td>502 / Error</td><td>These do not qualify for the partial-data policy.</td></tr></tbody></table></div>
+ <h3>HTTP translation belongs to Web</h3><p>For an Error result, the first issue determines the primary HTTP failure. Validation maps to 400 before code-based mapping. Successful and warning results map to 200.</p>
+ <div class="table-wrap"><table><thead><tr><th>Issue code / rule</th><th>HTTP</th></tr></thead><tbody><tr><td>AUTH.UNAUTHENTICATED / AUTH.FORBIDDEN</td><td>401 / 403</td></tr><tr><td>CUSTOMER.NOT_FOUND / BILLING.REJECTED</td><td>404 / 422</td></tr><tr><td>Any code ending .CONFLICT</td><td>409</td></tr><tr><td>Any code ending .TIMEOUT</td><td>504</td></tr><tr><td>Any code ending .UNAVAILABLE or .CIRCUIT_OPEN</td><td>503</td></tr><tr><td>APPLICATION.UNEXPECTED / USE_CASE.NOT_IMPLEMENTED</td><td>500</td></tr><tr><td>Other source error codes</td><td>502</td></tr></tbody></table></div>
+ <div class="callout"><strong>“Optional” is a business rule, not exception suppression.</strong><p>Only the three allowlisted billing failures degrade. An upstream credential failure is 502, not a 401 asking the caller to log in again. Missing billing is not the same as a missing requested customer. Keep these distinctions when extending the template.</p></div>
+ <p class="source">Source map: <code>src/Application/Common/Results/OperationResult.cs</code>, <code>src/Web/Contracts/ApiOperationResponse.cs</code>, <code>src/Web/Infrastructure/OperationResultMapper.cs</code></p>
+</section>
+
+<section class="chapter" id="sources" aria-labelledby="sources-title">
+ <div class="chapter-no">06 / SOURCE ADAPTERS</div><h2 id="sources-title">Connect a capability, not a database context</h2>
+ <p class="intro">The handler asks for customer information. It does not know whether that information comes from a stored procedure, a SQLite file, or a deterministic fake.</p>
+ <div class="code-label">APPLICATION CONTRACT · SOURCE MODELS ARE IMMUTABLE RECORDS</div><pre><code>public interface ICustomerSourceAdapter
+{
+    Task&lt;OperationResult&lt;Customer&gt;&gt; GetCustomerAsync(
+        string customerId, CancellationToken cancellationToken);
+}
+
+public sealed record Customer(
+    string Id, string DisplayName, DateTimeOffset ObservedAt);</code></pre>
+ <h3>Development configuration is a safe starting point</h3><p>Base configuration selects Live sources and External authentication. <code>appsettings.Development.json</code> overrides both sources to Fake and identity to Development. You can opt each source into Live independently in Development or Test. Outside those environments, startup validation rejects fake sources and demo authentication.</p>
+ <p>Configuration validation checks required settings and ranges at startup. It does not prove connectivity or schema correctness. Readiness probes and source-contract tests serve different purposes.</p>
+ <h3>SQL Server: call the source-owned contract</h3><p><code>Sources:CustomerRegistry:ConnectionName</code> defaults to <code>CustomerRegistry</code> and resolves <code>ConnectionStrings:CustomerRegistry</code>. The adapter invokes <code>dbo.GetCustomer</code> with <code>@CustomerId nvarchar(50)</code>. It expects exactly one valid row containing matching <code>Id</code> and nonblank <code>DisplayName</code>, with return code 0. Code 404 with no row means not found. Other codes, missing fields, inconsistent rows, or unexpected result cardinality cannot become a successful customer.</p>
+ <div class="code-label">WORKING DIRECTORY: APPLICATION ROOT · DEVELOPMENT POWERSHELL SESSION · REPLACE PLACEHOLDERS</div><pre><code>$env:Sources__CustomerRegistry__Mode = 'Live'
+$env:Sources__CustomerRegistry__Provider = 'SqlServer'
+$env:ConnectionStrings__CustomerRegistry = 'Server=&lt;host&gt;;Database=&lt;database&gt;;Integrated Security=true;Encrypt=true;TrustServerCertificate=false'
+dotnet run --project src/Web --launch-profile https</code></pre>
+ <p>This example assumes a Windows identity with access and a trusted server certificate. Use your organization’s actual authentication method and secret provider. The application never creates or migrates an external database. The SQL fixture schema is for disposable tests only.</p>
+ <p>Each execution attempt opens and disposes its own connection lease. SqlClient provides pooling. The factory sets SQL session context with the correlation ID and clears it when disposing; failed cleanup discards the pool to avoid reusing contaminated session state.</p>
+ <h3>SQLite: use an existing, read-only file</h3><p>The file must already expose <code>Customers(Id TEXT PRIMARY KEY, DisplayName TEXT NOT NULL)</code>. The adapter uses a parameterized point query with a two-row limit to detect invalid duplicate results. The factory forces read-only mode even if the connection string requests creation or writing.</p>
+ <div class="code-label">WORKING DIRECTORY: APPLICATION ROOT · EXISTING SQLITE FILE REQUIRED</div><pre><code>$env:Sources__CustomerRegistry__Mode = 'Live'
+$env:Sources__CustomerRegistry__Provider = 'SQLite'
+$env:ConnectionStrings__CustomerRegistry = 'Data Source=C:/data/customer-registry.db'
+dotnet run --project src/Web --launch-profile https</code></pre>
+ <p>To prepare a disposable example, execute <a href="customer-registry.sqlite.sql">customer-registry.sqlite.sql</a> against a new file using a SQLite client. This is a manual fixture setup, not an application startup action. A missing file reports <code>CUSTOMER.UNAVAILABLE</code>; a missing customer reports <code>CUSTOMER.NOT_FOUND</code>.</p>
+ <div class="callout warning"><strong>SQLite cancellation has a practical limit.</strong><p>The provider uses synchronous I/O. The adapter offloads the point lookup and checks cancellation around it; lock waits are bounded in whole seconds. An in-progress native call is not guaranteed to abort immediately. Budget with that granularity in mind.</p></div>
+ <h3>HTTP billing: isolate the wire format</h3><p>Billing calls <code>GET customers/{escapedCustomerId}/summary</code> beneath a configured base URL ending in <code>/</code>. It sends <code>X-Api-Key</code> and <code>X-Correlation-ID</code>. Its private payload requires a numeric <code>outstandingBalance</code> and a three-letter uppercase <code>currency</code>.</p>
+ <div class="code-label">EXAMPLE UPSTREAM BODY · NOT THE PUBLIC OVERVIEW ENVELOPE</div><pre><code>{ "outstandingBalance": 125.50, "currency": "USD" }</code></pre>
+ <div class="code-label">WORKING DIRECTORY: APPLICATION ROOT · DEVELOPMENT SESSION · SUPPLY REAL SOURCE SETTINGS PRIVATELY</div><pre><code>$env:Sources__Billing__Mode = 'Live'
+$env:Sources__Billing__BaseUrl = 'https://billing.example.invalid/api/'
+# Supply Sources__Billing__ApiKey using your local secret tooling.
+dotnet run --project src/Web --launch-profile https</code></pre>
+ <p>The URL above is a placeholder. HTTPS is required outside Development/Test. The named HTTP client has redirects disabled and no independent timeout; SourceExecutor supplies the budgets. Allocate a new request and response inside every attempt. Downstream credentials are source credentials, not automatically forwarded caller tokens.</p>
+ <h3>Add another source capability</h3><ol class="steps"><li><strong>Define intent in Application.</strong> Create a narrow interface and immutable model under <code>Application/&lt;Feature&gt;/Sources</code>. Agree on success, absence, invalid data, and unavailable-source meanings.</li><li><strong>Implement Infrastructure’s adapter.</strong> Keep its external DTO private. Bind SQL parameters or escape HTTP path segments. Map upstream business return codes explicitly. Never translate failure into null, an empty list, or zero.</li><li><strong>Use SourceExecutor.</strong> Assign constant source and operation names. Set <code>IsReadOnly: true</code> only for verified side-effect-free operations, including stored procedures. Allocate resources inside the execution delegate so a retry gets fresh resources.</li><li><strong>Register and validate.</strong> Add typed options, startup validation, the adapter/fake selection, and a readiness check where useful. Keep secret values outside committed JSON.</li><li><strong>Specify the workflow policy.</strong> Decide which exact failure codes permit a warning. Add deterministic fakes and contract tests for valid, missing, malformed, unavailable, and cancelled operations.</li></ol>
+ <p>Keep a transaction within one adapter and one database. Coordinating writes across systems requires an explicit recovery design; the template does not introduce distributed transactions or silently retry uncertain writes.</p>
+ <p class="source">Further reading: <a href="integration-guide.md">integration contracts</a> · <a href="sqlite.md">SQLite details</a>. Implementation: <code>src/Infrastructure/Sources</code>, <code>Connections</code>, and <code>Configuration</code>.</p>
+</section>
+<section class="chapter" id="features" aria-labelledby="features-title">
+ <div class="chapter-no">07 / HANDS ON</div><h2 id="features-title">Build a customer-profile feature</h2>
+ <p class="intro">Add a focused query that returns the customer without billing. This exercise uses an existing capability, so you can learn the complete path with the built-in fakes.</p>
+ <p>The following files are a tutorial for a generated project named <code>MyIntegration</code>; they are not additional baseline endpoints. Substitute your actual root namespace consistently. No infrastructure registration changes are needed because <code>ICustomerSourceAdapter</code> is already registered.</p>
+ <h3>1. Generate the query</h3><div class="code-label">WORKING DIRECTORY: MyIntegration/src/Application · MATCHING TEMPLATE PACKAGE INSTALLED</div><pre><code>dotnet new di-usecase -n GetCustomerProfile -fn Customers -ut query -rt Customer --RootNamespace MyIntegration.Application</code></pre>
+ <p>The item template creates a query, validator, and handler beneath <code>Customers/Queries/GetCustomerProfile</code>. <code>-rt</code> names the payload inside <code>OperationResult&lt;T&gt;</code>, not the whole wrapper. Import the payload’s namespace in the generated file. Its initial handler returns <code>USE_CASE.NOT_IMPLEMENTED</code>; generation alone is not feature completion.</p>
+ <h3>2. Replace the scaffold with the use case</h3><p>This query validates locally, delegates a single read to the existing source interface, and preserves the source’s explicit result. Validators contain no hidden source calls.</p>
+ <div class="code-label">REPLACE: src/Application/Customers/Queries/GetCustomerProfile/GetCustomerProfile.cs</div><pre><code id="tutorial-query">using FluentValidation;
+using MediatR;
+using MyIntegration.Application.Common.Results;
+using MyIntegration.Application.Customers.Sources;
+
+namespace MyIntegration.Application.Customers.Queries.GetCustomerProfile;
+
+public sealed record GetCustomerProfileQuery(string CustomerId)
+    : IRequest&lt;OperationResult&lt;Customer&gt;&gt;;
+
+public sealed class GetCustomerProfileQueryValidator
+    : AbstractValidator&lt;GetCustomerProfileQuery&gt;
+{
+    public GetCustomerProfileQueryValidator()
+    {
+        RuleFor(x =&gt; x.CustomerId).NotEmpty().MaximumLength(50)
+            .Matches("^[A-Za-z0-9-]+$")
+            .WithErrorCode("CUSTOMER.INVALID_ID");
+    }
+}
+
+public sealed class GetCustomerProfileQueryHandler(ICustomerSourceAdapter customers)
+    : IRequestHandler&lt;GetCustomerProfileQuery, OperationResult&lt;Customer&gt;&gt;
+{
+    public Task&lt;OperationResult&lt;Customer&gt;&gt; Handle(
+        GetCustomerProfileQuery request, CancellationToken cancellationToken)
+        =&gt; customers.GetCustomerAsync(request.CustomerId, cancellationToken);
+}</code></pre>
+ <h3>3. Add a Web adapter and public response</h3><p>Assembly discovery registers public <code>IEndpointGroup</code> implementations. A named method supplies a stable OpenAPI operation ID. This group shares the customer URL prefix but uses its own <code>CustomerProfiles</code> tag. Its response is a Web-owned record rather than the Application record.</p>
+ <div class="code-label">ADD: src/Web/Endpoints/CustomerProfiles.cs</div><pre><code id="tutorial-endpoint">using MediatR;
+using MyIntegration.Application.Common.Interfaces;
+using MyIntegration.Application.Customers.Queries.GetCustomerProfile;
+using MyIntegration.Web.Contracts;
+using MyIntegration.Web.Infrastructure;
+
+namespace MyIntegration.Web.Endpoints;
+
+public sealed class CustomerProfiles : IEndpointGroup
+{
+    public static string RoutePrefix =&gt; "/api/customers";
+
+    public static void Map(RouteGroupBuilder group)
+    {
+        group.RequireAuthorization("CustomerOverview.Read");
+        var endpoint = group.MapGet(GetCustomerProfile, "{customerId}/profile")
+            .Produces&lt;ApiOperationResponse&lt;CustomerProfileResponse&gt;&gt;();
+        foreach (var status in new[] { 400, 401, 403, 404, 500, 502, 503, 504 })
+            endpoint.Produces&lt;ApiOperationResponse&lt;CustomerProfileResponse&gt;&gt;(status);
+    }
+
+    public static async Task&lt;IResult&gt; GetCustomerProfile(
+        ISender sender, ICorrelationContext correlation,
+        string customerId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(
+            new GetCustomerProfileQuery(customerId), cancellationToken);
+        return result.ToHttp(customer =&gt; new CustomerProfileResponse(
+            customer.Id, customer.DisplayName, customer.ObservedAt), correlation.Id);
+    }
+}
+
+public sealed record CustomerProfileResponse(
+    string CustomerId, string DisplayName, DateTimeOffset ObservedAt);</code></pre>
+ <p>The tutorial reuses <code>CustomerOverview.Read</code> because it requires the same customer-reading permission. Define a dedicated policy when a real feature needs different authorization. Declaring error response types lets the generated client deserialize structured errors.</p>
+ <h3>4. Test through the HTTP boundary</h3><p>The existing <code>WebApiFactory</code> runs with fake sources and Test authentication. Its <code>X-Test-User</code> header belongs only to the test host; it is not a production authentication mechanism.</p>
+ <div class="code-label">ADD: tests/Application.FunctionalTests/Customers/CustomerProfileTests.cs</div><pre><code id="tutorial-test">using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.Testing;
+using MyIntegration.Application.FunctionalTests.Infrastructure;
+using NUnit.Framework;
+using Shouldly;
+
+namespace MyIntegration.Application.FunctionalTests.Customers;
+
+public sealed class CustomerProfileTests
+{
+    [TestCase("CUST-001", 200, "Success")]
+    [TestCase("CUST-WARN", 200, "Success")]
+    [TestCase("CUST-MISSING", 404, "Error")]
+    [TestCase("CUST-FAIL", 503, "Error")]
+    [TestCase("invalid_id", 400, "Error")]
+    public async Task MapsTheCustomerResult(string id, int expected, string status)
+    {
+        using var factory = new WebApiFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost"), AllowAutoRedirect = false
+        });
+        client.DefaultRequestHeaders.Add("X-Test-User", "reader");
+        using var response = await client.GetAsync($"/api/customers/{id}/profile");
+        ((int)response.StatusCode).ShouldBe(expected);
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var body = json.RootElement;
+        body.GetProperty("status").GetString().ShouldBe(status);
+        response.Headers.GetValues("X-Correlation-ID").Single()
+            .ShouldBe(body.GetProperty("correlationId").GetString());
+        if (status == "Error")
+            body.GetProperty("data").ValueKind.ShouldBe(JsonValueKind.Null);
+        else
+            body.GetProperty("data").GetProperty("customerId").GetString().ShouldBe(id);
+    }
+}</code></pre>
+ <p><code>CUST-WARN</code> now returns Success: this feature never calls billing. Also test 401 without the test-user header, 403 with <code>without-permission</code>, validator boundaries, and cancellation forwarding using the existing test patterns.</p>
+ <div class="code-label">WORKING DIRECTORY: GENERATED PROJECT ROOT · SDK + RESTORED TEST DEPENDENCIES</div><pre><code>dotnet test tests/Application.FunctionalTests --filter FullyQualifiedName~CustomerProfileTests
+pwsh build/verify.ps1</code></pre>
+ <h3>5. Regenerate and use the Angular client</h3><p>For an Angular variant, rebuild Web to refresh <code>wwwroot/openapi/v1.json</code>, then regenerate the client. The new endpoint’s tag and operation name produce <code>CustomerProfilesClient.getCustomerProfile</code>. The existing app module already provides HttpClient.</p>
+ <div class="code-label">WORKING DIRECTORY: GENERATED ANGULAR PROJECT ROOT · SDK + NODE 24</div><pre><code>dotnet build src/Web
+npm --prefix src/Web/ClientApp ci
+npm --prefix src/Web/ClientApp run generate-api</code></pre>
+ <details><summary>Minimal Angular component using the generated client</summary><p>Add this standalone component, then import <code>CustomerProfileComponent</code> in the existing AppModule’s <code>imports</code> and place <code>&lt;app-customer-profile&gt;&lt;/app-customer-profile&gt;</code> in the signed-in part of the app template. Authentication remains the existing app’s responsibility.</p><div class="code-label">ADD: src/Web/ClientApp/src/app/customer-profile.component.ts</div><pre><code id="tutorial-angular">import { Component, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import {
+  CustomerProfilesClient,
+  ApiOperationResponseOfCustomerProfileResponse
+} from './web-api-client';
+
+@Component({
+  selector: 'app-customer-profile',
+  standalone: true,
+  template: `
+    &lt;button [disabled]="busy()" (click)="load()"&gt;Load customer profile&lt;/button&gt;
+    &lt;p role="status"&gt;{{ message() }}&lt;/p&gt;
+    @if (result(); as response) {
+      &lt;h3&gt;{{ response.status }}&lt;/h3&gt;
+      @if (response.data; as customer) {
+        &lt;p&gt;{{ customer.customerId }} · {{ customer.displayName }}&lt;/p&gt;
+      }
+      @for (issue of response.issues; track $index) {
+        &lt;p&gt;{{ issue.code }}: {{ issue.message }}&lt;/p&gt;
+      }
+    }`
+})
+export class CustomerProfileComponent {
+  readonly busy = signal(false);
+  readonly message = signal('');
+  readonly result = signal&lt;ApiOperationResponseOfCustomerProfileResponse | null&gt;(null);
+  constructor(private readonly profiles: CustomerProfilesClient) {}
+
+  async load() {
+    this.busy.set(true); this.result.set(null); this.message.set('');
+    try {
+      this.result.set(await firstValueFrom(this.profiles.getCustomerProfile('CUST-001')));
+    } catch (error: unknown) {
+      if (error instanceof ApiOperationResponseOfCustomerProfileResponse)
+        this.result.set(error);
+      else this.message.set('Unable to reach the service. Please try again.');
+    } finally { this.busy.set(false); }
+  }
+}</code></pre></details>
+ <h3>What changes for a command?</h3><div class="code-label">WORKING DIRECTORY: GENERATED src/Application · SCAFFOLD ONLY</div><pre><code>dotnet new di-usecase -n SubmitReport -fn Reports -ut command --RootNamespace MyIntegration.Application</code></pre><p>The default payload is <code>NoData</code>. Replace the stub with an explicit output capability and business behavior. A write has different failure semantics: keep automatic retries disabled, define reconciliation for uncertain outcomes, and require antiforgery for cookie-authenticated mutations.</p>
+ <p>For nested folders, the item template also supports <code>--parent-namespace</code> and <code>-o</code>. Keep the output folder, parent namespace, feature name, and Application root namespace aligned. Use <code>dotnet new di-usecase --help</code> to inspect the options.</p>
+</section>
+<section class="chapter" id="reliability" aria-labelledby="reliability-title">
+ <div class="chapter-no">08 / FAILURE POLICY</div><h2 id="reliability-title">Bound the work. Preserve the meaning.</h2>
+ <p class="intro">Resilience belongs around a known source operation. A retry is justified by the operation’s semantics, not simply because an exception occurred.</p>
+ <div class="diagram"><div class="diagram-title">Execution nesting · outer policies contain the inner work</div>
+ <div class="pipeline"><strong>Web request budget · 15 seconds</strong><p>Covers the endpoint’s work. Request budget expiry maps to REQUEST.TIMEOUT / 504.</p>
+ <div class="pipeline"><strong>Source total timeout · 8 seconds</strong><p>One budget for this source operation, including retries and delays.</p>
+ <div class="pipeline"><strong>Eligible read retry · 1 retry after the initial attempt</strong><p>Transient SourceFailureException or TimeoutRejectedException only; exponential jitter starting at 200 ms.</p>
+ <div class="pipeline"><strong>Circuit breaker · isolated by source / operation metadata</strong><p>Minimum throughput 10 · failure ratio 50% · sample 30 s · break 15 s.</p>
+ <div class="pipeline"><strong>Attempt timeout · 3 seconds</strong><p>Open fresh resources → call the source → validate and map → dispose.</p></div></div></div></div></div>
+ <p class="caption">These are configured limits, not measured latencies. Policies apply to each parallel source call independently. Timeout enforcement depends on cooperative cancellation and provider behavior.</p></div>
+ <h3>Know which failures retry</h3><p><code>SourceOperation(Source, Name, IsReadOnly)</code> keys a cached pipeline. <code>IsReadOnly</code> defaults to false. An explicitly read-only operation can retry classified transient exceptions and timeouts. A returned Error result is not automatically retried: the retry predicate handles exceptions, not result values. This is why the fake <code>CUST-FAIL</code> example reports an immediate source result rather than simulating a network retry.</p>
+ <p>The circuit breaker uses the same exception predicate and sees individual attempts inside the retry policy. An open circuit rejects work as <code>CIRCUIT_OPEN</code>. Calls for another source or operation have separate state. Avoid adding a second provider/client retry stack that multiplies attempts or exceeds the request budget.</p>
+ <div class="table-wrap"><table><thead><tr><th>Condition</th><th>Read</th><th>Write / unknown operation</th></tr></thead><tbody><tr><td>Transient timeout or disconnect</td><td>Eligible retry within total budget; final categorized error if exhausted.</td><td>No automatic retry. TIMEOUT or UNAVAILABLE becomes OUTCOME_UNKNOWN.</td></tr><tr><td>Business rejection / invalid payload / credentials</td><td>Surface the categorized failure; no transient retry.</td><td>Surface failure; the business workflow decides recovery.</td></tr><tr><td>Caller cancellation</td><td>Propagate cancellation.</td><td>Propagate cancellation; use a business reconciliation design if a write may already have committed.</td></tr><tr><td>Unexpected exception</td><td>Propagate to the use-case / HTTP exception boundary.</td><td>Same boundary; do not expose raw exception details to users.</td></tr></tbody></table></div>
+ <h3>Set budgets with source behavior in mind</h3><p><code>SourceExecution</code> validates numeric ranges. Total timeout must be at least the attempt timeout; the sampling window must be at least twice the attempt timeout. Increasing retries does not increase the total budget. Choose budgets against actual source service levels, and include connection acquisition, execution, payload reading, and retries in the analysis.</p>
+ <div class="callout warning"><strong>Unknown does not mean rolled back.</strong><p>A disconnected or timed-out write might have committed at the system of record. On OUTCOME_UNKNOWN, reconcile using that system’s status or business identifier before deciding whether another attempt is safe. The template does not provide an automatic reconciliation engine.</p></div>
+ <p class="source">Source map: <code>src/Infrastructure/Execution/SourcePipelines.cs</code>, <code>SourceExecutor.cs</code>, <code>src/Infrastructure/Configuration/SourceOptions.cs</code></p>
+</section>
+
+<section class="chapter" id="security" aria-labelledby="security-title">
+ <div class="chapter-no">09 / IDENTITY &amp; SETTINGS</div><h2 id="security-title">Separate caller identity from source access</h2>
+ <p class="intro">The caller proves they may use your application. Your adapter separately proves it may access the upstream system.</p>
+ <div class="diagram"><div class="diagram-title">Production authentication · two supported application shapes</div>
+ <svg viewBox="0 0 820 275" role="img" aria-labelledby="auth-svg-title auth-svg-desc"><title id="auth-svg-title">JWT API and OIDC browser authentication</title><desc id="auth-svg-desc">API callers obtain an external JWT and send it to Web for validation and permission checks. In Angular applications the browser signs in through Web using OIDC authorization code and PKCE, then sends a secure session cookie. Web calls sources using separate source credentials.</desc>
+ <text x="15" y="24" class="sub">API-ONLY · External mode</text><path class="edge" d="M175 70H290"/><path class="edge" d="M475 70H610"/>
+ <rect class="node" x="15" y="43" width="160" height="55" rx="7"/><text x="95" y="67" text-anchor="middle">API caller</text><text class="sub" x="95" y="85" text-anchor="middle">Externally issued JWT</text>
+ <text x="232" y="56" class="sub" text-anchor="middle">Bearer token</text><rect class="node" x="290" y="43" width="185" height="55" rx="7"/><text x="382" y="67" text-anchor="middle">Web</text><text class="sub" x="382" y="85" text-anchor="middle">Validate token + permissions</text>
+ <rect class="node" x="610" y="43" width="195" height="55" rx="7"/><text x="707" y="67" text-anchor="middle">Source adapters</text><text class="sub" x="707" y="85" text-anchor="middle">Own source credentials</text>
+ <text x="15" y="145" class="sub">ANGULAR · External mode</text><path class="edge" d="M175 191H290"/><path class="edge" d="M475 191H610"/>
+ <rect class="node" x="15" y="164" width="160" height="55" rx="7"/><text x="95" y="188" text-anchor="middle">Browser / Angular</text><text class="sub" x="95" y="206" text-anchor="middle">Secure HttpOnly cookie</text>
+ <text x="232" y="177" class="sub" text-anchor="middle">Same origin</text><rect class="node" x="290" y="164" width="185" height="55" rx="7"/><text x="382" y="188" text-anchor="middle">Web session</text><text class="sub" x="382" y="206" text-anchor="middle">OIDC code + PKCE login</text>
+ <rect class="node" x="610" y="164" width="195" height="55" rx="7"/><text x="707" y="188" text-anchor="middle">Identity provider</text><text class="sub" x="707" y="206" text-anchor="middle">Sign-in / callback exchange</text>
+ <text x="15" y="254" class="sub">After sign-in, Angular API calls use the cookie; adapter calls still use separate source credentials.</text>
+ </svg></div>
+ <h3>Development identity</h3><p><code>Authentication:Mode=Development</code> enables a fixed demo-reader cookie sign-in in Development/Test. <code>/auth/login</code> accepts local return URLs, <code>/auth/me</code> reports the signed-in name, and <code>POST /auth/logout</code> signs out. Use HTTPS locally because the cookie is always Secure. This mode is rejected outside Development/Test.</p>
+ <h3>API-only: externally issued JWTs</h3><p>Set External mode, an HTTPS Authority, and an Audience. The bearer handler validates the token through the configured issuer, audience and token validation settings. The customer policy additionally requires the literal <code>permissions</code> claim value <code>customers.read</code>. Authentication failure returns 401; an authenticated caller lacking permission receives 403. External API-only applications do not use the demo login to issue tokens.</p>
+ <h3>Angular: server-side OIDC and cookies</h3><p>External Angular applications also require ClientId and ClientSecret. Register <code>/signin-oidc</code> and <code>/signout-callback-oidc</code> with the identity provider. Web uses authorization code flow with PKCE, and its cookie is Secure, HttpOnly, and SameSite=Lax. Tokens are not saved in the browser by this design.</p>
+ <p>APIs return 401/403 envelopes rather than login redirects. The browser initiates login through <code>/auth/login</code>. Cookie-authenticated mutations require antiforgery protection: retrieve a token from <code>/auth/antiforgery</code>, then send <code>X-CSRF-TOKEN</code> or the form field <code>__RequestVerificationToken</code>. The Angular logout submits a browser form so OIDC logout redirects work.</p>
+ <h3>Configuration reference</h3><p>Use configuration providers appropriate to the deployment: local user secrets, environment variables, or the existing Key Vault integration. Environment variable names replace <code>:</code> with <code>__</code>. Do not commit connection passwords, API keys, OIDC client secrets, or MediatR keys.</p>
+ <div class="table-wrap"><table><thead><tr><th>Configuration key</th><th>Purpose / baseline</th></tr></thead><tbody><tr><td>Authentication:Mode</td><td>External in base settings; Development in development settings.</td></tr><tr><td>Authentication:Authority / Audience</td><td>Issuer URL and intended API audience; required in External mode.</td></tr><tr><td>Authentication:ClientId / ClientSecret</td><td>Required for External Angular OIDC.</td></tr><tr><td>Authentication:NameClaimType / RoleClaimType</td><td>Defaults: name / roles. Permission policy uses permissions separately.</td></tr><tr><td>Sources:CustomerRegistry:Mode / Provider / ConnectionName</td><td>Live / SqlServer / CustomerRegistry in the baseline.</td></tr><tr><td>ConnectionStrings:&lt;ConnectionName&gt;</td><td>The selected customer source connection string.</td></tr><tr><td>Sources:Billing:Mode / BaseUrl / ApiKey</td><td>Live in base configuration. Live mode requires the URL and key.</td></tr><tr><td>SourceExecution:*</td><td>Timeout, retry, and circuit settings described in chapter 08.</td></tr><tr><td>Cors:AllowedOrigins</td><td>Empty by default. Angular normally shares the API origin through its proxy or published host.</td></tr><tr><td>AZURE_KEY_VAULT_ENDPOINT</td><td>Enables Key Vault configuration through DefaultAzureCredential when supplied.</td></tr><tr><td>OTEL_EXPORTER_OTLP_ENDPOINT</td><td>Enables OTLP export for logs, traces and metrics.</td></tr><tr><td>MediatR:LicenseKey</td><td>Read during Application registration; supply through secret configuration according to the organization’s entitlement.</td></tr></tbody></table></div>
+ <p>In a normal host, environment variables can override JSON settings; this program adds Key Vault afterward, so matching Key Vault settings can take precedence. The build-time OpenAPI host explicitly uses Test mode, fakes, demo identity, and disables Key Vault to avoid resolving corporate configuration during schema generation.</p>
+ <p>For multiple application instances, persist and protect ASP.NET Core Data Protection keys using the deployment platform. Set any additional CORS origins explicitly; the baseline does not enable credentialed cross-origin browser sessions. Verify issuer claims, redirects, cookies and source credentials with the real deployment before rollout.</p>
+ <p class="source">Source map: <code>src/Web/Authentication</code>, <code>src/Web/Endpoints/Authentication.cs</code>, <code>src/Web/DependencyInjection.cs</code>, <code>src/Web/Program.cs</code></p>
+</section>
+<section class="chapter" id="testing" aria-labelledby="testing-title">
+ <div class="chapter-no">10 / CONFIDENCE</div><h2 id="testing-title">Test each boundary on purpose</h2>
+ <p class="intro">A fake proves workflow behavior. A contract test proves an adapter can understand a source. A browser test proves the user can complete a journey. Each answers a different question.</p>
+ <div class="table-wrap"><table><thead><tr><th>Suite</th><th>Evidence it provides</th><th>Dependencies</th></tr></thead><tbody><tr><td>ArchitectureTests</td><td>Inner assemblies avoid transport dependencies; handlers/adapters do not inject nested mediator dispatch.</td><td>Built assemblies.</td></tr><tr><td>Application.UnitTests</td><td>Result invariants, explicit degradation, zero balance, required-source precedence.</td><td>Deterministic in-memory test doubles.</td></tr><tr><td>Application.FunctionalTests</td><td>HTTP envelopes, validation, permissions, JWT rules, correlation, production option validation, SQLite-to-HTTP behavior.</td><td>In-process test host, fakes, disposable SQLite files; Published category uses a running app.</td></tr><tr><td>Infrastructure.IntegrationTests</td><td>Retry and cancellation semantics, circuit isolation, billing contracts, real SQLite behavior, SQL stored-procedure contract.</td><td>Local fixtures; SQL Server SourceIntegration category adds Docker and TestAppHost.</td></tr><tr><td>Web.AcceptanceTests</td><td>Angular sign-in, complete/partial/error rendering and sign-out.</td><td>Angular variant, published Development app, Playwright browser.</td></tr><tr><td>Template package matrix</td><td>Actual package generation, renamed namespaces, nested item templates, verification and publish; optional published/browser smoke.</td><td>Maintainer scripts, SDK, Angular toolchain for Angular variants.</td></tr></tbody></table></div>
+ <h3>Start with the default verification</h3><div class="code-label">WORKING DIRECTORY: REPOSITORY OR GENERATED PROJECT ROOT · SDK + POWERSHELL 7</div><pre><code>pwsh build/verify.ps1</code></pre><p>This builds Release and runs tests excluding SourceIntegration, Browser, and Published categories. It needs no Docker or corporate source access. SQLite source and HTTP tests are in this default suite. Restore can still need a NuGet feed.</p>
+ <h3>Prove the SQL Server contract separately</h3><div class="code-label">WORKING DIRECTORY: REPOSITORY OR GENERATED PROJECT ROOT · DOCKER RUNNING</div><pre><code>pwsh build/verify.ps1 -SourceIntegration</code></pre><p>The script enables the source fixture and includes its category. TestAppHost creates a disposable SQL Server; tests initialize only that fixture. It never accepts a corporate connection string as a shortcut. A skipped fixture is not evidence that the SQL contract passed.</p>
+ <h3>Verify the package consumers will receive</h3><div class="code-label">MAINTAINER ONLY · WORKING DIRECTORY: TEMPLATE REPOSITORY ROOT · SDK + NODE + BROWSER</div><pre><code>pwsh build/test.ps1 -BrowserTests
+pwsh build/test.ps1 -CustomerProvider SQLite -BrowserTests</code></pre><p>Each invocation tests both None and Angular for one provider. Together they cover all four combinations. Each creates an isolated template hive, packages and installs the candidate, generates a renamed project and query/command stubs, verifies, publishes, and runs published HTTP tests; Angular also runs browser tests.</p>
+ <p>Without <code>-BrowserTests</code>, the script still generates, verifies, and publishes but does not run its published HTTP/browser smoke phase. <code>build/test.ps1</code> and <code>build/repack.ps1</code> are maintainer tools and are not shipped into consuming applications.</p>
+ <details><summary>Run browser tests against an existing published Development app</summary><p>Set TEST_BASE_URL to the actual published app origin in a separate terminal, and ensure it remains running. Use HTTPS for normal manual cookie sign-in. Use an installed Chrome or Edge channel locally, or install Playwright’s pinned Chromium from the built test output.</p><div class="code-label">WORKING DIRECTORY: GENERATED ANGULAR PROJECT ROOT · APP RUNNING SEPARATELY</div><pre><code>dotnet build -c Release
+$env:TEST_BASE_URL = 'https://localhost:&lt;actual-port&gt;'
+$env:PLAYWRIGHT_BROWSER_CHANNEL = 'msedge'
+dotnet test tests/Web.AcceptanceTests --no-build -c Release</code></pre><p>For pinned Chromium, run <code>pwsh artifacts/bin/Web.AcceptanceTests/release/playwright.ps1 install chromium --with-deps</code> after building, and omit the browser-channel override. CI installs Playwright’s pinned Chromium.</p></details>
+ <h3>Acceptance criteria for a new capability</h3><p>Cover a valid response, absence, invalid input, missing permission, malformed source data, unavailable required source, each deliberately degradable optional failure, caller cancellation, and trace correlation. For writes, verify no automatic retry and explicit uncertain-outcome handling. For a UI, verify the user can distinguish partial information from a transport failure.</p>
+ <p class="source">Reference: <a href="template-maintenance.md">release verification notes</a>. Source map: <code>build/verify.ps1</code>, <code>build/test.ps1</code>, <code>tests</code>.</p>
+</section>
+
+<section class="chapter" id="operations" aria-labelledby="operations-title">
+ <div class="chapter-no">11 / DELIVERY &amp; OPERATIONS</div><h2 id="operations-title">Ship a known artifact. Observe real outcomes.</h2>
+ <p class="intro">Releasing the template and deploying a consuming application are separate lifecycles. A template update does not modify applications already generated from it.</p>
+ <div class="diagram"><div class="diagram-title">From baseline to running integration</div><svg viewBox="0 0 820 245" role="img" aria-labelledby="delivery-svg-title delivery-svg-desc"><title id="delivery-svg-title">Template and application delivery lifecycle</title><desc id="delivery-svg-desc">Maintainers verify and package the baseline, test the package matrix, and publish the tested candidate through the release gate. A consuming team generates its own application, implements actual source and identity configuration, verifies a pilot, and deploys. Later template releases require selective migration.</desc>
+ <path class="edge" d="M235 58H300"/><path class="edge" d="M535 58H590"/><path class="edge" d="M700 88V145H110V175"/><path class="edge" d="M235 202H300"/><path class="edge" d="M535 202H590"/>
+ <rect class="node" x="5" y="30" width="230" height="58" rx="7"/><text x="120" y="55" text-anchor="middle">Baseline → package</text><text class="sub" x="120" y="75" text-anchor="middle">Versioned template + item template</text>
+ <rect class="node" x="300" y="30" width="235" height="58" rx="7"/><text x="417" y="55" text-anchor="middle">Verify actual package</text><text class="sub" x="417" y="75" text-anchor="middle">4 variants · publish · smoke · browser</text>
+ <rect class="node" x="590" y="30" width="225" height="58" rx="7"/><text x="702" y="55" text-anchor="middle">Release gate → feed</text><text class="sub" x="702" y="75" text-anchor="middle">Configured organizational destination</text>
+ <rect class="node" x="5" y="175" width="230" height="58" rx="7"/><text x="120" y="200" text-anchor="middle">Generate application</text><text class="sub" x="120" y="220" text-anchor="middle">Independent copy + provenance</text>
+ <rect class="node" x="300" y="175" width="235" height="58" rx="7"/><text x="417" y="200" text-anchor="middle">Implement → pilot</text><text class="sub" x="417" y="220" text-anchor="middle">Real IdP · real source contracts</text>
+ <rect class="node" x="590" y="175" width="225" height="58" rx="7"/><text x="702" y="200" text-anchor="middle">Deploy → observe</text><text class="sub" x="702" y="220" text-anchor="middle">Application team owns rollout</text>
+ </svg><p class="caption">Release review includes a real-system pilot before broad promotion. CI alone cannot validate a consuming team’s identity provider, source permissions, or deployment platform.</p></div>
+ <h3>Publish a consuming application</h3><div class="code-label">WORKING DIRECTORY: GENERATED PROJECT ROOT · SDK; NODE 24 ALSO FOR ANGULAR</div><pre><code>dotnet publish src/Web/Web.csproj -c Release -o artifacts/published</code></pre><p>For Angular, publishing runs <code>npm ci</code> and the client build, generates the API client, and copies the built browser assets into <code>wwwroot</code>. Deploy the published Web artifact to your organization’s ASP.NET hosting environment. AppHost is a local orchestration aid, not a required production process.</p>
+ <p>Set the real Production configuration before starting the deployed application: External authentication, Live sources, connection settings, billing credentials, HTTPS hosting, and secret providers. Missing live settings fail startup validation. Provision source access separately; there is no database creation or migration step in Web startup.</p>
+ <h3>Use health and telemetry together</h3><div class="table-wrap"><table><thead><tr><th>Signal</th><th>Interpretation</th></tr></thead><tbody><tr><td>GET /alive</td><td>Checks the self/liveness registration only. A billing outage should not restart an otherwise live process.</td></tr><tr><td>GET /health</td><td>Runs all checks. Required customer failure is Unhealthy; optional billing failure is Degraded. With the default health middleware, Degraded still returns HTTP 200, while Unhealthy returns 503. Interpret the health state as well as transport status.</td></tr><tr><td>X-Correlation-ID</td><td>Web generates it from the current trace ID or a new trace ID, includes it in responses, and passes it through issues and downstream HTTP headers.</td></tr><tr><td>CleanArchitecture.Integrations</td><td>Source duration, attempts, results, circuit transitions and traces. Constant source/operation labels avoid customer identifiers in metrics.</td></tr><tr><td>CleanArchitecture.Application</td><td>Use-case duration and outcome. Logs include the request correlation scope.</td></tr><tr><td>OTLP / Aspire</td><td>OTLP export is enabled when configured; the optional Aspire dashboard helps inspect local traces, metrics and logs.</td></tr></tbody></table></div>
+ <p>The customer probe tests basic connectivity with <code>SELECT 1</code>, not the complete customer schema or stored-procedure contract. Billing probes <code>GET health</code>. Each probe has a short budget. Both probe endpoints are anonymous in code, so restrict them through deployment ingress according to operational needs.</p>
+ <p>Track warning rates separately from HTTP failure rates: partial answers are 200 responses. Investigate source latency, attempt counts, circuit transitions, and trace IDs together. Observation timestamps identify when values were read; they do not establish an atomic cross-system snapshot.</p>
+ <h3>Maintain the template as a product</h3><ol class="steps"><li><strong>Version the baseline.</strong> Major versions cover generated public-contract or CLI breaks; minor versions add capabilities; patches carry compatible fixes. <code>.template-version.json</code> records the package version and upstream commit. In this baseline the upstream reference is <code>705d77f</code>.</li><li><strong>Verify before release.</strong> Build with the pinned SDK, run default and disposable SQL tests, then run both provider package/browser matrices. Review package contents, dependency inventory, license notices and vulnerabilities.</li><li><strong>Publish through the organizational gate.</strong> The workflow requires <code>TEMPLATE_FEED_URL</code> and <code>TEMPLATE_FEED_API_KEY</code>, uses the <code>template-release</code> environment, and pushes an artifact downloaded from the package-test workflow. Configure review/pilot requirements in that environment.</li><li><strong>Pilot real integrations.</strong> Validate the actual identity provider, source contracts and permissions, time budgets, warning behavior and trace correlation. Promote the same tested artifact after the pilot.</li><li><strong>Support independent consumers.</strong> Review upstream monthly and port relevant changes selectively. The documented policy supports the current and previous organizational major for twelve months after a new major. Supply migration notes and targeted patches; generated applications do not self-update.</li></ol>
+ <p>Rollback a template release by selecting the previous package for generation. An already-deployed application requires its own artifact/configuration rollback; reinstalling a template does not undo application changes.</p>
+ <h3>Dependencies and adoption notes</h3><p>Versions are centrally pinned in <code>Directory.Packages.props</code>. This baseline retains MediatR 14.2.0, Dapper 2.1.79, SqlClient 7.0.2, Microsoft.Data.Sqlite 10.0.11, resilience 10.9.0, and Aspire 13.5.3. Angular uses its manifest and lockfile; NSwag is pinned to 14.6.3. Update manifests and lockfiles together.</p>
+ <p>The repository’s dependency policy requires reviewing MediatR production entitlement for consuming teams and supplying any applicable key through configuration. The template’s MIT notice does not establish third-party entitlement. Consult the maintained <a href="dependencies.md">dependency and licensing inventory</a> for its policy and primary vendor references; those terms must be checked at adoption and release rather than inferred from this offline handbook.</p>
+ <p class="source">Further reading: <a href="template-maintenance.md">maintenance and rollout policy</a> · <a href="dependencies.md">dependency inventory</a></p>
+</section>
+
+<section class="chapter" id="reference" aria-labelledby="reference-title">
+ <div class="chapter-no">12 / DESK REFERENCE</div><h2 id="reference-title">Find the next useful check</h2>
+ <p class="intro">Start with the failed boundary: tooling, startup configuration, caller identity, source access, workflow policy, or rendering.</p>
+ <div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Check</th><th>Next action</th></tr></thead><tbody><tr><td>SDK selection / build failure</td><td><code>dotnet --version</code> from the root and <code>global.json</code>.</td><td>Install the pinned SDK or a version permitted by its roll-forward policy; inspect restore failures separately.</td></tr><tr><td>di-sln / di-usecase not found</td><td>Package installed in the current template hive?</td><td>Install the matching local package or organizational-feed version; inspect <code>dotnet new list di-</code>.</td></tr><tr><td>USE_CASE.NOT_IMPLEMENTED</td><td>The generated handler is still the stub.</td><td>Implement the capability and tests; do not change the stub to report fake success.</td></tr><tr><td>Fake scenarios stop working</td><td>Environment and per-source Mode overrides.</td><td>Use Development/Test and Fake settings for the demo; generation provider selection alone does not enable Live.</td></tr><tr><td>Production fails at startup</td><td>Live connection settings, billing URL/key, authority/audience, and Angular OIDC credentials.</td><td>Supply the deployment settings. Fake and Development modes are intentionally rejected.</td></tr><tr><td>401 after local sign-in</td><td>HTTPS origin, Secure cookie, and current authentication mode.</td><td>Sign in on the application’s HTTPS origin. External API-only requires an externally issued bearer token.</td></tr><tr><td>403 with a valid identity</td><td><code>permissions=customers.read</code>.</td><td>Configure the required claim in the IdP or use the authorized test identity in tests.</td></tr><tr><td>REQUEST.CSRF on logout / mutation</td><td>Antiforgery token and matching cookie session.</td><td>Obtain a fresh token from /auth/antiforgery and submit the header or form field.</td></tr><tr><td>200 but no balance</td><td>Result status, issues, billingAvailable.</td><td>A Warning may be expected. Do not render null as a zero balance.</td></tr><tr><td>502 for a source</td><td>Stable issue code and correlated logs.</td><td>Check upstream authentication, payload/schema, and business contract. Caller reauthentication may be irrelevant.</td></tr><tr><td>SQLite file / schema error</td><td>Absolute path, existing file, read permission, Customers columns.</td><td>Prepare a separate local fixture or correct the source contract; the application does not create the database.</td></tr><tr><td>Repeated 503 / 504</td><td>Source health, time budgets, retry metadata, circuit state.</td><td>Investigate the source before increasing retries. Distinguish required failure from optional degradation.</td></tr><tr><td>Angular client is stale / missing</td><td>Web OpenAPI output and client generation.</td><td>Build Web, then run npm generate-api in ClientApp. Keep stable named endpoint methods.</td></tr><tr><td>Browser tests skipped / cannot connect</td><td>TEST_BASE_URL, running published app, browser installation.</td><td>Use the documented browser setup or maintainer -BrowserTests path.</td></tr><tr><td>Template fixes missing in an existing application</td><td>Recorded baseline version and migration notes.</td><td>Apply reviewed patches to the consuming application; it is not linked to future template versions.</td></tr></tbody></table></div>
+ <h3>Architectural habits to keep</h3><p>Keep external payloads inside adapters, workflow decisions inside Application, and transport mapping inside Web. Pass cancellation to every asynchronous dependency. Use stable issue codes and safe messages. When adding a new entry point such as a webhook or gRPC service, adapt it to the same use cases. File exports and message destinations can use narrow output capabilities implemented in Infrastructure.</p>
+ <p>Avoid generic repositories over unrelated sources, validators that perform hidden I/O, mediator calls inside handlers, fake domain aggregates around external rows, automatic cross-system writes, and catch blocks that invent empty successful values.</p>
+ <h3>Glossary</h3><dl class="glossary"><dt>System of record</dt><dd>The external system that owns authoritative data and its lifecycle.</dd><dt>Use case</dt><dd>An Application operation that validates, coordinates capabilities, and decides the result.</dd><dt>Capability / port</dt><dd>A narrow Application-owned interface expressing what a use case needs.</dd><dt>Adapter</dt><dd>An Infrastructure implementation that translates a capability into a concrete source protocol and maps its response.</dd><dt>Query / command</dt><dd>A read-oriented request / an intent to change state. Operation metadata must reflect actual side effects.</dd><dt>Degradation policy</dt><dd>The explicit rules permitting useful partial data when a nonessential capability fails in a known way.</dd><dt>Correlation ID</dt><dd>A trace-linked identifier joining an HTTP response, issues, logs and downstream activity.</dd><dt>Circuit breaker</dt><dd>A policy that temporarily stops attempts after a configured rate of eligible failures.</dd><dt>Idempotency</dt><dd>A business/protocol property allowing repetitions without unintended additional effects; it must be designed, not assumed.</dd><dt>OUTCOME_UNKNOWN</dt><dd>A write result that may have committed and requires reconciliation before retry decisions.</dd><dt>Readiness / liveness</dt><dd>Whether the service and its checked dependencies are ready / whether the process itself is alive.</dd><dt>Template hive</dt><dd>A separate template-engine installation context used by package tests to avoid disturbing a developer’s installed templates.</dd><dt>ADR</dt><dd>An architecture decision record capturing an accepted decision and its consequences.</dd><dt>Provenance</dt><dd>The recorded baseline version and upstream reference from which an application was generated.</dd></dl>
+ <h3>Keep the guide close to the code</h3><p>The authoritative supporting documents travel with this handbook: <a href="integration-guide.md">integration guide</a>, <a href="sqlite.md">SQLite setup</a>, <a href="template-maintenance.md">template maintenance</a>, <a href="dependencies.md">dependencies</a>, and <a href="decisions/ADR-004-Data-Centric-Integration.md">ADR-004</a>. Source paths in the chapters are navigation cues within the repository; maintainer-only files may be absent from a generated application.</p>
+</section>
+<footer class="footer"><strong>Data-Centric Integration Solution Template · Developer &amp; Maintainer Handbook</strong><p>Prepared against the current baseline, September 2026. Derived-template provenance is recorded in .template-version.json. This page is self-contained: no CDN, analytics, live API calls, or external font downloads. Supporting repository documents are linked for deeper reading.</p><a href="#main">Back to the beginning ↑</a></footer>
+</div></main>
+<script>
+(() => {
+  'use strict';
+  const byId = id => document.getElementById(id);
+  const announce = document.createElement('div');
+  announce.className = 'sr-only'; announce.setAttribute('role', 'status');
+  document.body.append(announce);
+
+  // Enhance existing, readable HTML. Core content does not depend on this script.
+  document.querySelectorAll('pre').forEach(pre => {
+    const code = pre.querySelector('code');
+    if (!code) return;
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'copy'; button.textContent = 'Copy';
+    button.setAttribute('aria-label', 'Copy this code example');
+    button.addEventListener('click', async () => {
+      let copied = false;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(code.textContent); copied = true;
+        }
+      } catch (_) { /* File browsers may deny clipboard access. Select text below. */ }
+      if (!copied) {
+        const selection = window.getSelection();
+        const range = document.createRange(); range.selectNodeContents(code);
+        selection.removeAllRanges(); selection.addRange(range);
+        try { copied = document.execCommand('copy'); } catch (_) { /* Manual copy remains available. */ }
+      }
+      button.textContent = copied ? 'Copied' : 'Selected · Ctrl/Cmd+C';
+      announce.textContent = copied ? 'Code copied to clipboard.' : 'Code selected. Press Control C or Command C to copy.';
+      window.setTimeout(() => { button.textContent = 'Copy'; }, 3000);
+    });
+    pre.classList.add('has-copy'); pre.prepend(button);
+  });
+
+  const layerInfo = {
+    Web: ['Web · caller-facing contracts', 'Owns authentication, authorization, binding, public DTOs and HTTP mapping. Program composes the layers. Representative code: src/Web/Endpoints/Customers.cs and Infrastructure/OperationResultMapper.cs.'],
+    Application: ['Application · the integration policy', 'Owns use cases, validation, aggregation models, narrow source interfaces, and OperationResult<T>. It decides whether partial data is usable. Representative code: Application/Customers/Queries/GetCustomerOverview.'],
+    Infrastructure: ['Infrastructure · source-specific execution', 'Implements the Application ports using SQL Server, SQLite, HTTP or fakes. Owns source options, credentials, resource lifetimes and SourceExecutor. It references Application; Application does not reference it.'],
+    Domain: ['Domain · intentional space for owned behavior', 'Currently empty. Add only application-owned entities, value objects and invariants. External rows stay in adapters, and aggregation models stay in Application. Domain has no mediator or persistence dependency.'],
+    AppHost: ['AppHost · optional local orchestration', 'References Web and Shared. Starts Web, and in an Angular development variant starts the frontend with its service reference. Provides optional diagnostics. Source fixture orchestration uses a separate TestAppHost.'],
+    ServiceDefaults: ['ServiceDefaults · common hosting capabilities', 'Registers OpenTelemetry, service discovery, self liveness and health endpoints. OTLP export is configuration-driven. Source resilience is registered in Infrastructure rather than applied to every HTTP client.'],
+    Shared: ['Shared · stable resource names', 'Contains small constants such as the Web and frontend resource names used by orchestration. It is not a generic collection of business helpers or an alternative Application layer.']
+  };
+  function showDetail(element, title, description) {
+    const strong = document.createElement('strong'); strong.textContent = title;
+    const paragraph = document.createElement('p'); paragraph.textContent = description;
+    element.replaceChildren(strong, paragraph);
+  }
+  function selectLayer(layer) {
+    document.querySelectorAll('[data-layer]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.layer === layer)));
+    document.querySelectorAll('[data-layer-node]').forEach(node => node.classList.toggle('highlight', node.dataset.layerNode === layer));
+    showDetail(byId('layer-detail'), ...layerInfo[layer]);
+  }
+  byId('layer-controls').addEventListener('click', event => {
+    const button = event.target.closest('[data-layer]');
+    if (button) selectLayer(button.dataset.layer);
+  });
+  selectLayer('Application');
+
+  const steps = [
+    ['1. Establish identity and permission', 'Web establishes a correlation ID. The customer endpoint requires an authenticated user with permissions=customers.read. A denied request never reaches the handler.'],
+    ['2. Enter the registered behaviors', 'Logging wraps unhandled-exception conversion, which wraps validation. The validator checks the customer ID without source I/O. Invalid input returns a structured Error before dispatch reaches the handler.'],
+    ['3. Dispatch the use case', 'ISender sends GetCustomerOverviewQuery to its handler. The handler starts both source tasks before awaiting Task.WhenAll, carrying the caller cancellation token.'],
+    ['4. Run both source capabilities', 'The registered customer and billing adapters execute in parallel. Each uses SourceExecutor. Live adapters validate external data; fakes provide deterministic examples. Both tasks are awaited before outcome aggregation.'],
+    ['5. Apply the explicit degradation policy', 'A failed required customer lookup wins. With customer data present, only BILLING.TIMEOUT, BILLING.UNAVAILABLE and BILLING.CIRCUIT_OPEN permit a Warning. Unavailable billing fields remain null.'],
+    ['6. Map and render the public contract', 'Web maps Application data into CustomerOverviewResponse and emits the envelope plus X-Correlation-ID. Angular distinguishes complete, partial and error results, including structured non-2xx responses.']
+  ];
+  let stepIndex = 0;
+  function renderStep() {
+    showDetail(byId('step-detail'), ...steps[stepIndex]);
+    byId('step-count').textContent = `Step ${stepIndex + 1} of ${steps.length}`;
+    byId('step-back').disabled = stepIndex === 0;
+    byId('step-next').disabled = stepIndex === steps.length - 1;
+    document.querySelectorAll('[data-step-node]').forEach(node => node.classList.toggle('highlight', Number(node.dataset.stepNode) === stepIndex));
+  }
+  byId('step-back').addEventListener('click', () => { stepIndex = Math.max(0, stepIndex - 1); renderStep(); });
+  byId('step-next').addEventListener('click', () => { stepIndex = Math.min(steps.length - 1, stepIndex + 1); renderStep(); });
+  renderStep();
+
+  function renderCommand() {
+    const name = byId('project-name').value.trim();
+    const valid = /^[A-Za-z][A-Za-z0-9_]{0,59}$/.test(name);
+    byId('project-name').setAttribute('aria-invalid', String(!valid));
+    byId('command-error').textContent = valid ? '' : 'Use 1–60 letters, digits or underscores, starting with a letter.';
+    if (!valid) {
+      byId('generated-command').textContent = '# Enter a valid project name to generate commands.';
+      byId('command-explanation').textContent = 'This helper uses a conservative project-name format to keep shell commands and C# namespaces safe.';
+      return;
+    }
+    const client = byId('client-framework').value;
+    const provider = byId('customer-provider').value;
+    const lines = [
+      `dotnet new di-sln -n ${name} -cf ${client} --CustomerProvider ${provider}`,
+      `Set-Location ${name}`, 'dotnet build'
+    ];
+    if (client === 'Angular') lines.push('npm --prefix src/Web/ClientApp ci', 'dotnet run --project src/AppHost');
+    else lines.push('dotnet run --project src/Web --launch-profile https');
+    byId('generated-command').textContent = lines.join('\n');
+    byId('command-explanation').textContent = (client === 'Angular'
+      ? 'Requires Node 24. Open the frontend URL from the Aspire dashboard, then use its sign-in action. '
+      : 'API-only opens Scalar. Sign in at /auth/login?returnUrl=/scalar on the HTTPS origin. ')
+      + 'Development still uses fake sources, regardless of the selected live provider.';
+  }
+  ['project-name', 'client-framework', 'customer-provider'].forEach(id => byId(id).addEventListener('input', renderCommand));
+  renderCommand();
+
+  const trace = '0123456789abcdef0123456789abcdef';
+  const scenarios = {
+    complete: {id:'CUST-001', http:200, status:'Success', balance:125.5, customer:'Success · required customer is available', billing:'Success · balance 125.50 USD', explanation:'Both sources return usable data. Billing is available and the positive balance makes hasOutstandingBalance true.'},
+    partial: {id:'CUST-WARN', http:200, status:'Warning', code:'BILLING.TIMEOUT', message:'Billing information is temporarily unavailable.', customer:'Success · required customer is available', billing:'Error · BILLING.TIMEOUT', explanation:'Billing timeout is allowlisted for degradation. Return usable customer data with a Warning; unavailable billing fields and payment attention stay null.'},
+    required: {id:'CUST-FAIL', http:503, status:'Error', code:'CUSTOMER.UNAVAILABLE', message:'The customer source is unavailable.', customer:'Error · CUSTOMER.UNAVAILABLE', billing:'Success · cannot rescue a missing required capability', explanation:'The required customer lookup failed. Billing success cannot produce a usable overview, so the response has data:null.'},
+    missing: {id:'CUST-MISSING', http:404, status:'Error', code:'CUSTOMER.NOT_FOUND', message:'The requested customer was not found.', category:'Business', customer:'Error · CUSTOMER.NOT_FOUND', billing:'Success · discarded during aggregation', explanation:'The requested customer does not exist. This has its own 404 mapping, distinct from an upstream billing record being absent.'},
+    invalid: {id:'invalid_id', http:400, status:'Error', code:'CUSTOMER.INVALID_ID', message:"'Customer Id' is not in the correct format.", category:'Validation', target:'CustomerId', customer:'Not called · input rejected', billing:'Not called · input rejected', explanation:'The underscore fails the ID format rule. Validation short-circuits the pipeline before either adapter is called.'},
+    zero: {id:'CUST-001', http:200, status:'Success', balance:0, customer:'Success · illustrative adapter result', billing:'Success · a genuine zero balance', explanation:'Illustration, not a built-in fake-ID behavior: a source returns a valid zero. Billing remains available and hasOutstandingBalance is false.'},
+    'billing-auth': {id:'CUST-001', http:502, status:'Error', code:'BILLING.AUTHENTICATION_FAILED', message:'The upstream operation could not be completed.', customer:'Success · customer is available', billing:'Error · source credentials rejected', explanation:'Illustration: billing credentials fail. This code is not degradable. It maps to 502 because the source credential problem is not a request for the caller to sign in again.'},
+    'billing-payload': {id:'CUST-001', http:502, status:'Error', code:'BILLING.INVALID_RESPONSE', message:'The upstream operation could not be completed.', customer:'Success · customer is available', billing:'Error · payload violates source contract', explanation:'Illustration: malformed billing data cannot be treated as a temporary optional-source outage. The workflow returns Error rather than masking the contract failure.'},
+    'billing-missing': {id:'CUST-001', http:502, status:'Error', code:'BILLING.NOT_FOUND', category:'Business', message:'No billing summary exists for this customer.', customer:'Success · customer is available', billing:'Error · billing record missing', explanation:'Illustration: a missing billing record is not allowlisted for degradation and is not CUSTOMER.NOT_FOUND. The default error mapping is 502.'}
+  };
+  function renderScenario() {
+    const item = scenarios[byId('scenario').value];
+    const available = item.status === 'Success';
+    const data = item.status === 'Error' ? null : {
+      customerId:item.id, displayName:'Example Customer', billingAvailable:available,
+      outstandingBalance:available ? item.balance : null, currency:available ? 'USD' : null,
+      hasOutstandingBalance:available ? item.balance > 0 : null,
+      customerObservedAt:'2026-09-09T09:00:00Z', billingObservedAt:available ? '2026-09-09T09:00:01Z' : null
+    };
+    const issues = item.code ? [{code:item.code, message:item.message, category:item.category || 'Technical', correlationId:trace, target:item.target || null}] : [];
+    byId('outcome-json').textContent = JSON.stringify({status:item.status, data, issues, correlationId:trace}, null, 2);
+    byId('outcome-badge').textContent = `${item.http} · ${item.status}`;
+    byId('outcome-badge').className = 'badge ' + (item.status === 'Success' ? 'good' : item.status === 'Warning' ? 'warn' : 'bad');
+    byId('customer-lane').textContent = item.customer; byId('billing-lane').textContent = item.billing;
+    byId('outcome-explanation').textContent = item.explanation;
+  }
+  byId('scenario').addEventListener('change', renderScenario); renderScenario();
+
+  const rail = document.querySelector('.rail');
+  byId('menu-toggle').addEventListener('click', () => {
+    const closed = rail.classList.toggle('nav-closed');
+    byId('menu-toggle').setAttribute('aria-expanded', String(!closed));
+  });
+  const links = [...document.querySelectorAll('#contents a')];
+  const chapters = [...document.querySelectorAll('.chapter')];
+  const searchIndex = new Map(chapters.map(section => [section.id, section.textContent.toLowerCase()]));
+  byId('guide-search').addEventListener('input', event => {
+    const query = event.target.value.trim().toLowerCase();
+    const terms = query.split(/\s+/).filter(Boolean);
+    let matches = 0;
+    links.forEach(link => {
+      const text = searchIndex.get(link.hash.slice(1));
+      const match = terms.every(term => text.includes(term));
+      link.hidden = !match; if (match) matches++;
+    });
+    byId('search-meta').textContent = query ? `${matches} matching chapter${matches === 1 ? '' : 's'} · content remains visible` : '';
+    byId('no-match').hidden = matches !== 0;
+  });
+  let scrollPending = false;
+  function updateCurrentChapter() {
+    let current = chapters[0].id;
+    for (const section of chapters) if (section.getBoundingClientRect().top <= 150) current = section.id;
+    links.forEach(link => {
+      if (link.hash === '#' + current) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+    scrollPending = false;
+  }
+  window.addEventListener('scroll', () => {
+    if (!scrollPending) { scrollPending = true; window.requestAnimationFrame(updateCurrentChapter); }
+  }, {passive:true});
+  updateCurrentChapter();
+
+  let detailsBeforePrint = [];
+  window.addEventListener('beforeprint', () => {
+    detailsBeforePrint = [...document.querySelectorAll('details')].filter(detail => !detail.open);
+    detailsBeforePrint.forEach(detail => { detail.open = true; });
+  });
+  window.addEventListener('afterprint', () => {
+    detailsBeforePrint.forEach(detail => { detail.open = false; }); detailsBeforePrint = [];
+  });
+  byId('print-guide').addEventListener('click', () => window.print());
+  document.querySelectorAll('.enhancement').forEach(element => { element.hidden = false; });
+})();
+</script>
+</body>
+</html>

@@ -12,16 +12,6 @@
         "text": "Select the Client Framework type, or select None for Web API only."
       },
       "isVisible": true
-    },
-    {
-      "id": "Database",
-      "name": {
-        "text": "Database"
-      },
-      "description": {
-        "text": "Select the database type."
-      },
-      "isVisible": true
     }
   ]
 }

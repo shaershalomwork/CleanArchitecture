@@ -1,22 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <RootNamespace>CleanArchitecture.Infrastructure.IntegrationTests</RootNamespace>
-        <AssemblyName>CleanArchitecture.Infrastructure.IntegrationTests</AssemblyName>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="NUnit" />
-        <PackageReference Include="NUnit3TestAdapter" />
-        <PackageReference Include="NUnit.Analyzers">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="coverlet.collector">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-
+  <PropertyGroup><IsTestProject>true</IsTestProject><RootNamespace>CleanArchitecture.Infrastructure.IntegrationTests</RootNamespace><AssemblyName>CleanArchitecture.Infrastructure.IntegrationTests</AssemblyName></PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" /><PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" /><PackageReference Include="Shouldly" />
+    <PackageReference Include="Aspire.Hosting.Testing" />
+    <ProjectReference Include="../../src/Infrastructure/Infrastructure.csproj" />
+    <ProjectReference Include="../TestAppHost/TestAppHost.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Update="Fixtures/*.sql" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>

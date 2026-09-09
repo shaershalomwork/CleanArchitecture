@@ -1,44 +1,21 @@
 using CleanArchitecture.Application.Common.Interfaces;
+using CleanArchitecture.Application.Common.Results;
 
 namespace CleanArchitecture.Application.FeatureName.Commands.CleanArchitectureUseCase;
 
-//#if (hasReturnType)
-public record CleanArchitectureUseCaseCommand : IRequest<TReturnType>
-//#else
-public record CleanArchitectureUseCaseCommand : IRequest
-//#endif
+public sealed record CleanArchitectureUseCaseCommand : IRequest<OperationResult<TReturnType>>;
+public sealed class CleanArchitectureUseCaseCommandValidator : AbstractValidator<CleanArchitectureUseCaseCommand>
 {
+    public CleanArchitectureUseCaseCommandValidator() { }
 }
-
-public class CleanArchitectureUseCaseCommandValidator : AbstractValidator<CleanArchitectureUseCaseCommand>
+public sealed class CleanArchitectureUseCaseCommandHandler(ICorrelationContext correlation)
+    : IRequestHandler<CleanArchitectureUseCaseCommand, OperationResult<TReturnType>>
 {
-    public CleanArchitectureUseCaseCommandValidator()
+    public Task<OperationResult<TReturnType>> Handle(CleanArchitectureUseCaseCommand request, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        // TODO: Inject narrow source capabilities and explicitly decide whether degraded data is usable.
+        return Task.FromResult(OperationResult<TReturnType>.Failure(new OperationIssue(
+            "USE_CASE.NOT_IMPLEMENTED", "This use case has not been implemented.", IssueCategory.Technical, correlation.Id)));
     }
-}
-
-//#if (hasReturnType)
-public class CleanArchitectureUseCaseCommandHandler : IRequestHandler<CleanArchitectureUseCaseCommand, TReturnType>
-//#else
-public class CleanArchitectureUseCaseCommandHandler : IRequestHandler<CleanArchitectureUseCaseCommand>
-//#endif
-{
-    private readonly IApplicationDbContext _context;
-
-    public CleanArchitectureUseCaseCommandHandler(IApplicationDbContext context)
-    {
-        _context = context;
-    }
-
-//#if (hasReturnType)
-    public async Task<TReturnType> Handle(CleanArchitectureUseCaseCommand request, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-//#else
-    public async Task Handle(CleanArchitectureUseCaseCommand request, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-//#endif
 }

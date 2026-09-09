@@ -1,19 +1,8 @@
-﻿using System.Security.Claims;
-
 using CleanArchitecture.Application.Common.Interfaces;
-
+using Microsoft.Extensions.Options;
 namespace CleanArchitecture.Web.Services;
-
-public class CurrentUser : IUser
+public sealed class CurrentUser(IHttpContextAccessor accessor, IOptions<Authentication.AuthenticationOptions> options) : IUser
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public CurrentUser(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
-    public string? Id => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-    public List<string>? Roles => _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role).Select(x => x.Value).ToList();
-
+    public string? Id => accessor.HttpContext?.User.FindFirst("sub")?.Value;
+    public List<string>? Roles => accessor.HttpContext?.User.FindAll(options.Value.RoleClaimType).Select(c => c.Value).ToList();
 }

@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-004](ADR-004-Data-Centric-Integration.md)
 
 ## Date
 
