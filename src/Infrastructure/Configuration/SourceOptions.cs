@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 namespace CleanArchitecture.Infrastructure.Configuration;
 
 public enum SourceMode { Live, Fake }
-public enum CustomerDatabaseProvider { SqlServer, SQLite }
+public enum CustomerDatabaseProvider { SqlServer, SQLite, Oracle }
 public sealed class CustomerRegistryOptions
 {
     public SourceMode Mode { get; set; } = SourceMode.Live;

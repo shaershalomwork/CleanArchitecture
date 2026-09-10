@@ -26,7 +26,13 @@ var app = builder.Build();
 app.Use(async (context, next) =>
 {
     context.TraceIdentifier = Activity.Current?.TraceId.ToString() ?? ActivityTraceId.CreateRandom().ToString();
-    context.Response.Headers["X-Correlation-ID"] = context.TraceIdentifier;
+    // Exception handling clears response headers. Set correlation immediately before
+    // headers are sent so binding failures retain the same envelope/header contract.
+    context.Response.OnStarting(() =>
+    {
+        context.Response.Headers["X-Correlation-ID"] = context.TraceIdentifier;
+        return Task.CompletedTask;
+    });
     await next(context);
 });
 app.UseExceptionHandler();
@@ -60,9 +66,13 @@ app.MapScalarApiReference().AllowAnonymous();
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
 #if (UseAngular)
-app.MapFallbackToFile("index.html").AllowAnonymous();
+app.MapFallbackToFile("index.html").AllowAnonymous().WithMetadata(
+    new EndpointSummaryAttribute("Open the Angular application"),
+    new EndpointDescriptionAttribute("Serves the application shell for browser navigation routes. Authentication is not required to load the shell."));
 #else
-app.MapGet("/", () => Results.Redirect("/scalar")).AllowAnonymous();
+app.MapGet("/", [EndpointSummary("Open the API reference")]
+    [EndpointDescription("Redirects to the interactive Scalar API reference. Authentication is not required.")]
+    () => Results.Redirect("/scalar")).AllowAnonymous();
 #endif
 app.Run();
 public partial class Program;

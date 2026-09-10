@@ -6,6 +6,13 @@ public interface ICustomerSourceAdapter
 {
     Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken);
 }
+public interface ICustomerWriteSourceAdapter
+{
+    Task<OperationResult<Customer>> CreateAsync(string customerId, string displayName, CancellationToken cancellationToken);
+    Task<OperationResult<Customer>> ReplaceAsync(string customerId, string displayName, CancellationToken cancellationToken);
+    Task<OperationResult<Customer>> PatchAsync(string customerId, string displayName, CancellationToken cancellationToken);
+    Task<OperationResult<NoData>> DeleteAsync(string customerId, CancellationToken cancellationToken);
+}
 public interface IBillingSourceAdapter
 {
     Task<OperationResult<BillingSummary>> GetSummaryAsync(string customerId, CancellationToken cancellationToken);

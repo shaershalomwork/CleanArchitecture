@@ -79,7 +79,8 @@ public static class AuthenticationRegistration
             });
         builder.Services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
-            .AddPolicy("CustomerOverview.Read", policy => policy.RequireAuthenticatedUser().RequireClaim("permissions", "customers.read"));
+            .AddPolicy("CustomerOverview.Read", policy => policy.RequireAuthenticatedUser().RequireClaim("permissions", "customers.read"))
+            .AddPolicy("Customer.Write", policy => policy.RequireAuthenticatedUser().RequireClaim("permissions", "customers.write"));
         builder.Services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
     }
 }

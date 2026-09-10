@@ -38,6 +38,8 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.18.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.18.0" />
     <PackageVersion Include="Dapper" Version="2.1.79" />
+    <PackageVersion Include="Oracle.ManagedDataAccess.Core" Version="23.26.300" />
+    <PackageVersion Include="Aspire.Hosting.Oracle" Version="13.5.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.11" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.5.3" />

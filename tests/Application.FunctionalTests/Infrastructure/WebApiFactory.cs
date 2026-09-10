@@ -33,7 +33,8 @@ public sealed class TestAuthenticationHandler(IOptionsMonitor<AuthenticationSche
     {
         if (!Request.Headers.TryGetValue("X-Test-User", out var user)) return Task.FromResult(AuthenticateResult.NoResult());
         var claims = new List<Claim> { new("sub", "test-user") };
-        if (user == "reader") claims.Add(new("permissions", "customers.read"));
+        if (user == "reader" || user == "reader-writer") claims.Add(new("permissions", "customers.read"));
+        if (user == "writer" || user == "reader-writer") claims.Add(new("permissions", "customers.write"));
         return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(claims, "Test")), "Test")));
     }
 }

@@ -1,7 +1,7 @@
 param(
     [string[]]$ClientFramework = @('None', 'Angular'),
     [string]$Version = '0.1.0',
-    [ValidateSet('SqlServer', 'SQLite')][string]$CustomerProvider = 'SqlServer',
+    [ValidateSet('SqlServer', 'SQLite', 'Oracle')][string]$CustomerProvider = 'SqlServer',
     [switch]$BrowserTests
 )
 $ErrorActionPreference = 'Stop'
@@ -12,12 +12,18 @@ New-Item -ItemType Directory -Force -Path $run | Out-Null
 & "$PSScriptRoot/repack.ps1" -Version $Version
 dotnet new install "$root/artifacts/template-packages/DataCentric.Integration.Solution.Template.$Version.nupkg" --debug:custom-hive $hive
 if ($LASTEXITCODE -ne 0) { throw 'Package installation failed.' }
+$secretIds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 foreach ($client in $ClientFramework) {
     $path = Join-Path $run $client
     dotnet new di-sln -cf $client --CustomerProvider $CustomerProvider -n IntegrationSmoke -o $path --debug:custom-hive $hive
     if ($LASTEXITCODE -ne 0) { throw "Generation failed: $client" }
     $settings = Get-Content (Join-Path $path 'src/Web/appsettings.json') -Raw | ConvertFrom-Json
     if ($settings.Sources.CustomerRegistry.Provider -ne $CustomerProvider) { throw 'Generated source provider is incorrect.' }
+    [xml]$webProject = Get-Content (Join-Path $path 'src/Web/Web.csproj') -Raw
+    $secretId = [string]$webProject.Project.PropertyGroup.UserSecretsId
+    if ([string]::IsNullOrWhiteSpace($secretId) -or $secretId.Contains('7a87b1cc-f5d8-4bcf-b960-398d18d386af') -or !$secretIds.Add($secretId)) {
+        throw 'Generated applications must have distinct user-secrets IDs.'
+    }
     Push-Location $path
     try {
         Push-Location src/Application

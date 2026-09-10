@@ -24,6 +24,7 @@
   },
   "sourceName": "CleanArchitecture",
   "preferNameDirectory": true,
+  "guids": ["7a87b1cc-f5d8-4bcf-b960-398d18d386af"],
   "symbols": {
     "kestrelHttpPort": {
       "type": "parameter",
@@ -212,7 +213,7 @@
     "CustomerProvider": {
       "type": "parameter",
       "datatype": "choice",
-      "choices": [{ "choice": "SqlServer" }, { "choice": "SQLite" }],
+      "choices": [{ "choice": "SqlServer" }, { "choice": "SQLite" }, { "choice": "Oracle" }],
       "defaultValue": "SqlServer",
       "description": "Database provider for the live customer source"
     },

@@ -78,6 +78,27 @@ public class SqliteCustomerTests
         Should.Throw<SqliteException>(() => connection.Execute("DELETE FROM Customers"));
     }
 
+    [Test] public void WriteConnectionsNeverCreateMissingFiles()
+    {
+        var factory = new SqliteWriteConnectionFactory(_configuration, Options.Create(new SourceExecutionOptions()));
+        Should.Throw<SqliteException>(() => factory.Open("Missing", default));
+        File.Exists(_path + ".missing").ShouldBeFalse();
+    }
+
+    [Test] public async Task MutationOfAnInvalidMultiRowSourceRollsBack()
+    {
+        using (var connection = new SqliteConnection(_configuration.GetConnectionString("CustomerRegistry")))
+        {
+            connection.Open();
+            connection.Execute("INSERT INTO Customers VALUES ('CUST-001', 'Duplicate');");
+        }
+        var writer = new SqliteCustomerWriteSourceAdapter(new(_configuration, Options.Create(new SourceExecutionOptions())),
+            SourceExecutorTests.Create(), Options.Create(new CustomerRegistryOptions()), new SourceExecutorTests.Correlation(), TimeProvider.System);
+        (await writer.PatchAsync("CUST-001", "Corrupted", default)).Issues[0].Code.ShouldBe("CUSTOMER.INVALID_RESPONSE");
+        using var read = new SqliteConnectionFactory(_configuration, Options.Create(new SourceExecutionOptions())).Open("CustomerRegistry", default);
+        read.Query<string>("SELECT DisplayName FROM Customers WHERE Id = 'CUST-001'").ShouldNotContain("Corrupted");
+    }
+
     [Test] public void CallerCancellationPropagates()
     {
         using var cancellation = new CancellationTokenSource();

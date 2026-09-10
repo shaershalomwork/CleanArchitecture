@@ -1,4 +1,4 @@
 <Project Sdk="Aspire.AppHost.Sdk/13.5.3">
   <PropertyGroup><OutputType>Exe</OutputType><RootNamespace>CleanArchitecture.TestAppHost</RootNamespace><AssemblyName>CleanArchitecture.TestAppHost</AssemblyName></PropertyGroup>
-  <ItemGroup><PackageReference Include="Aspire.Hosting.AppHost" /><PackageReference Include="Aspire.Hosting.SqlServer" /></ItemGroup>
+  <ItemGroup><PackageReference Include="Aspire.Hosting.AppHost" /><PackageReference Include="Aspire.Hosting.SqlServer" /><PackageReference Include="Aspire.Hosting.Oracle" /></ItemGroup>
 </Project>

@@ -10,11 +10,12 @@ public class DependencyTests
     [Test] public void InnerAssembliesDoNotReferenceTransports()
     {
         var application = typeof(OperationResult<>).Assembly;
-        var forbidden = new[] { "EntityFramework", "Dapper", "SqlClient", "Sqlite", "Infrastructure", "System.Net.Http", "AspNetCore" };
+        var forbidden = new[] { "EntityFramework", "Dapper", "SqlClient", "Sqlite", "Oracle", "Infrastructure", "System.Net.Http", "AspNetCore" };
         application.GetReferencedAssemblies().ShouldNotContain(a => forbidden.Any(f => a.Name!.Contains(f, StringComparison.Ordinal)));
         var domain = Assembly.Load(application.GetReferencedAssemblies().FirstOrDefault(a => a.Name!.EndsWith(".Domain", StringComparison.Ordinal))
             ?? new AssemblyName(application.GetName().Name!.Replace(".Application", ".Domain", StringComparison.Ordinal)));
         domain.GetReferencedAssemblies().ShouldNotContain(a => a.Name!.Contains("MediatR", StringComparison.Ordinal));
+        domain.GetReferencedAssemblies().ShouldNotContain(a => forbidden.Any(f => a.Name!.Contains(f, StringComparison.Ordinal)));
     }
     [Test] public void HandlersAndAdaptersCannotNestMediatorDispatch()
     {

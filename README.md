@@ -5,7 +5,7 @@ External systems remain the systems of record. C# use cases combine narrow SQL/H
 
 ## Requirements
 
-.NET SDK 10.0.400 (global.json). Node 24 for Angular. Docker only for the opt-in SQL fixture tests.
+.NET SDK 10.0.400 (global.json). Node 24 for Angular. Docker only for the opt-in SQL Server and Oracle fixture tests.
 The default generated project is API-only; Angular is the only supported frontend.
 
 ## Develop this repository
@@ -26,11 +26,12 @@ pwsh build/verify.ps1
 pwsh build/verify.ps1 -SourceIntegration
 pwsh build/test.ps1 -BrowserTests
 pwsh build/test.ps1 -CustomerProvider SQLite -BrowserTests
+pwsh build/test.ps1 -CustomerProvider Oracle -BrowserTests
 ```
 
 The first command is offline with respect to corporate sources; package restore still requires your NuGet feed.
-The second starts a disposable SQL Server using Docker. The last two commands cover all four provider/frontend combinations in isolated template hives, including generated use cases, publishing, HTTP smoke tests for every published app, and Angular browser tests with sign-in and sign-out.
-Published smoke tests use Development authentication and fake sources. Real SQLite source/HTTP tests run in the offline suite; the disposable SQL Server contracts run with SourceIntegration. Corporate identity-provider and upstream connectivity require deployment-specific verification.
+The second starts disposable SQL Server and Oracle Free instances using Docker. The last three commands cover all six provider/frontend combinations in isolated template hives, including generated use cases, publishing, HTTP smoke tests for every published app, and Angular browser tests with sign-in and sign-out.
+Published smoke tests use Development authentication and fake sources. Real SQLite source/HTTP tests run in the offline suite; disposable SQL Server and Oracle contracts run with SourceIntegration. Corporate identity-provider and upstream connectivity require deployment-specific verification.
 Do not point fixture tests at corporate databases.
 For local browser verification with an installed Chrome or Edge, set PLAYWRIGHT_BROWSER_CHANNEL to chrome or msedge. CI uses Playwright's pinned Chromium.
 
@@ -41,7 +42,7 @@ dotnet new di-sln -n MyIntegration -cf Angular
 ```
 
 Use `-cf None` (the default) for API-only. The former single-database option and React frontend are removed.
-The customer source supports SQL Server (default) and SQLite. Generate the SQLite variant with `dotnet new di-sln -n MyIntegration -cf Angular --CustomerProvider SQLite`; see [SQLite setup](docs/sqlite.md). Development still starts with fake sources until a live source is configured.
+The customer source supports SQL Server (default), SQLite, and Oracle. Select `--CustomerProvider SQLite` or `--CustomerProvider Oracle` when generating a project; see [SQLite setup](docs/sqlite.md) and [Oracle setup](docs/oracle.md). Development still starts with fake sources until a live source is configured. [Customer write examples](docs/customer-writes.md) demonstrate POST, PUT, PATCH, and DELETE with a separate writer permission.
 
 ## Architecture and operations
 

@@ -6,9 +6,13 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Dapper" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Extensions.Resilience" />
     <ProjectReference Include="../Application/Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).IntegrationTests" />
   </ItemGroup>
 </Project>

@@ -28,8 +28,12 @@ public static class Extensions
     }
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
-        app.MapHealthChecks("/health").AllowAnonymous();
-        app.MapHealthChecks("/alive", new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") }).AllowAnonymous();
+        app.MapHealthChecks("/health").AllowAnonymous().WithMetadata(
+            new Microsoft.AspNetCore.Http.EndpointSummaryAttribute("Check source readiness"),
+            new Microsoft.AspNetCore.Http.EndpointDescriptionAttribute("Checks required customer-source availability and optional billing readiness. Does not return source credentials or exception details."));
+        app.MapHealthChecks("/alive", new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") }).AllowAnonymous().WithMetadata(
+            new Microsoft.AspNetCore.Http.EndpointSummaryAttribute("Check application liveness"),
+            new Microsoft.AspNetCore.Http.EndpointDescriptionAttribute("Reports whether the application is running, independently of external source availability."));
         return app;
     }
 }

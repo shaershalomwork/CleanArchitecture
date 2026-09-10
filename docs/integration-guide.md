@@ -30,6 +30,8 @@ SQL session context carries CorrelationId and is cleared on disposal. A failed c
 
 ## Configuration
 
+CustomerRegistry supports SqlServer (default), SQLite, and Oracle. [Oracle setup](oracle.md) documents named connections, secret configuration, session correlation, and the sample table contract. [Customer writes](customer-writes.md) documents the separate write capability, SQL Server procedures, partial-update semantics, and writer permission. Source schemas remain externally owned; fixture SQL is never run by the application.
+
 Base appsettings.json selects Live and External. appsettings.Development.json selects Fake and Development.
 Per-source options allow independent mode selection in Development/Test. Non-development startup rejects all fake modes.
 Live settings validate at startup without probing corporate sources. Readiness probes are separate from configuration validation.
@@ -48,6 +50,7 @@ The Web request budget is 15 seconds. Avoid stacking provider/client retry polic
 
 API-only uses externally issued JWTs with signature, issuer, audience and lifetime validation.
 CustomerOverview.Read requires the permissions claim customers.read.
+Customer.Write requires the permissions claim customers.write for POST, PUT, PATCH, and DELETE. The development reader keeps read-only access.
 Angular uses server-side OIDC code flow with PKCE and secure cookies; configure ClientId and ClientSecret and register /signin-oidc and /signout-callback-oidc.
 Use HTTPS in deployments and the HTTPS launch profile locally. Persist/protect ASP.NET Core Data Protection keys using the organization's deployment platform for multiple instances.
 Development sign-in is only registered behavior in Development/Test mode and represents a fixed demo reader.
@@ -59,6 +62,7 @@ Downstream calls use source credentials, not automatically forwarded caller acce
 ## Results and observability
 
 Web serializes ApiOperationResponse<T>, independently mapped from Application models.
+ProducesApiOperationResponses<T> declares shared authenticated operation responses; endpoint-specific 404/409/422 declarations stay next to their endpoints. Every owned handler has summary and description attributes. Authentication endpoints retain their existing native responses.
 200 can mean Success or Warning. Inspect status, issues and billingAvailable, not only the HTTP status.
 Errors have data:null. Stable issue codes map to HTTP only in Web; a requested customer missing is 404, but an upstream credential failure is 502.
 Every response includes X-Correlation-ID. Issues carry the same trace ID; HTTP downstream requests propagate W3C tracing and X-Correlation-ID.

@@ -3,7 +3,7 @@
 Generated from DataCentric.Integration.Solution.Template version __BaselineVersion__, based on upstream commit 705d77f.
 See .template-version.json for provenance.
 Open the [interactive HTML handbook](docs/template-guide.html) in a browser for an offline, illustrated guide to the architecture and end-to-end development workflow.
-The live customer source supports SQL Server and SQLite. See [SQLite setup](docs/sqlite.md) for the database contract and configuration.
+The live customer source supports SQL Server, SQLite, and Oracle. See [SQLite setup](docs/sqlite.md), [Oracle setup](docs/oracle.md), and [customer write examples](docs/customer-writes.md) for contracts and configuration.
 
 ## Run locally
 
@@ -25,7 +25,7 @@ pwsh build/verify.ps1
 pwsh build/verify.ps1 -SourceIntegration
 ```
 
-The default suite requires no corporate connections or Docker. SourceIntegration starts a disposable SQL Server and requires Docker.
+The default suite requires no corporate connections or Docker. SourceIntegration starts disposable SQL Server and Oracle Free fixtures and requires Docker.
 Browser tests require TEST_BASE_URL pointing to the published Development application and the Playwright browser installed.
 Production configuration rejects fake sources and development authentication.
 

@@ -12,6 +12,8 @@ The Angular application builder avoids the unused webpack development server. A 
 | Dapper 2.1.79 | Apache-2.0; explicit source queries and stored procedures. |
 | Microsoft.Data.SqlClient 7.0.2 | Concrete SQL Server provider, confined to Infrastructure. |
 | Microsoft.Data.Sqlite 10.0.11 | SQLite provider, confined to Infrastructure; no EF Core dependency. |
+| Oracle.ManagedDataAccess.Core 23.26.300 | Managed Oracle provider, confined to Infrastructure; .NET 10, Oracle Database 19c+, no EF Core dependency. Review the vendor package terms when adopting Oracle. |
+| Aspire.Hosting.Oracle 13.5.3 | TestAppHost-only integration for disposable Oracle Free source contracts. |
 | Microsoft.Extensions.Resilience 10.9.0 / Polly | Shared source-operation execution; no blanket HTTP retries. |
 | EF Core / local Identity / Respawn | Removed from the default runtime/test design. |
 | Aspire 13.5.3 | Optional development diagnostics and disposable source integration tests. |

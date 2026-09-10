@@ -16,6 +16,6 @@ jobs:
       - name: Offline verification
         shell: pwsh
         run: ./build/verify.ps1
-      - name: Disposable SQL source contracts
+      - name: Disposable SQL Server and Oracle source contracts
         shell: pwsh
         run: ./build/verify.ps1 -SourceIntegration

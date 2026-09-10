@@ -82,6 +82,29 @@ public class AuthenticationTests
         (await client.PostAsync("/auth/logout", new StringContent(""))).StatusCode.ShouldBe(HttpStatusCode.Redirect);
         (await client.GetAsync("/api/customers/CUST-001/overview")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
+    [TestCase(false, 403)]
+    [TestCase(true, 200)]
+    public async Task BearerWritesRequireWritePermissionAndDoNotRequireCsrf(bool writePermission, int expected)
+    {
+        await using var factory = new Factory(jwt: true);
+        using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
+        var claims = new[] { new Claim("sub", "writer"), new Claim("permissions", writePermission ? "customers.write" : "customers.read") };
+        var token = new JwtSecurityToken("https://issuer.example", "integration", claims, DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddMinutes(5), new SigningCredentials(Factory.Key, SecurityAlgorithms.HmacSha256));
+        client.DefaultRequestHeaders.Authorization = new("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
+        var response = await client.PostAsJsonAsync("/api/customers", new { customerId = "JWT-WRITE", displayName = "Writer" });
+        // Angular's existing middleware applies antiforgery to all authenticated mutations.
+        if (writePermission && CleanArchitecture.Web.Authentication.AuthenticationRegistration.HasSpa)
+        {
+            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+            var csrf = await client.GetFromJsonAsync<JsonElement>("/auth/antiforgery");
+            client.DefaultRequestHeaders.Add("X-CSRF-TOKEN", csrf.GetProperty("token").GetString());
+            response.Dispose();
+            response = await client.PostAsJsonAsync("/api/customers", new { customerId = "JWT-WRITE", displayName = "Writer" });
+        }
+        using (response) ((int)response.StatusCode).ShouldBe(expected);
+    }
+
     [Test] public void ProductionRejectsFakeSourcesAndAuthentication()
     {
         using var factory = new Factory(environment: "Production");

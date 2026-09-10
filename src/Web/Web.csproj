@@ -6,6 +6,7 @@
     <OpenApiDocumentsDirectory>./wwwroot/openapi/</OpenApiDocumentsDirectory>
     <OpenApiGenerateDocumentsOptions>--file-name v1</OpenApiGenerateDocumentsOptions>
     <AssemblyName>CleanArchitecture.Web</AssemblyName>
+    <UserSecretsId>CleanArchitecture.Web-7a87b1cc-f5d8-4bcf-b960-398d18d386af</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="$(SpaRoot)**" />

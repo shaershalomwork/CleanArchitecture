@@ -38,6 +38,14 @@ public static class DependencyInjection
         builder.Services.AddScoped<SourceExecutor>();
         builder.Services.AddScoped<SqlConnectionFactory>();
         builder.Services.AddScoped<SqliteConnectionFactory>();
+        builder.Services.AddScoped<SqliteWriteConnectionFactory>();
+        builder.Services.AddScoped<OracleConnectionFactory>();
+        builder.Services.AddScoped<OracleCustomerSourceAdapter>();
+        builder.Services.AddScoped<OracleCustomerWriteSourceAdapter>();
+        builder.Services.AddScoped<SqlCustomerWriteSourceAdapter>();
+        builder.Services.AddScoped<SqliteCustomerWriteSourceAdapter>();
+        builder.Services.AddSingleton<FakeCustomerStore>();
+        builder.Services.AddScoped<FakeCustomerWriteSourceAdapter>();
         builder.Services.AddScoped<SqliteCustomerSourceAdapter>();
         builder.Services.AddScoped<FakeCustomerSourceAdapter>();
         builder.Services.AddScoped<SqlCustomerSourceAdapter>();
@@ -50,10 +58,30 @@ public static class DependencyInjection
         }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         builder.Services.AddScoped<HttpBillingSourceAdapter>(sp => ActivatorUtilities.CreateInstance<HttpBillingSourceAdapter>(
             sp, sp.GetRequiredService<IHttpClientFactory>().CreateClient("Billing")));
-        builder.Services.AddScoped<ICustomerSourceAdapter>(sp => sp.GetRequiredService<IOptions<CustomerRegistryOptions>>().Value.Mode == SourceMode.Fake
-            ? sp.GetRequiredService<FakeCustomerSourceAdapter>()
-            : sp.GetRequiredService<IOptions<CustomerRegistryOptions>>().Value.Provider == CustomerDatabaseProvider.SQLite
-                ? sp.GetRequiredService<SqliteCustomerSourceAdapter>() : sp.GetRequiredService<SqlCustomerSourceAdapter>());
+        builder.Services.AddScoped<ICustomerSourceAdapter>(sp =>
+        {
+            var source = sp.GetRequiredService<IOptions<CustomerRegistryOptions>>().Value;
+            if (source.Mode == SourceMode.Fake) return sp.GetRequiredService<FakeCustomerSourceAdapter>();
+            return source.Provider switch
+            {
+                CustomerDatabaseProvider.SqlServer => sp.GetRequiredService<SqlCustomerSourceAdapter>(),
+                CustomerDatabaseProvider.SQLite => sp.GetRequiredService<SqliteCustomerSourceAdapter>(),
+                CustomerDatabaseProvider.Oracle => sp.GetRequiredService<OracleCustomerSourceAdapter>(),
+                _ => throw new InvalidOperationException("Unknown customer database provider.")
+            };
+        });
+        builder.Services.AddScoped<ICustomerWriteSourceAdapter>(sp =>
+        {
+            var source = sp.GetRequiredService<IOptions<CustomerRegistryOptions>>().Value;
+            if (source.Mode == SourceMode.Fake) return sp.GetRequiredService<FakeCustomerWriteSourceAdapter>();
+            return source.Provider switch
+            {
+                CustomerDatabaseProvider.SqlServer => sp.GetRequiredService<SqlCustomerWriteSourceAdapter>(),
+                CustomerDatabaseProvider.SQLite => sp.GetRequiredService<SqliteCustomerWriteSourceAdapter>(),
+                CustomerDatabaseProvider.Oracle => sp.GetRequiredService<OracleCustomerWriteSourceAdapter>(),
+                _ => throw new InvalidOperationException("Unknown customer database provider.")
+            };
+        });
         builder.Services.AddScoped<IBillingSourceAdapter>(sp => sp.GetRequiredService<IOptions<BillingOptions>>().Value.Mode == SourceMode.Fake
             ? sp.GetRequiredService<FakeBillingSourceAdapter>() : sp.GetRequiredService<HttpBillingSourceAdapter>());
     }

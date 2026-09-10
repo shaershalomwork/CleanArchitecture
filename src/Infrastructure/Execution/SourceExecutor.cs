@@ -4,6 +4,7 @@ using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Infrastructure.Observability;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
+using Oracle.ManagedDataAccess.Client;
 using Microsoft.Extensions.Logging;
 using Polly.CircuitBreaker;
 using Polly.Timeout;
@@ -28,6 +29,8 @@ public sealed class SourceExecutor(SourcePipelines pipelines, ICorrelationContex
                 try { return await action(token); }
                 catch (SqlException e) { throw Classify(e); }
                 catch (SqliteException e) { throw Classify(e); }
+                catch (OracleException) when (token.IsCancellationRequested) { throw new OperationCanceledException(token); }
+                catch (OracleException e) { throw ClassifyOracle(e.Number); }
                 catch (HttpRequestException) { throw new SourceFailureException("UNAVAILABLE", true); }
                 catch (JsonException) { throw new SourceFailureException("INVALID_RESPONSE"); }
             }, cancellationToken);
@@ -84,6 +87,15 @@ public sealed class SourceExecutor(SourcePipelines pipelines, ICorrelationContex
         3 or 23 => new("AUTHENTICATION_FAILED"),
         10 => new("UNAVAILABLE", true),
         14 => new("UNAVAILABLE"),
+        _ => new("INVALID_RESPONSE")
+    };
+
+    internal static SourceFailureException ClassifyOracle(int number) => number switch
+    {
+        1013 => new("TIMEOUT", true),
+        1017 or 1031 or 28000 or 28001 => new("AUTHENTICATION_FAILED"),
+        3113 or 3114 or 3135 or 12170 or 12514 or 12541 or 12537 or 12545 or 12570 => new("UNAVAILABLE", true),
+        12154 => new("UNAVAILABLE"),
         _ => new("INVALID_RESPONSE")
     };
 }

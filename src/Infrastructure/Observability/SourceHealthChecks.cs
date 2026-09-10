@@ -17,6 +17,13 @@ public sealed class CustomerRegistryHealthCheck(IServiceScopeFactory scopes, IOp
         budget.CancelAfter(TimeSpan.FromSeconds(3));
         try
         {
+            if (options.Value.Provider == CustomerDatabaseProvider.Oracle)
+            {
+                await using var connection = await scope.ServiceProvider.GetRequiredService<OracleConnectionFactory>()
+                    .OpenAsync(options.Value.ConnectionName, budget.Token);
+                await connection.ExecuteScalarAsync<int>(new CommandDefinition("SELECT 1 FROM DUAL", commandTimeout: 3, cancellationToken: budget.Token));
+                return HealthCheckResult.Healthy();
+            }
             if (options.Value.Provider == CustomerDatabaseProvider.SQLite)
             {
                 await Task.Run(() =>
