@@ -9,8 +9,7 @@ public sealed class GetCustomerOverviewQueryValidator : AbstractValidator<GetCus
 {
     public GetCustomerOverviewQueryValidator()
     {
-        RuleFor(x => x.CustomerId).NotEmpty().MaximumLength(50).Matches("^[A-Za-z0-9-]+$")
-            .WithErrorCode("CUSTOMER.INVALID_ID");
+        RuleFor(x => x.CustomerId).CustomerId();
     }
 }
 
@@ -22,13 +21,10 @@ public sealed class GetCustomerOverviewQueryHandler(ICustomerSourceAdapter custo
 
     public async Task<OperationResult<CustomerOverview>> Handle(GetCustomerOverviewQuery request, CancellationToken cancellationToken)
     {
-        var customerTask = customers.GetCustomerAsync(request.CustomerId, cancellationToken);
-        var billingTask = billing.GetSummaryAsync(request.CustomerId, cancellationToken);
-        await Task.WhenAll(customerTask, billingTask);
-        var customer = await customerTask;
-        var summary = await billingTask;
+        var customer = await customers.GetCustomerAsync(request.CustomerId, cancellationToken);
         if (!customer.HasData)
             return OperationResult<CustomerOverview>.Failure(customer.Issues);
+        var summary = await billing.GetSummaryAsync(customer.Data.Id, cancellationToken);
         if (!summary.HasData)
         {
             if (summary.Issues.All(i => DegradableBillingCodes.Contains(i.Code)))

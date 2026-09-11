@@ -7,10 +7,11 @@ public class CustomerApiTests
 {
     private WebApiFactory _factory = null!;
     private HttpClient _client = null!;
-    [SetUp] public void Setup()
+    [SetUp] public async Task Setup()
     {
         _factory = new();
         _client = _factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
+        await CustomerFixtures.RegisterAsync(_factory.Services, "CUST-001", "CUST-WARN");
     }
     [TearDown] public void Dispose() { _client.Dispose(); _factory.Dispose(); }
     [TestCase("CUST-001", 200, "Success")]

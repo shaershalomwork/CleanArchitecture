@@ -1,0 +1,23 @@
+<app-page-heading [title]="create ? 'Create customer' : 'Manage customers'" [description]="create ? 'Add a customer with a unique ID and display name.' : 'Update customer details or remove a customer by ID.'">
+  <a *ngIf="session.canRead()" class="button secondary" routerLink="/customers">All customers</a>
+  <a *ngIf="!create" class="button" routerLink="/customers/create">＋ Create customer</a>
+</app-page-heading>
+<div class="editor-grid"><section class="panel">
+  <div *ngIf="!create" class="segmented" role="group" aria-label="Customer action">
+    <button type="button" [class.selected]="mode() === 'rename'" [attr.aria-pressed]="mode() === 'rename'" [disabled]="busy()" (click)="setMode('rename')">Change name</button>
+    <button type="button" [class.selected]="mode() === 'replace'" [attr.aria-pressed]="mode() === 'replace'" [disabled]="busy()" (click)="setMode('replace')">Edit details</button>
+    <button type="button" [class.selected]="mode() === 'delete'" [attr.aria-pressed]="mode() === 'delete'" [disabled]="busy()" (click)="setMode('delete')">Delete</button>
+  </div>
+  <h2>{{create ? 'Customer details' : mode() === 'rename' ? 'Change display name' : mode() === 'replace' ? 'Replace editable details' : 'Delete a customer'}}</h2>
+  <p class="muted">{{create ? 'All fields are required.' : mode() === 'replace' ? 'Submit all editable details. The customer ID stays the same.' : mode() === 'delete' ? 'You will be asked to confirm before deleting.' : 'Only the display name will change.'}}</p>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <fieldset [disabled]="busy()"><div class="field"><label for="edit-id">Customer ID</label><input id="edit-id" formControlName="customerId" placeholder="e.g. CUST-001" maxlength="50" aria-describedby="edit-id-help" [attr.aria-invalid]="form.controls.customerId.touched && form.controls.customerId.invalid" />
+      <small id="edit-id-help" [class.field-error]="form.controls.customerId.touched && form.controls.customerId.invalid">{{form.controls.customerId.errors?.['server'] || 'Required. Letters, numbers, and hyphens; up to 50 characters.'}}</small></div>
+    <div *ngIf="create || mode() !== 'delete'" class="field"><label for="display-name">Display name</label><input id="display-name" formControlName="displayName" placeholder="Customer or organization name" maxlength="200" aria-describedby="name-help" [attr.aria-invalid]="form.controls.displayName.touched && form.controls.displayName.invalid" />
+      <small id="name-help" [class.field-error]="form.controls.displayName.touched && form.controls.displayName.invalid">{{form.controls.displayName.errors?.['server'] || 'Required. Enter a name of up to 200 characters.'}}</small></div>
+    <div class="form-footer"><button type="submit" [class.danger]="!create && mode() === 'delete'" [attr.aria-busy]="busy()">{{create ? 'Create customer' : mode() === 'delete' ? 'Review deletion' : 'Save changes'}}</button><span class="muted" *ngIf="busy()" role="status">Saving your request…</span></div></fieldset>
+  </form>
+</section><aside class="panel guidance"><span class="eyebrow">GOOD TO KNOW</span><h2>A precise update</h2><p>Customer IDs are permanent. Double-check the ID before submitting a change.</p><hr /><p>Changes are saved to the customer registry. Billing records are managed separately.</p><p *ngIf="!session.canRead()" class="note">Your access allows customer changes. Customer lookup requires separate read permission.</p><p class="footnote">Saved changes replace the previous values. If a request's outcome is uncertain, check with an authorized operator before trying again.</p></aside></div>
+<app-outcome [value]="result()" [successTitle]="successTitle" [canRead]="session.canRead()" [customerId]="receiptId()" />
+<section *ngIf="result()?.status === 'Success'" class="panel receipt" aria-label="Success receipt"><h2>{{successTitle}}</h2><p>Customer <strong class="mono">{{result()?.data?.customerId}}</strong><span *ngIf="result()?.data?.displayName"> · {{result()?.data?.displayName}}</span></p><p *ngIf="result()?.data?.observedAt" class="muted">Observed {{result()?.data?.observedAt | date:'medium'}}</p><a *ngIf="session.canRead() && (create || mode() !== 'delete')" [routerLink]="['/customers', receiptId(), 'overview']">View customer overview →</a></section>
+<app-confirm [customerId]="form.controls.customerId.value" (confirmed)="save()" />

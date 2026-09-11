@@ -43,6 +43,7 @@ public class CustomerWriteApiTests(bool sqlite)
         _client.DefaultRequestHeaders.Add("X-Test-User", "reader-writer");
         var csrf = await _client.GetFromJsonAsync<JsonElement>("/auth/antiforgery");
         _client.DefaultRequestHeaders.Add("X-CSRF-TOKEN", csrf.GetProperty("token").GetString());
+        if (!sqlite) await CustomerFixtures.RegisterAsync(_factory.Services, "CUST-001");
     }
 
     [TearDown] public async Task Cleanup()

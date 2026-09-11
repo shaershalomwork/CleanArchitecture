@@ -21,6 +21,7 @@
       Exclude="../artifacts/**;../.git/**;../.github/**;../.agents/**;../.codex/**;../**/node_modules/**;../**/bin/**;../**/obj/**;../**/dist/**;../**/build/**;../**/.angular/**;../.devcontainer/**;../.aspire/**;../README.md;../CODE_OF_CONDUCT.md;../CleanArchitecture.nuspec;../renovate.json;../build/**;../src/Web/wwwroot/openapi/**;../src/Web/ClientApp/src/app/web-api-client.ts;../**/*.user;../**/*.pfx;../**/*.db"
       Pack="true" PackagePath="content/%(RecursiveDir)%(Filename)%(Extension)" />
     <Content Remove="../**/TestResults/**" />
+    <Content Remove="../.vs/**;../**/screenshots/**;../**/coverage/**" />
     <Content Include="../README.md" Pack="true" PackagePath="/" />
     <Content Include="build.ps1;verify.ps1" Pack="true" PackagePath="content/build/" />
   </ItemGroup>

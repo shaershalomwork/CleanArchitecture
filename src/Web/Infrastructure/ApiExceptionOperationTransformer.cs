@@ -18,10 +18,11 @@ internal sealed class ApiExceptionOperationTransformer : IOpenApiOperationTransf
         operation.Responses.TryAdd("400", new OpenApiResponse { Description = "Bad Request" });
 
         var requiresAuth = context.Description.ActionDescriptor.EndpointMetadata
-            .Any(m => m is IAuthorizeData);
+            .Any(m => m is IAuthorizeData) && !context.Description.ActionDescriptor.EndpointMetadata.Any(m => m is IAllowAnonymous);
 
         if (requiresAuth)
         {
+            operation.Security = [new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = [] }];
             operation.Responses.TryAdd("401", new OpenApiResponse { Description = "Unauthorized" });
             operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Forbidden" });
         }

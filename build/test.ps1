@@ -38,6 +38,14 @@ foreach ($client in $ClientFramework) {
         dotnet publish src/Web/Web.csproj -c Release -o artifacts/published
         if ($LASTEXITCODE -ne 0) { throw "Publish failed: $client" }
         if ($BrowserTests) {
+            # Issue short-lived tokens after publishing so dependency installation cannot consume their lifetime.
+            $env:TEST_READER_TOKEN = (dotnet user-jwts create --project src/Web --name smoke-reader --claim permissions=customers.read --audience integration-smoke --valid-for 1h --output token)
+            if ($LASTEXITCODE -ne 0) { throw 'Local reader token creation failed.' }
+            $env:TEST_WRITER_TOKEN = (dotnet user-jwts create --project src/Web --name smoke-writer --claim permissions=customers.write --audience integration-smoke --valid-for 1h --output token)
+            if ($LASTEXITCODE -ne 0) { throw 'Local writer token creation failed.' }
+            Copy-Item -LiteralPath src/Web/appsettings.Development.json -Destination artifacts/published/appsettings.Development.json
+        }
+        if ($BrowserTests) {
             if ($client -ne 'None' -and !$env:PLAYWRIGHT_BROWSER_CHANNEL) {
                 & ./artifacts/bin/Web.AcceptanceTests/release/playwright.ps1 install chromium --with-deps
                 if ($LASTEXITCODE -ne 0) { throw 'Browser installation failed.' }
@@ -57,6 +65,11 @@ foreach ($client in $ClientFramework) {
                 dotnet test tests/Application.FunctionalTests --no-build -c Release --filter TestCategory=Published
                 if ($LASTEXITCODE -ne 0) { throw "Published API tests failed: $client" }
                 if ($client -ne 'None') {
+                    Push-Location src/Web/ClientApp
+                    try {
+                        npm test -- --watch=false --browsers=ChromeHeadless
+                        if ($LASTEXITCODE -ne 0) { throw 'Angular unit tests failed.' }
+                    } finally { Pop-Location }
                     dotnet test tests/Web.AcceptanceTests --no-build -c Release
                     if ($LASTEXITCODE -ne 0) { throw "Browser tests failed: $client" }
                 }
@@ -67,5 +80,13 @@ foreach ($client in $ClientFramework) {
                 Remove-Item Env:ASPNETCORE_URLS -ErrorAction SilentlyContinue
             }
         }
-    } finally { Pop-Location }
+    } finally {
+        if ($BrowserTests) {
+            dotnet user-jwts clear --project src/Web --force | Out-Null
+            dotnet user-secrets remove 'Authentication:Schemes:Bearer:SigningKeys' --project src/Web | Out-Null
+            Remove-Item Env:TEST_READER_TOKEN -ErrorAction SilentlyContinue
+            Remove-Item Env:TEST_WRITER_TOKEN -ErrorAction SilentlyContinue
+        }
+        Pop-Location
+    }
 }

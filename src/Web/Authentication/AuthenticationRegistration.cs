@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using CleanArchitecture.Web.Infrastructure;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CleanArchitecture.Web.Authentication;
 public static class AuthenticationRegistration
@@ -29,7 +31,10 @@ public static class AuthenticationRegistration
         var auth = builder.Services.AddAuthentication("Integration")
             .AddPolicyScheme("Integration", "Integration", options =>
                 options.ForwardDefaultSelector = context =>
-                    context.RequestServices.GetRequiredService<IOptions<AuthenticationOptions>>().Value.Mode == "Development" || HasSpa
+                    context.Request.Headers.Authorization.Any(value => value is not null &&
+                        value.TrimStart().Split([' ', '\t', ','], 2)[0].Equals("Bearer", StringComparison.OrdinalIgnoreCase))
+                        ? JwtBearerDefaults.AuthenticationScheme
+                        : context.RequestServices.GetRequiredService<IOptions<AuthenticationOptions>>().Value.Mode == "Development" || HasSpa
                         ? CookieAuthenticationDefaults.AuthenticationScheme : JwtBearerDefaults.AuthenticationScheme);
         auth.AddCookie(options =>
         {
@@ -42,6 +47,18 @@ public static class AuthenticationRegistration
         });
         auth.AddJwtBearer(options => options.Events = new JwtBearerEvents
         {
+            OnTokenValidated = context =>
+            {
+                var settings = context.HttpContext.RequestServices.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
+                if (settings.Mode == "Development" && context.Principal?.Identity is ClaimsIdentity identity)
+                {
+                    if (!identity.HasClaim(c => c.Type == settings.NameClaimType) && identity.FindFirst("unique_name") is { } name)
+                        identity.AddClaim(new Claim(settings.NameClaimType, name.Value));
+                    foreach (var role in identity.FindAll("role").ToArray())
+                        if (!identity.HasClaim(settings.RoleClaimType, role.Value)) identity.AddClaim(new Claim(settings.RoleClaimType, role.Value));
+                }
+                return Task.CompletedTask;
+            },
             OnChallenge = c =>
             {
                 c.HandleResponse();
@@ -54,9 +71,24 @@ public static class AuthenticationRegistration
             .Configure<IOptions<AuthenticationOptions>>((options, configuration) =>
             {
                 var settings = configuration.Value;
-                options.Authority = settings.Authority;
-                options.Audience = settings.Audience;
+                if (settings.Mode == "External")
+                {
+                    // Do not inherit user-jwts issuers, audiences or symmetric keys from
+                    // Authentication:Schemes:Bearer when switching to External mode.
+                    options.TokenValidationParameters = new TokenValidationParameters();
+                    options.Authority = settings.Authority;
+                    options.Audience = settings.Audience;
+                }
+                else
+                {
+                    options.Authority = null;
+                    options.MetadataAddress = "";
+                }
                 options.MapInboundClaims = false;
+                options.TokenValidationParameters.ValidateIssuer = true;
+                options.TokenValidationParameters.ValidateAudience = true;
+                options.TokenValidationParameters.ValidateLifetime = true;
+                options.TokenValidationParameters.ValidateIssuerSigningKey = true;
                 options.TokenValidationParameters.NameClaimType = settings.NameClaimType;
                 options.TokenValidationParameters.RoleClaimType = settings.RoleClaimType;
             });
@@ -74,6 +106,12 @@ public static class AuthenticationRegistration
                 options.UsePkce = true;
                 options.MapInboundClaims = false;
                 options.SaveTokens = false;
+                options.Events.OnRemoteFailure = context =>
+                {
+                    context.HandleResponse();
+                    context.Response.Redirect("/sign-in?error=authentication_failed");
+                    return Task.CompletedTask;
+                };
                 options.TokenValidationParameters.NameClaimType = settings.NameClaimType;
                 options.TokenValidationParameters.RoleClaimType = settings.RoleClaimType;
             });

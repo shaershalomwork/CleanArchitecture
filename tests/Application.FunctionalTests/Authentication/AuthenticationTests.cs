@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using CleanArchitecture.Application.FunctionalTests.Infrastructure;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -31,12 +32,6 @@ public class AuthenticationTests
             }));
             if (jwt) builder.ConfigureTestServices(services =>
             {
-                services.PostConfigure<Microsoft.AspNetCore.Authentication.AuthenticationOptions>(o =>
-                {
-                    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    o.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
-                });
                 services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, o =>
                 {
                     var configuration = new OpenIdConnectConfiguration { Issuer = "https://issuer.example" };
@@ -58,6 +53,7 @@ public class AuthenticationTests
     {
         await using var factory = new Factory(jwt: true);
         using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
+        await CustomerFixtures.RegisterAsync(factory.Services, "CUST-001");
         var claims = new List<Claim> { new("sub", "user") };
         if (permission) claims.Add(new("permissions", "customers.read"));
         var signingKey = invalidSignature
@@ -73,6 +69,7 @@ public class AuthenticationTests
     {
         await using var factory = new Factory();
         using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false, HandleCookies = true });
+        await CustomerFixtures.RegisterAsync(factory.Services, "CUST-001");
         var login = await client.GetAsync("/auth/login?returnUrl=//evil.example");
         login.Headers.Location!.OriginalString.ShouldBe("/");
         (await client.GetAsync("/api/customers/CUST-001/overview")).StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -93,15 +90,6 @@ public class AuthenticationTests
             DateTime.UtcNow.AddMinutes(5), new SigningCredentials(Factory.Key, SecurityAlgorithms.HmacSha256));
         client.DefaultRequestHeaders.Authorization = new("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
         var response = await client.PostAsJsonAsync("/api/customers", new { customerId = "JWT-WRITE", displayName = "Writer" });
-        // Angular's existing middleware applies antiforgery to all authenticated mutations.
-        if (writePermission && CleanArchitecture.Web.Authentication.AuthenticationRegistration.HasSpa)
-        {
-            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-            var csrf = await client.GetFromJsonAsync<JsonElement>("/auth/antiforgery");
-            client.DefaultRequestHeaders.Add("X-CSRF-TOKEN", csrf.GetProperty("token").GetString());
-            response.Dispose();
-            response = await client.PostAsJsonAsync("/api/customers", new { customerId = "JWT-WRITE", displayName = "Writer" });
-        }
         using (response) ((int)response.StatusCode).ShouldBe(expected);
     }
 

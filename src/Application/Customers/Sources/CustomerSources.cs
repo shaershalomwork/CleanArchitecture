@@ -5,6 +5,7 @@ public sealed record BillingSummary(decimal OutstandingBalance, string Currency,
 public interface ICustomerSourceAdapter
 {
     Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken);
+    Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken cancellationToken);
 }
 public interface ICustomerWriteSourceAdapter
 {

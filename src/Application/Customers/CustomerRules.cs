@@ -1,6 +1,6 @@
-namespace CleanArchitecture.Application.Customers.Commands;
+namespace CleanArchitecture.Application.Customers;
 
-internal static class CustomerCommandRules
+internal static class CustomerRules
 {
     public static void CustomerId<T>(this IRuleBuilder<T, string> rule) =>
         rule.NotEmpty().WithErrorCode("CUSTOMER.INVALID_ID")

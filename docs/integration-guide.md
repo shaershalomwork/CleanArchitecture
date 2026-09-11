@@ -19,6 +19,7 @@ CustomerRegistry uses ConnectionStrings:<ConnectionName>, defaulting to Customer
 dbo.GetCustomer accepts @CustomerId nvarchar(50) and returns one row with Id and DisplayName.
 Return code 0 means a valid row; 404 means absent with no row. Other codes, missing fields, or mismatched IDs are invalid responses.
 The schema in tests/Infrastructure.IntegrationTests/Fixtures is only for the disposable fixture; the application never executes it.
+`dbo.GetCustomers` takes no input and returns all Id/DisplayName rows with return code 0, including an empty result. Deploy this source-owned procedure and its execute grant before the updated application. SQLite and Oracle use the existing Customers table for listing. See [customer reads](customer-reads.md) for validation, ordering, empty results, and registry-first overview behavior.
 
 Billing uses an HTTPS BaseUrl ending in / and an ApiKey sent as X-Api-Key.
 GET customers/{escapedCustomerId}/summary returns { "outstandingBalance": 125.50, "currency": "USD" }.
@@ -48,12 +49,12 @@ The Web request budget is 15 seconds. Avoid stacking provider/client retry polic
 
 ## Authentication
 
-API-only uses externally issued JWTs with signature, issuer, audience and lifetime validation.
-CustomerOverview.Read requires the permissions claim customers.read.
+API-only uses externally issued JWTs in External mode. Development mode also accepts dotnet user-jwts tokens with signing keys in User Secrets. Both validate signature, issuer, audience, and lifetime; External mode never trusts local keys. See [workspace and authentication](workspace.md).
+CustomerOverview.Read requires the permissions claim customers.read for both customer listing and overview.
 Customer.Write requires the permissions claim customers.write for POST, PUT, PATCH, and DELETE. The development reader keeps read-only access.
 Angular uses server-side OIDC code flow with PKCE and secure cookies; configure ClientId and ClientSecret and register /signin-oidc and /signout-callback-oidc.
 Use HTTPS in deployments and the HTTPS launch profile locally. Persist/protect ASP.NET Core Data Protection keys using the organization's deployment platform for multiple instances.
-Development sign-in is only registered behavior in Development/Test mode and represents a fixed demo reader.
+Development sign-in is available only in Development/Test mode. It defaults to Reader and offers fixed Writer, Reader/writer, and No access profiles. Roles do not implicitly grant customer permissions.
 Cookie-authenticated mutations require antiforgery tokens; /auth/antiforgery supplies one. Logout uses a browser form so OIDC redirects work.
 
 The API returns 401/403 rather than login redirects. Angular and the API share an origin; any additional CORS origins must be explicitly configured.

@@ -41,6 +41,7 @@ public class CustomerOverviewTests
     }
     private sealed class Customers(bool fail = false) : ICustomerSourceAdapter
     {
+        public Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken ct) => throw new NotSupportedException();
         public Task<OperationResult<Customer>> GetCustomerAsync(string id, CancellationToken ct) =>
             Task.FromResult(fail ? OperationResult<Customer>.Failure(new OperationIssue("CUSTOMER.UNAVAILABLE", "Unavailable", IssueCategory.Technical, "trace"))
             : OperationResult<Customer>.Success(new(id, "Name", DateTimeOffset.UtcNow)));

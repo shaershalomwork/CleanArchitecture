@@ -22,7 +22,8 @@ No distributed transactions, generic repositories, visual orchestrators, or work
 
 ## Reference feature
 
-Customer overview combines a required SQL customer lookup and optional HTTP billing summary in parallel.
+Customer overview first reads the required registered customer, then requests its optional HTTP billing summary. Missing or failed registry reads stop before billing. Reads never create customer records.
+The customer list reads the same registry through the Application-owned read interface and returns all registered profiles without billing. Development fake state starts empty; tests explicitly register fixtures. See [customer reads](../customer-reads.md).
 Only billing TIMEOUT, UNAVAILABLE and CIRCUIT_OPEN permit a Warning. Missing billing records, bad credentials or malformed payloads terminate the use case.
 Unavailable balances remain null, and payment attention remains unknown. A successfully returned zero is legitimate data.
 Source observation times do not imply an atomic cross-system snapshot.

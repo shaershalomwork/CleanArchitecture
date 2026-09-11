@@ -9,7 +9,7 @@ const PROXY_CONFIG = [
     context: [
       "/api", "/auth", "/signin-oidc", "/signout-callback-oidc",
       "/openapi",
-      "/scalar"
+      "/scalar", "/health", "/alive"
     ],
     target: target,
     secure: env["NODE_ENV"] !== "development",

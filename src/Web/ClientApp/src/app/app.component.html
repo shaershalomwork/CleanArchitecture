@@ -1,25 +1,18 @@
-<main class="container">
-  <header><div><p class="eyebrow">CUSTOMER SERVICES</p><h1>Customer overview</h1></div>
-    <nav><ng-container *ngIf="name(); else signIn"><span>{{name()}}</span><button class="secondary" (click)="logout()">Sign out</button></ng-container>
-      <ng-template #signIn><a href="/auth/login?returnUrl=/">Sign in</a></ng-template></nav>
-  </header>
-  <p>Look up a customer and their latest billing summary.</p>
-  <form (ngSubmit)="load()"><label for="customer-id">Customer ID</label><div class="search">
-    <input id="customer-id" name="customerId" [(ngModel)]="customerId" required maxlength="50" pattern="[A-Za-z0-9-]+" />
-    <button [disabled]="busy() || !name()" [attr.aria-busy]="busy()">Look up</button>
-  </div></form>
-  <p *ngIf="!name()">Sign in to look up customer information.</p>
-  <p *ngIf="connectionError()" role="alert">{{connectionError()}}</p>
-  <section *ngIf="result() as outcome" aria-live="polite">
-    <h2>{{outcome.status === 'Success' ? 'Complete' : outcome.status === 'Warning' ? 'Partial data' : 'Unable to load customer'}}</h2>
-    <aside *ngIf="outcome.issues?.length" [class]="outcome.status?.toLowerCase()" role="status">
-      <p *ngFor="let issue of outcome.issues">{{issue.message}} <small>({{issue.code}})</small></p>
-    </aside>
-    <article *ngIf="outcome.data as data"><h3>{{data.displayName}}</h3><dl>
-      <dt>Customer ID</dt><dd>{{data.customerId}}</dd>
-      <dt>Outstanding balance</dt><dd>{{data.billingAvailable ? data.outstandingBalance + ' ' + data.currency : 'Unavailable'}}</dd>
-      <dt>Payment attention</dt><dd>{{data.hasOutstandingBalance == null ? 'Unknown' : data.hasOutstandingBalance ? 'Outstanding balance' : 'No outstanding balance'}}</dd>
-    </dl></article>
-    <small *ngIf="outcome.correlationId">Reference: {{outcome.correlationId}}</small>
-  </section>
-</main>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="workspace" [class.public-workspace]="!session.user()">
+  <button *ngIf="menu()" class="nav-backdrop" aria-label="Close navigation" (click)="toggleMenu()"></button>
+  <aside class="sidebar" [class.is-open]="menu()" (keydown)="navigationKey($event)" [attr.role]="menu() ? 'dialog' : null" [attr.aria-modal]="menu() ? true : null" aria-label="Workspace navigation">
+    <a class="brand" routerLink="/"><span class="brand-mark" aria-hidden="true">C</span><span>Customer<span class="brand-subtitle">SERVICES WORKSPACE</span></span></a>
+    <button class="mobile-close secondary" (click)="toggleMenu()" aria-label="Close navigation">×</button>
+    <p class="nav-heading">WORKSPACE</p><nav id="workspace-navigation" aria-label="Main navigation">
+      <a *ngIf="session.canRead()" routerLink="/customers" [class.active]="customerActive"><i-lucide name="users" aria-hidden="true" />Customers</a>
+      <a *ngIf="session.canWrite()" routerLink="/customers/manage" routerLinkActive="active"><i-lucide name="pencil-line" aria-hidden="true" />Manage customers</a>
+      <a *ngIf="session.user()" routerLink="/account" routerLinkActive="active"><i-lucide name="circle-user-round" aria-hidden="true" />Your account</a>
+      <a *ngIf="session.user()" routerLink="/status" routerLinkActive="active"><i-lucide name="activity" aria-hidden="true" />Service status</a>
+      <a *ngIf="!session.user()" routerLink="/sign-in" routerLinkActive="active"><i-lucide name="log-in" aria-hidden="true" />Sign in</a>
+    </nav><div class="sidebar-footer"><a href="/scalar"><i-lucide name="book-open" aria-hidden="true" />API reference <span aria-hidden="true">↗</span></a><p>Customer services<br /><span>Connected information. Clear decisions.</span></p></div>
+  </aside>
+  <div class="workspace-main" [attr.inert]="menu() ? '' : null"><header class="topbar"><div class="topbar-start"><button class="mobile-menu secondary" aria-label="Open navigation" aria-controls="workspace-navigation" [attr.aria-expanded]="menu()" (click)="toggleMenu()"><i-lucide name="menu" aria-hidden="true" /></button><span class="workspace-label">Customer services <span class="divider">/</span> <span class="muted">Workspace</span></span></div>
+    <div class="topbar-actions"><label class="sr-only" for="header-theme">Theme</label><select id="header-theme" class="theme-select" [value]="theme.preference()" (change)="theme.select($any($event.target).value)"><option value="auto">◐ System</option><option value="light">☀ Light</option><option value="dark">☾ Dark</option></select><span *ngIf="session.user()" class="user-name">{{session.name()}}</span><button *ngIf="session.user()" class="quiet" (click)="logout()" [disabled]="signingOut()">Sign out</button></div>
+  </header><main id="main-content" tabindex="-1"><div *ngIf="logoutError()" class="outcome error" role="alert">{{logoutError()}}</div><router-outlet /></main><footer class="workspace-footer"><span>Customer services</span><a href="/scalar">API reference ↗</a></footer></div>
+</div>

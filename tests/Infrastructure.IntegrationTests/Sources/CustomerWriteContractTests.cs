@@ -98,6 +98,7 @@ public class CustomerWriteContractTests(CustomerDatabaseProvider provider)
         var name = "שלום O'Brien :CustomerId @DisplayName";
         (await writer.CreateAsync(id, name, default)).Status.ShouldBe(OperationStatus.Success);
         (await reader.GetCustomerAsync(id, default)).Data.DisplayName.ShouldBe(name);
+        (await reader.GetCustomersAsync(default)).Data.Single(x => x.Id == id).DisplayName.ShouldBe(name);
         (await writer.CreateAsync(id, "Duplicate", default)).Issues[0].Code.ShouldBe("CUSTOMER.CONFLICT");
         (await reader.GetCustomerAsync(id, default)).Data.DisplayName.ShouldBe(name);
         (await writer.ReplaceAsync(id, "Replace", default)).Status.ShouldBe(OperationStatus.Success);
@@ -105,8 +106,10 @@ public class CustomerWriteContractTests(CustomerDatabaseProvider provider)
         var read = await reader.GetCustomerAsync(id, default);
         read.Data.Id.ShouldBe(id);
         read.Data.DisplayName.ShouldBe("Patch");
+        (await reader.GetCustomersAsync(default)).Data.Single(x => x.Id == id).DisplayName.ShouldBe("Patch");
         (await writer.DeleteAsync(id, default)).Status.ShouldBe(OperationStatus.Success);
         (await reader.GetCustomerAsync(id, default)).Issues[0].Code.ShouldBe("CUSTOMER.NOT_FOUND");
+        (await reader.GetCustomersAsync(default)).Data.ShouldNotContain(x => x.Id == id);
         (await writer.DeleteAsync(id, default)).Issues[0].Code.ShouldBe("CUSTOMER.NOT_FOUND");
         (await writer.ReplaceAsync(id, "Missing", default)).Issues[0].Code.ShouldBe("CUSTOMER.NOT_FOUND");
         (await writer.PatchAsync(id, "Missing", default)).Issues[0].Code.ShouldBe("CUSTOMER.NOT_FOUND");
@@ -120,6 +123,7 @@ public class CustomerWriteContractTests(CustomerDatabaseProvider provider)
         var writer = scope.ServiceProvider.GetRequiredService<ICustomerWriteSourceAdapter>();
         using var cancelled = new CancellationTokenSource();
         cancelled.Cancel();
+        await Should.ThrowAsync<OperationCanceledException>(() => reader.GetCustomersAsync(cancelled.Token));
         await Should.ThrowAsync<OperationCanceledException>(() => writer.CreateAsync("CANCEL", "Name", cancelled.Token));
         (await reader.GetCustomerAsync("CANCEL", default)).Issues[0].Code.ShouldBe("CUSTOMER.NOT_FOUND");
     }

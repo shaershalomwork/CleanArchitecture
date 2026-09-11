@@ -13,6 +13,19 @@ public sealed class SqlCustomerSourceAdapter(SqlConnectionFactory connections, S
     IOptions<CustomerRegistryOptions> options, IOptions<SourceExecutionOptions> execution, ICorrelationContext correlation, TimeProvider clock)
     : ICustomerSourceAdapter
 {
+    public Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken cancellationToken) =>
+        executor.ExecuteAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), async token =>
+        {
+            await using var lease = await connections.OpenAsync(options.Value.ConnectionName, token);
+            var parameters = new DynamicParameters();
+            parameters.Add("@ReturnCode", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+            var rows = await lease.Connection.QueryAsync<CustomerRow>(new CommandDefinition(
+                "dbo.GetCustomers", parameters, commandType: CommandType.StoredProcedure,
+                commandTimeout: (int)Math.Ceiling(execution.Value.AttemptTimeoutSeconds), cancellationToken: token));
+            if (parameters.Get<int>("@ReturnCode") != 0) throw new SourceFailureException("INVALID_RESPONSE");
+            return CustomerReadResults.FromRows(rows.Select(x => (x.Id, x.DisplayName)), clock.GetUtcNow(), token);
+        }, cancellationToken);
+
     public Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken) =>
         executor.ExecuteAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), async token =>
         {

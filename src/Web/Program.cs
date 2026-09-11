@@ -2,7 +2,8 @@ using System.Diagnostics;
 using System.Reflection;
 using CleanArchitecture.Web.Authentication;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,8 +49,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.Use(async (context, next) =>
 {
-    if ((context.RequestServices.GetRequiredService<Microsoft.Extensions.Options.IOptions<CleanArchitecture.Web.Authentication.AuthenticationOptions>>().Value.Mode == "Development" || AuthenticationRegistration.HasSpa) &&
-        context.User.Identity?.IsAuthenticated == true &&
+    var authentication = context.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult;
+    var bearerAuthenticated = authentication?.Succeeded == true &&
+        authentication.Ticket.AuthenticationScheme == JwtBearerDefaults.AuthenticationScheme &&
+        ReferenceEquals(authentication.Principal, context.User);
+    if (!bearerAuthenticated && context.User.Identity?.IsAuthenticated == true &&
         context.Request.Method is not ("GET" or "HEAD" or "OPTIONS"))
     {
         try { await context.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(context); }
@@ -62,10 +66,13 @@ app.Use(async (context, next) =>
     await next(context);
 });
 app.MapOpenApi().AllowAnonymous();
-app.MapScalarApiReference().AllowAnonymous();
+app.MapScalarApiReference(options => options.AddPreferredSecuritySchemes("Bearer")).AllowAnonymous();
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
 #if (UseAngular)
+// Reserved server routes must never return the Angular shell on a typo.
+foreach (var prefix in new[] { "/api", "/auth", "/openapi" })
+    app.Map(prefix + "/{**path}", () => Results.NotFound()).AllowAnonymous().ExcludeFromDescription();
 app.MapFallbackToFile("index.html").AllowAnonymous().WithMetadata(
     new EndpointSummaryAttribute("Open the Angular application"),
     new EndpointDescriptionAttribute("Serves the application shell for browser navigation routes. Authentication is not required to load the shell."));

@@ -11,6 +11,15 @@ namespace CleanArchitecture.Infrastructure.Sources.CustomerRegistry;
 public sealed class SqliteCustomerSourceAdapter(SqliteConnectionFactory connections, SourceExecutor executor,
     IOptions<CustomerRegistryOptions> options, ICorrelationContext correlation, TimeProvider clock) : ICustomerSourceAdapter
 {
+    public Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken cancellationToken) =>
+        executor.ExecuteAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), token => Task.Run(() =>
+        {
+            using var connection = connections.Open(options.Value.ConnectionName, token);
+            var rows = connection.Query<CustomerRow>("SELECT Id, DisplayName FROM Customers",
+                commandTimeout: connection.DefaultTimeout);
+            return CustomerReadResults.FromRows(rows.Select(x => (x.Id, x.DisplayName)), clock.GetUtcNow(), token);
+        }, token), cancellationToken);
+
     public Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken) =>
         executor.ExecuteAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), token => Task.Run(() =>
         {

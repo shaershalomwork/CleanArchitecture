@@ -12,6 +12,16 @@ public sealed class OracleCustomerSourceAdapter(OracleConnectionFactory connecti
     IOptions<CustomerRegistryOptions> options, IOptions<SourceExecutionOptions> execution,
     ICorrelationContext correlation, TimeProvider clock) : ICustomerSourceAdapter
 {
+    public Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken cancellationToken) =>
+        executor.ExecuteAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), async token =>
+        {
+            await using var connection = await connections.OpenAsync(options.Value.ConnectionName, token);
+            var rows = await connection.QueryAsync<CustomerRow>(new CommandDefinition(
+                "SELECT Id, DisplayName FROM Customers",
+                commandTimeout: (int)Math.Ceiling(execution.Value.AttemptTimeoutSeconds), cancellationToken: token));
+            return CustomerReadResults.FromRows(rows.Select(x => (x.Id, x.DisplayName)), clock.GetUtcNow(), token);
+        }, cancellationToken);
+
     public Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken) =>
         executor.ExecuteAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), async token =>
         {

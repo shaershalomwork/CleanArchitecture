@@ -78,6 +78,35 @@ public class SqliteCustomerTests
         Should.Throw<SqliteException>(() => connection.Execute("DELETE FROM Customers"));
     }
 
+    [Test] public async Task InvalidListRowsFailWithoutReturningPartialCustomers()
+    {
+        var result = await Create().GetCustomersAsync(default);
+        result.HasData.ShouldBeFalse();
+        result.Issues[0].Code.ShouldBe("CUSTOMER.INVALID_RESPONSE");
+    }
+
+    [Test] public async Task ListsStoredCustomersAndAnEmptyRegistry()
+    {
+        using var connection = new SqliteConnection(_configuration.GetConnectionString("CustomerRegistry"));
+        connection.Open();
+        connection.Execute("DELETE FROM Customers WHERE Id = 'CUST-INVALID'");
+        (await Create().GetCustomersAsync(default)).Data.Single().DisplayName.ShouldBe("SQLite Customer");
+        connection.Execute("INSERT INTO Customers VALUES ('CUST-001', 'Duplicate')");
+        (await Create().GetCustomersAsync(default)).Issues[0].Code.ShouldBe("CUSTOMER.INVALID_RESPONSE");
+        connection.Execute("DELETE FROM Customers");
+        var empty = await Create().GetCustomersAsync(default);
+        empty.Status.ShouldBe(OperationStatus.Success);
+        empty.Data.ShouldBeEmpty();
+    }
+
+    [Test] public async Task ListCannotCreateAMissingDatabase()
+    {
+        var result = await Create("Missing").GetCustomersAsync(default);
+        result.HasData.ShouldBeFalse();
+        result.Issues[0].Code.ShouldBe("CUSTOMER.UNAVAILABLE");
+        File.Exists(_path + ".missing").ShouldBeFalse();
+    }
+
     [Test] public void WriteConnectionsNeverCreateMissingFiles()
     {
         var factory = new SqliteWriteConnectionFactory(_configuration, Options.Create(new SourceExecutionOptions()));
@@ -104,6 +133,7 @@ public class SqliteCustomerTests
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
         Should.ThrowAsync<OperationCanceledException>(() => Create().GetCustomerAsync("CUST-001", cancellation.Token));
+        Should.ThrowAsync<OperationCanceledException>(() => Create().GetCustomersAsync(cancellation.Token));
     }
 
     [Test] public async Task ConfigurationSelectsSqliteAndItsReadinessProbe()

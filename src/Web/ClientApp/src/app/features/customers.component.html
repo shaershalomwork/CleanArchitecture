@@ -1,0 +1,35 @@
+<app-page-heading title="Customer overview" description="A clear view of your customer and their latest billing information.">
+  <a class="button secondary" routerLink="/customers">All customers</a>
+  <a *ngIf="session.canWrite()" class="button" routerLink="/customers/create">＋ Create customer</a>
+</app-page-heading>
+<section class="panel lookup-panel">
+  <div><h2>Find a customer</h2><p class="muted">Enter an exact customer ID to get started.</p></div>
+  <form [formGroup]="form" (ngSubmit)="search()" class="lookup-form">
+    <div class="field"><label for="customer-id">Customer ID</label>
+      <input id="customer-id" formControlName="customerId" placeholder="e.g. CUST-001" maxlength="50" [attr.aria-invalid]="form.controls.customerId.touched ? form.controls.customerId.invalid : null" aria-describedby="customer-id-help" />
+      <small id="customer-id-help" [class.field-error]="form.controls.customerId.touched && form.controls.customerId.invalid">Use letters, numbers, and hyphens. Up to 50 characters.</small>
+    </div><button type="submit" [disabled]="busy()" [attr.aria-busy]="busy()">Look up</button>
+  </form>
+</section>
+<section *ngIf="busy()" class="panel skeleton" role="status" aria-label="Loading customer"><div></div><div></div><div></div><span class="sr-only">Loading customer…</span></section>
+<section *ngIf="!busy() && !result()" class="panel empty-state">
+  <span class="empty-icon" aria-hidden="true">⌕</span><h2>Your customer information, in one place</h2><p>Find a customer to view their profile, balance, and data availability.</p>
+  <div class="feature-notes"><span>Customer profile</span><span>Billing summary</span><span>Source observations</span></div>
+</section>
+<ng-container *ngIf="result() as outcome">
+  <app-outcome [value]="outcome" [canRead]="session.canRead()" [customerId]="activeId()" />
+  <section *ngIf="outcome.data as data" class="detail-grid">
+    <article class="panel profile-card"><div class="card-header"><span class="eyebrow">CUSTOMER PROFILE</span><span class="badge">Connected</span></div>
+      <div class="customer-avatar" aria-hidden="true">{{data.displayName?.slice(0, 1) || 'C'}}</div><h2>{{data.displayName}}</h2><p class="mono muted">{{data.customerId}}</p>
+      <dl><dt>Customer ID</dt><dd class="mono">{{data.customerId}}</dd><dt>Profile observed</dt><dd>{{data.customerObservedAt | date:'medium'}}</dd></dl>
+      <div *ngIf="session.canWrite()" class="button-row"><a class="button secondary" routerLink="/customers/manage" [queryParams]="{customerId: data.customerId}">Change name</a><a class="text-link" routerLink="/customers/manage" [queryParams]="{customerId: data.customerId, mode: 'replace'}">Edit details</a></div>
+    </article>
+    <article class="panel billing-card"><div class="card-header"><span class="eyebrow">BILLING SUMMARY</span><span class="badge" [class.caution]="!data.billingAvailable">{{data.billingAvailable ? 'Available' : 'Partial data'}}</span></div>
+      <p class="muted balance-label">Outstanding balance</p><p class="balance">{{data.billingAvailable ? (data.outstandingBalance | number:'1.2-2') : 'Unavailable'}} <span *ngIf="data.billingAvailable">{{data.currency}}</span></p>
+      <p>{{data.hasOutstandingBalance == null ? 'Payment status is unknown while billing is unavailable.' : data.hasOutstandingBalance ? 'This customer has an outstanding balance.' : 'No outstanding balance.'}}</p>
+      <hr /><dl><dt>Billing observed</dt><dd>{{data.billingObservedAt ? (data.billingObservedAt | date:'medium') : 'Not available'}}</dd></dl>
+      <p class="footnote">Each source is observed independently. Values may reflect different points in time.</p>
+    </article>
+  </section>
+  <section *ngIf="outcome.issues?.[0]?.code === 'CUSTOMER.NOT_FOUND'" class="panel empty-state"><h2>No customer found</h2><p>Check the ID and try another lookup.</p><a *ngIf="session.canWrite()" routerLink="/customers/create">Create a customer</a></section>
+</ng-container>

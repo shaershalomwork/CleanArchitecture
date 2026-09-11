@@ -4,7 +4,24 @@
 ### Development demo sign-in; retain the returned cookie
 GET {{baseUrl}}/auth/login?returnUrl=/scalar
 
-### Complete
+### Register the complete example first. Fake startup has no customers.
+POST {{baseUrl}}/api/customers
+Authorization: Bearer {{writerToken}}
+Content-Type: application/json
+
+{"customerId":"CUST-001","displayName":"Registered customer"}
+
+### Register a customer whose fake billing is unavailable
+POST {{baseUrl}}/api/customers
+Authorization: Bearer {{writerToken}}
+Content-Type: application/json
+
+{"customerId":"CUST-WARN","displayName":"Registered billing example"}
+
+### All registered customers; requires the reader cookie, returns [] before registration
+GET {{baseUrl}}/api/customers
+
+### Complete registered customer
 GET {{baseUrl}}/api/customers/CUST-001/overview
 
 ### Partial billing data
@@ -16,7 +33,7 @@ GET {{baseUrl}}/api/customers/CUST-FAIL/overview
 ### Customer absent
 GET {{baseUrl}}/api/customers/CUST-MISSING/overview
 
-### Writes require External API-only authentication and permissions=customers.write.
+### Writes require permissions=customers.write. Local: dotnet user-jwts create --project src/Web --claim permissions=customers.write
 ### The Development demo reader remains read-only. Never commit real tokens.
 ### For OIDC cookie sessions retain the cookie and add X-CSRF-TOKEN from /auth/antiforgery.
 POST {{baseUrl}}/api/customers
@@ -42,3 +59,9 @@ Content-Type: application/json
 ### Delete; returns a 200 envelope with customerId (repeat returns 404)
 DELETE {{baseUrl}}/api/customers/WRITE-1
 Authorization: Bearer {{writerToken}}
+
+### The deleted customer is absent from the list and its overview returns 404
+GET {{baseUrl}}/api/customers
+
+### No implicit recreation
+GET {{baseUrl}}/api/customers/WRITE-1/overview

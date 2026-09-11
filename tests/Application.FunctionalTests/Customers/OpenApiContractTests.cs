@@ -26,6 +26,7 @@ public class OpenApiContractTests
         }
         foreach (var (route, verb, name, codes) in new[]
         {
+            ("/api/customers", "get", "GetCustomers", "200,400,401,403,500,502,503,504"),
             ("/api/customers/{customerId}/overview", "get", "GetCustomerOverview", "200,400,401,403,404,422,500,502,503,504"),
             ("/api/customers", "post", "CreateCustomer", "200,400,401,403,409,500,502,503,504"),
             ("/api/customers/{customerId}", "put", "ReplaceCustomer", "200,400,401,403,404,500,502,503,504"),
@@ -43,7 +44,7 @@ public class OpenApiContractTests
             responses.EnumerateObject().Select(p => p.Name).Order().ShouldBe(codes.Split(',').Order());
             if (!route.StartsWith("/api/", StringComparison.Ordinal)) continue;
             var schema = name == "GetCustomerOverview" ? "CustomerOverviewResponse"
-                : name == "DeleteCustomer" ? "CustomerDeletionResponse" : "CustomerResponse";
+                : name == "DeleteCustomer" ? "CustomerDeletionResponse" : name == "GetCustomers" ? "IReadOnlyListOfCustomerResponse" : "CustomerResponse";
             foreach (var response in responses.EnumerateObject())
                 response.Value.GetProperty("content").GetProperty("application/json").GetProperty("schema").GetProperty("$ref")
                     .GetString().ShouldBe("#/components/schemas/ApiOperationResponseOf" + schema);
@@ -54,6 +55,16 @@ public class OpenApiContractTests
             root.GetProperty("get").GetProperty("responses").EnumerateObject().Select(p => p.Name).Order().ShouldBe(new[] { "200", "400" });
         }
         var schemas = document.GetProperty("components").GetProperty("schemas");
+        schemas.GetProperty("CurrentSessionResponse").GetProperty("properties").TryGetProperty("capabilities", out _).ShouldBeTrue();
+        paths.GetProperty("/auth/options").GetProperty("get").GetProperty("operationId").GetString().ShouldBe("GetAuthenticationOptions");
+        foreach (var entry in paths.EnumerateObject())
+        foreach (var operation in entry.Value.EnumerateObject())
+        {
+            if (entry.Name.StartsWith("/api/", StringComparison.Ordinal) || entry.Name is "/auth/me" or "/auth/logout")
+                operation.Value.GetProperty("security")[0].TryGetProperty("Bearer", out _).ShouldBeTrue();
+            else
+                operation.Value.TryGetProperty("security", out _).ShouldBeFalse();
+        }
         schemas.GetProperty("CustomerOverviewResponse").GetProperty("properties").EnumerateObject().Select(p => p.Name).Order()
             .ShouldBe(new[] { "customerId", "displayName", "billingAvailable", "outstandingBalance", "currency", "hasOutstandingBalance", "customerObservedAt", "billingObservedAt" }.Order());
         foreach (var name in new[] { "CreateCustomerRequest", "ReplaceCustomerRequest", "PatchCustomerRequest" })

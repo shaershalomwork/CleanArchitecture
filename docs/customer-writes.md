@@ -15,11 +15,11 @@ Customer IDs are immutable, required, at most 50 characters, and use letters, di
 
 ## Authorization and local testing
 
-`Customer.Write` requires `permissions=customers.write`. The existing overview endpoint still requires only `customers.read`; write-only identities do not gain read access. The fixed Development demo reader remains read-only. Use the automated tests or an externally issued writer token for write examples. In API-only deployments use External authentication and a valid bearer token. For OIDC cookie sessions, obtain `/auth/antiforgery`, retain the cookie, and send the returned token in `X-CSRF-TOKEN` with each mutation. Antiforgery does not replace authorization.
+`Customer.Write` requires `permissions=customers.write`. The existing overview endpoint still requires only `customers.read`; write-only identities do not gain read access. The default Development reader remains read-only. Select the writer or reader-writer demo profile for browser writes, or create a local token with dotnet user-jwts create --project src/Web --claim permissions=customers.write. External deployments continue to use externally issued tokens. See [workspace and authentication](workspace.md) for the complete workflow. For OIDC cookie sessions, obtain `/auth/antiforgery`, retain the cookie, and send the returned token in `X-CSRF-TOKEN` with each mutation. Antiforgery does not replace authorization.
 
 `src/Web/Web.http` includes requests with a token placeholder. Functional tests exercise both fake state and a real disposable SQLite file, with writer/read-only identities and antiforgery tokens. JWT tests verify bearer writes independently of cookies.
 
-Fake state belongs to one application host and resets on restart. `CUST-001` and `CUST-WARN` are seeded; ordinary legacy lookups still synthesize and materialize customers. Write commands operate on stored records. Deleted IDs retain tombstones so subsequent reads return 404; an explicit POST can recreate them. `CUST-MISSING` and `CUST-FAIL` remain reserved fixture scenarios. Failure simulations do not contact a database.
+Fake state starts empty, belongs to one application host, and resets on restart. Explicit POST creates records; lookups and listing never create them. Deleted IDs return 404 until explicitly recreated. Create `CUST-001` or `CUST-WARN` before trying complete or partial billing examples. `CUST-MISSING` and `CUST-FAIL` remain reserved error scenarios. Failure simulations do not contact a database. See [customer reads](customer-reads.md) for the registration and list contracts.
 
 ## Source contracts and failure handling
 

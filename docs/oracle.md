@@ -26,7 +26,7 @@ Keep source credentials separate from caller identity. Read-only deployments nee
 
 ## Reference contract
 
-The connected schema owns `Customers(Id NVARCHAR2(50) PRIMARY KEY, DisplayName NVARCHAR2(200) NOT NULL)`. Reads use parameterized SQL with a two-row limit; missing customers map to `CUSTOMER.NOT_FOUND`, and malformed or duplicate rows are invalid responses. Queries bind by name, including updates whose SQL parameter order differs from the supplied parameter object.
+The connected schema owns `Customers(Id NVARCHAR2(50) PRIMARY KEY, DisplayName NVARCHAR2(200) NOT NULL)`. Point reads use parameterized SQL with a two-row limit; missing customers map to `CUSTOMER.NOT_FOUND`. Listing selects all Id/DisplayName rows from the same table. Malformed or duplicate rows are invalid responses. Queries bind by name, including updates whose SQL parameter order differs from the supplied parameter object. See [customer reads](customer-reads.md).
 
 POST inserts a new row; PUT/PATCH update DisplayName; DELETE removes one row. Each mutation uses an explicit local transaction and commits before returning success. Duplicate inserts map to `CUSTOMER.CONFLICT`. Zero-row updates/deletes map to not found. The application never creates or migrates the source schema. The SQL file in `tests/Infrastructure.IntegrationTests/Fixtures/customer-registry.oracle.sql` is only a disposable test contract.
 

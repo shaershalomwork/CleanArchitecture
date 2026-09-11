@@ -1,6 +1,7 @@
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Customers.Commands;
 using CleanArchitecture.Application.Customers.Queries.GetCustomerOverview;
+using CleanArchitecture.Application.Customers.Queries.GetCustomers;
 using CleanArchitecture.Web.Contracts;
 namespace CleanArchitecture.Web.Endpoints;
 
@@ -9,6 +10,8 @@ public sealed class Customers : IEndpointGroup
     public static string RoutePrefix => "/api/customers";
     public static void Map(RouteGroupBuilder group)
     {
+        group.MapGet(GetCustomers).RequireAuthorization("CustomerOverview.Read")
+            .ProducesApiOperationResponses<IReadOnlyList<CustomerResponse>>();
         group.MapGet(GetCustomerOverview, "{customerId}/overview")
             .RequireAuthorization("CustomerOverview.Read")
             .ProducesApiOperationResponses<CustomerOverviewResponse>()
@@ -27,6 +30,14 @@ public sealed class Customers : IEndpointGroup
             .ProducesApiOperationResponses<CustomerDeletionResponse>()
             .Produces<ApiOperationResponse<CustomerDeletionResponse>>(404);
     }
+    [EndpointSummary("Get all registered customers")]
+    [EndpointDescription("Requires customers.read. Returns every registered customer's ID, display name, and observation time, ordered by customer ID. The success envelope contains an empty array when the registry is empty. This read does not request billing and is not paginated.")]
+    public static async Task<IResult> GetCustomers(ISender sender, ICorrelationContext correlation, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetCustomersQuery(), cancellationToken);
+        return result.ToHttp(rows => (IReadOnlyList<CustomerResponse>)rows.Select(x => new CustomerResponse(x.Id, x.DisplayName, x.ObservedAt)).ToArray(), correlation.Id);
+    }
+
     [EndpointSummary("Get a customer's profile and billing overview")]
     [EndpointDescription("Requires customers.read. Combines the required customer record with optional billing data. HTTP 200 can contain Success or Warning; a billing outage leaves balance fields null. Returns 404 when the customer is absent and 422 when billing rejects the request.")]
     public static async Task<IResult> GetCustomerOverview(ISender sender, ICorrelationContext correlation,

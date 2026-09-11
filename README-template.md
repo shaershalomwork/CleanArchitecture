@@ -14,9 +14,9 @@ dotnet build
 dotnet run --project src/Web --launch-profile https
 ```
 
-Development uses fake sources and demo sign-in. API-only opens Scalar; sign in at /auth/login?returnUrl=/scalar.
+Development uses fake sources and selectable demo profiles (Reader by default). API-only opens Scalar; sign in at /auth/login?returnUrl=/scalar. Local Bearer tokens from dotnet user-jwts also work. See [workspace and authentication](docs/workspace.md) for the access matrix, token commands, themes, and API/workflow inventory.
 For Angular, run `dotnet run --project src/AppHost` and open the frontend URL from the dashboard.
-The fake IDs are CUST-001 (complete), CUST-WARN (partial), CUST-FAIL (required-source failure), CUST-MISSING (not found).
+The fake registry starts empty. Create CUST-001 (complete) or CUST-WARN (partial billing) with a writer identity, then list and view registered customers using a reader identity. CUST-FAIL and CUST-MISSING remain reserved error scenarios. See [customer reads and the create-to-delete workflow](docs/customer-reads.md).
 
 ## Verify
 

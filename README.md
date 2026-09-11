@@ -15,8 +15,8 @@ dotnet build
 dotnet run --project src/Web --launch-profile https
 ```
 
-Development uses fake sources and demo cookie authentication. Open /auth/login?returnUrl=/scalar to sign in.
-Try GET /api/customers/{customerId}/overview with CUST-001 (complete), CUST-WARN (partial billing), CUST-FAIL (required source unavailable), or CUST-MISSING (404).
+Development uses fake sources and selectable demo cookie profiles (Reader by default). Open /auth/login?returnUrl=/scalar to sign in. Local dotnet user-jwts tokens also work in Scalar; see [workspace and authentication](docs/workspace.md).
+The fake registry starts empty. Create CUST-001 or CUST-WARN with a writer identity, then GET /api/customers using a reader identity and open a registered customer's overview. CUST-WARN demonstrates partial billing after registration; CUST-FAIL and CUST-MISSING remain error scenarios. See [customer reads and the create-to-delete workflow](docs/customer-reads.md).
 Web runs without Aspire, a database, or corporate credentials. Optional AppHost provides the diagnostics dashboard.
 
 ## Verify and package

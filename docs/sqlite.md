@@ -18,7 +18,7 @@ dotnet run --project src/Web --launch-profile https
 
 Use an absolute path appropriate to your OS. Authentication and the optional billing source keep their existing configuration.
 The database must exist and expose `Customers(Id TEXT PRIMARY KEY, DisplayName TEXT NOT NULL)`.
-The adapter performs a parameterized point query; SQLite does not provide SQL Server stored procedures.
+The adapter performs a parameterized point query for overview and selects all Id/DisplayName rows for listing; SQLite does not provide SQL Server stored procedures. Both operations use read-only connections. See [customer reads](customer-reads.md).
 For a disposable local example, run [customer-registry.sqlite.sql](customer-registry.sqlite.sql) against a new file using a SQLite client. The application never initializes or migrates source databases.
 
 Lookup connections are read-only, even if a supplied connection string asks for write/create mode. The separate write adapter uses ReadWrite connections and never creates a missing file. A missing file on a read returns `CUSTOMER.UNAVAILABLE`; a missing customer returns `CUSTOMER.NOT_FOUND`. Invalid data and schema failures return an error, never an empty successful result. See [customer write examples](customer-writes.md) for mutations and unknown write outcomes.

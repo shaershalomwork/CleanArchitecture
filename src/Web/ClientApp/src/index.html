@@ -2,23 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Clean Architecture</title>
+    <title>Customer services</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@600;700&display=swap" rel="stylesheet" />
+    <meta name="theme-color" content="#255bd7" />
+    <link rel="icon" type="image/png" href="favicon.png" />
     <script>
       (function () {
-        var theme = localStorage.getItem('picoColorScheme');
-        if (theme && theme !== 'auto') {
-          document.documentElement.setAttribute('data-theme', theme);
-        }
+        var theme = 'auto';
+        try { theme = localStorage.getItem('picoColorScheme') || 'auto'; } catch (_) {}
+        if (theme !== 'light' && theme !== 'dark') theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.colorScheme = theme;
       })();
     </script>
   </head>
-  <body>
-    <app-root>Loading...</app-root>
-  </body>
+  <body><app-root><p role="status">Opening your workspace…</p></app-root></body>
 </html>

@@ -3,24 +3,27 @@ using CleanArchitecture.Infrastructure.Sources.CustomerRegistry;
 
 namespace CleanArchitecture.Infrastructure.Fakes;
 
-// Per-host state. Legacy synthetic reads materialize ordinary IDs; tombstones prevent
-// a subsequent lookup from synthesizing a record that was deliberately deleted.
+// Per-host registry. Only explicit writes add customers; reads never change state.
 public sealed class FakeCustomerStore
 {
     private readonly object _gate = new();
-    private readonly Dictionary<string, string> _records = new(StringComparer.Ordinal)
-    {
-        ["CUST-001"] = "Example Customer", ["CUST-WARN"] = "Example Customer"
-    };
-    private readonly HashSet<string> _deleted = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _records = new(StringComparer.Ordinal);
 
     public OperationResult<Customer> Read(string id, DateTimeOffset observedAt, string correlationId)
     {
         lock (_gate)
         {
-            if (_deleted.Contains(id)) return CustomerWriteResults.NotFound<Customer>(correlationId);
-            if (!_records.TryGetValue(id, out var name)) _records[id] = name = "Example Customer";
+            if (!_records.TryGetValue(id, out var name)) return CustomerWriteResults.NotFound<Customer>(correlationId);
             return OperationResult<Customer>.Success(new(id, name, observedAt));
+        }
+    }
+
+    public OperationResult<IReadOnlyList<Customer>> ReadAll(DateTimeOffset observedAt)
+    {
+        lock (_gate)
+        {
+            return OperationResult<IReadOnlyList<Customer>>.Success(
+                _records.Select(row => new Customer(row.Key, row.Value, observedAt)).ToArray());
         }
     }
 
@@ -32,7 +35,6 @@ public sealed class FakeCustomerStore
                 return CustomerWriteResults.Conflict<Customer>(correlationId);
             if (!create && !_records.ContainsKey(id)) return CustomerWriteResults.NotFound<Customer>(correlationId);
             _records[id] = name;
-            _deleted.Remove(id);
             return OperationResult<Customer>.Success(new(id, name, observedAt));
         }
     }
@@ -42,7 +44,6 @@ public sealed class FakeCustomerStore
         lock (_gate)
         {
             if (!_records.Remove(id)) return CustomerWriteResults.NotFound<NoData>(correlationId);
-            _deleted.Add(id);
             return OperationResult<NoData>.Success(new());
         }
     }

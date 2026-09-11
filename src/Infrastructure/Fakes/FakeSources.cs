@@ -6,6 +6,13 @@ namespace CleanArchitecture.Infrastructure.Fakes;
 
 public sealed class FakeCustomerSourceAdapter(ICorrelationContext correlation, TimeProvider clock, SourceExecutor executor, FakeCustomerStore store) : ICustomerSourceAdapter
 {
+    public Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken cancellationToken) =>
+        executor.ExecuteAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), token =>
+        {
+            token.ThrowIfCancellationRequested();
+            return Task.FromResult(store.ReadAll(clock.GetUtcNow()));
+        }, cancellationToken);
+
     public Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken)
         => executor.ExecuteAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), token =>
     {

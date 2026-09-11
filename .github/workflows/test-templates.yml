@@ -44,4 +44,6 @@ jobs:
         if: always()
         with:
           name: template-logs-${{ matrix.client }}-${{ matrix.provider }}
-          path: artifacts/template-tests/**/server*.log
+          path: |
+            artifacts/template-tests/**/server*.log
+            artifacts/template-tests/**/screenshots/*.png
