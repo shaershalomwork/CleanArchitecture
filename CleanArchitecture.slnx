@@ -24,6 +24,5 @@
     <!--#if (!UseApiOnly)-->
     <Project Path="tests/Web.AcceptanceTests/Web.AcceptanceTests.csproj" />
     <!--#endif-->
-    <Project Path="tests/ArchitectureTests/ArchitectureTests.csproj" />
   </Folder>
 </Solution>
