@@ -1,44 +1,21 @@
 using CleanArchitecture.Application.Common.Interfaces;
+using CleanArchitecture.Application.Common.Results;
 
 namespace CleanArchitecture.Application.FeatureName.Queries.CleanArchitectureUseCase;
 
-//#if (hasReturnType)
-public record CleanArchitectureUseCaseQuery : IRequest<TReturnType>
-//#else
-public record CleanArchitectureUseCaseQuery : IRequest
-//#endif
+public sealed record CleanArchitectureUseCaseQuery : IRequest<OperationResult<TReturnType>>;
+public sealed class CleanArchitectureUseCaseQueryValidator : AbstractValidator<CleanArchitectureUseCaseQuery>
 {
+    public CleanArchitectureUseCaseQueryValidator() { }
 }
-
-public class CleanArchitectureUseCaseQueryValidator : AbstractValidator<CleanArchitectureUseCaseQuery>
+public sealed class CleanArchitectureUseCaseQueryHandler(ICorrelationContext correlation)
+    : IRequestHandler<CleanArchitectureUseCaseQuery, OperationResult<TReturnType>>
 {
-    public CleanArchitectureUseCaseQueryValidator()
+    public Task<OperationResult<TReturnType>> Handle(CleanArchitectureUseCaseQuery request, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        // TODO: Inject narrow source capabilities and explicitly decide whether degraded data is usable.
+        return Task.FromResult(OperationResult<TReturnType>.Failure(new OperationIssue(
+            "USE_CASE.NOT_IMPLEMENTED", "This use case has not been implemented.", IssueCategory.Technical, correlation.Id)));
     }
-}
-
-//#if (hasReturnType)
-public class CleanArchitectureUseCaseQueryHandler : IRequestHandler<CleanArchitectureUseCaseQuery, TReturnType>
-//#else
-public class CleanArchitectureUseCaseQueryHandler : IRequestHandler<CleanArchitectureUseCaseQuery>
-//#endif
-{
-    private readonly IApplicationDbContext _context;
-
-    public CleanArchitectureUseCaseQueryHandler(IApplicationDbContext context)
-    {
-        _context = context;
-    }
-
-//#if (hasReturnType)
-    public async Task<TReturnType> Handle(CleanArchitectureUseCaseQuery request, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-//#else
-    public async Task Handle(CleanArchitectureUseCaseQuery request, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-//#endif
 }

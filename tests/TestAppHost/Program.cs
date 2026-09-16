@@ -1,24 +1,14 @@
-using CleanArchitecture.Shared;
-
 namespace CleanArchitecture.TestAppHost;
-
 public class Program
 {
     public static void Main(string[] args)
     {
         var builder = DistributedApplication.CreateBuilder(args);
-
-        #if (UsePostgreSQL)
-        builder.AddPostgres(Services.DatabaseServer)
-            .AddDatabase(Services.Database);
-        #elif (UseSqlServer)
-        builder.AddSqlServer(Services.DatabaseServer)
-            .AddDatabase(Services.Database);
-        #else
-        builder
-            .AddSqlite(Services.Database);
-        #endif
-
+        if (builder.Configuration["FixtureProvider"] == "Oracle")
+            builder.AddOracle("fixture-oracle").WithImageTag("23.26.1.0-lite")
+                .AddDatabase("customer-registry", "FREEPDB1");
+        else
+            builder.AddSqlServer("fixture-sql").AddDatabase("customer-registry");
         builder.Build().Run();
     }
 }

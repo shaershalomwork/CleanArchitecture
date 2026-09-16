@@ -1,34 +1,22 @@
-﻿using ValidationException = CleanArchitecture.Application.Common.Exceptions.ValidationException;
+using CleanArchitecture.Application.Common.Interfaces;
 
 namespace CleanArchitecture.Application.Common.Behaviours;
-
-public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class ValidationBehaviour<TRequest, TResponse>(
+    IEnumerable<IValidator<TRequest>> validators, ICorrelationContext correlation)
+    : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
+    where TResponse : IOperationResult<TResponse>
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators;
-
-    public ValidationBehaviour(IEnumerable<IValidator<TRequest>> validators)
-    {
-        _validators = validators;
-    }
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        if (_validators.Any())
+        var issues = new List<OperationIssue>();
+        foreach (var validator in validators)
         {
-            var validationResults = await Task.WhenAll(
-                _validators.Select(v =>
-                    v.ValidateAsync(new ValidationContext<TRequest>(request), cancellationToken)));
-
-            var failures = validationResults
-                .Where(r => r.Errors.Any())
-                .SelectMany(r => r.Errors)
-                .ToList();
-
-            if (failures.Count != 0)
-                throw new ValidationException(failures);
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            issues.AddRange(validation.Errors.Select(e => new OperationIssue(
+                e.ErrorCode, e.ErrorMessage, IssueCategory.Validation, correlation.Id, e.PropertyName)));
         }
-
-        return await next();
+        return issues.Count == 0 ? await next(cancellationToken)
+            : TResponse.Failure(issues.OrderBy(i => i.Target).ThenBy(i => i.Code));
     }
 }

@@ -1,30 +1,21 @@
-﻿using Microsoft.Extensions.Logging;
+using CleanArchitecture.Application.Common.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace CleanArchitecture.Application.Common.Behaviours;
-
-public class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class UnhandledExceptionBehaviour<TRequest, TResponse>(
+    ILogger<UnhandledExceptionBehaviour<TRequest, TResponse>> logger, ICorrelationContext correlation)
+    : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
+    where TResponse : IOperationResult<TResponse>
 {
-    private readonly ILogger<TRequest> _logger;
-
-    public UnhandledExceptionBehaviour(ILogger<TRequest> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        try
+        try { return await next(cancellationToken); }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+        catch (Exception exception)
         {
-            return await next();
-        }
-        catch (Exception ex)
-        {
-            var requestName = typeof(TRequest).Name;
-
-            _logger.LogError(ex, "CleanArchitecture Request: Unhandled Exception for Request {Name} {@Request}", requestName, request);
-
-            throw;
+            logger.LogError(exception, "Unexpected failure in {UseCase}; correlation {CorrelationId}", typeof(TRequest).Name, correlation.Id);
+            return TResponse.Failure([new("APPLICATION.UNEXPECTED", "The operation could not be completed.", IssueCategory.Technical, correlation.Id)]);
         }
     }
 }

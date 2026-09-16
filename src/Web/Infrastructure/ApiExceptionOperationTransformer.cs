@@ -6,8 +6,8 @@ namespace CleanArchitecture.Web.Infrastructure;
 
 /// <summary>
 /// Adds standard error responses to every OpenAPI operation. A 400 Bad Request is added to all
-/// operations because every request passes through <c>ValidationBehaviour</c> in the MediatR
-/// pipeline. 401 Unauthorized and 403 Forbidden are added only to operations that carry
+/// operations to cover request binding and validation failures. Explicit endpoint response
+/// schemas take precedence. 401 Unauthorized and 403 Forbidden are added only to operations that carry
 /// <see cref="IAuthorizeData"/> metadata.
 /// </summary>
 internal sealed class ApiExceptionOperationTransformer : IOpenApiOperationTransformer
@@ -18,10 +18,11 @@ internal sealed class ApiExceptionOperationTransformer : IOpenApiOperationTransf
         operation.Responses.TryAdd("400", new OpenApiResponse { Description = "Bad Request" });
 
         var requiresAuth = context.Description.ActionDescriptor.EndpointMetadata
-            .Any(m => m is IAuthorizeData);
+            .Any(m => m is IAuthorizeData) && !context.Description.ActionDescriptor.EndpointMetadata.Any(m => m is IAllowAnonymous);
 
         if (requiresAuth)
         {
+            operation.Security = [new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = [] }];
             operation.Responses.TryAdd("401", new OpenApiResponse { Description = "Unauthorized" });
             operation.Responses.TryAdd("403", new OpenApiResponse { Description = "Forbidden" });
         }

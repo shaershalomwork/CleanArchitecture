@@ -14,6 +14,9 @@
     "generate-api": "nswag run /runtime:Net100"
   },
   "private": true,
+  "overrides": {
+    "qs": "^6.16.0"
+  },
   "dependencies": {
     "@angular/animations": "^21.1.5",
     "@angular/common": "^21.1.5",
@@ -32,7 +35,7 @@
     "zone.js": "~0.16.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^21.1.5",
+    "@angular/build": "^21.1.5",
     "@angular/cli": "^21.1.5",
     "@angular/compiler-cli": "^21.1.5",
     "@types/jasmine": "~6.0.0",
@@ -43,7 +46,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.3.0",
-    "nswag": "latest",
+    "nswag": "14.6.3",
     "typescript": "~5.9.3"
   }
 }

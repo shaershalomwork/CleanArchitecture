@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Amended by [ADR-004](ADR-004-Data-Centric-Integration.md): Aspire is optional for development and is used only by disposable source integration tests; functional tests use fakes.
 
 ## Date
 
@@ -35,4 +35,4 @@ Aspire covers all of these: it orchestrates the full stack for local development
 
 **Harder:**
 - Aspire is a significant dependency that couples the template to a Microsoft-specific orchestration framework.
-- Docker (or Podman) is required for the PostgreSQL and SQL Server variants. The SQLite variant (the default) does not require Docker.
+- The current baseline uses SQL Server for opt-in integration tests, which require Docker (or Podman). Local development uses fake source adapters and does not require a database container.

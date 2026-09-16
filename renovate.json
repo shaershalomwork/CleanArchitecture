@@ -46,14 +46,6 @@
       ]
     },
     {
-      "description": "Group React updates",
-      "groupName": "React",
-      "matchPackageNames": [
-        "/^react/",
-        "/^@types/react/"
-      ]
-    },
-    {
       "description": "Group testing packages",
       "groupName": "Testing",
       "matchPackageNames": [
@@ -65,6 +57,14 @@
         "/moq/",
         "/shouldly/"
       ]
+    },
+    {
+      "description": "Review licensing-sensitive and major changes",
+      "matchPackageNames": [
+        "MediatR",
+        "AutoMapper"
+      ],
+      "automerge": false
     }
   ]
 }

@@ -1,127 +1,67 @@
-﻿# For more info on HTTP files go to https://aka.ms/vs/httpfile
-@Web_HostAddress = https://localhost:5001
-@AuthCookieName = .AspNetCore.Identity.Application
-@AuthCookieValue = <AuthCookieValue>
+@baseUrl = https://localhost:5001
+@writerToken = REPLACE_LOCALLY_WITH_A_VALID_WRITER_TOKEN
 
-# GET Identity Account Login
-# Get the @RequestVerificationToken necessary for logging in.
-GET {{Web_HostAddress}}/Identity/Account/Login
+### Development demo sign-in; retain the returned cookie
+GET {{baseUrl}}/auth/login?returnUrl=/scalar
 
-###
-
-# POST Identity Account Login
-# Get the @AuthCookieValue necessary for authenticating requests.
-@Email=administrator@localhost
-@Password=Administrator1!
-@RequestVerificationToken=<RequestVerificationToken>
-POST {{Web_HostAddress}}/Identity/Account/Login
-Content-Type: application/x-www-form-urlencoded
-
-Input.Email={{Email}}&Input.Password={{Password}}&__RequestVerificationToken={{RequestVerificationToken}}
-
-###
-
-# GET WeatherForecast
-GET {{Web_HostAddress}}/api/WeatherForecasts
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
-
-###
-
-# GET TodoLists
-GET {{Web_HostAddress}}/api/TodoLists
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
-
-###
-
-#GET TodoList
-GET {{Web_HostAddress}}/api/TodoLists/1
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
-
-###
-
-# POST TodoLists
-POST {{Web_HostAddress}}/api/TodoLists
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+### Register the complete example first. Fake startup has no customers.
+POST {{baseUrl}}/api/customers
+Authorization: Bearer {{writerToken}}
 Content-Type: application/json
 
-// CreateTodoListCommand
-{
-  "Title": "Backlog"
-}
+{"customerId":"CUST-001","displayName":"Registered customer"}
 
-###
-
-# PUT TodoLists
-PUT {{Web_HostAddress}}/api/TodoLists/1
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+### Register a customer whose fake billing is unavailable
+POST {{baseUrl}}/api/customers
+Authorization: Bearer {{writerToken}}
 Content-Type: application/json
 
-// UpdateTodoListCommand
-{
-  "Id": 1,
-  "Title": "Product Backlog"
-}
+{"customerId":"CUST-WARN","displayName":"Registered billing example"}
 
-###
+### All registered customers; requires the reader cookie, returns [] before registration
+GET {{baseUrl}}/api/customers
 
-# DELETE TodoLists
-DELETE {{Web_HostAddress}}/api/TodoLists/1
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+### Complete registered customer
+GET {{baseUrl}}/api/customers/CUST-001/overview
 
-###
+### Partial billing data
+GET {{baseUrl}}/api/customers/CUST-WARN/overview
 
-# GET TodoItems
-@PageNumber = 1
-@PageSize = 10
-GET {{Web_HostAddress}}/api/TodoItems?ListId=1&PageNumber={{PageNumber}}&PageSize={{PageSize}}
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+### Required source unavailable
+GET {{baseUrl}}/api/customers/CUST-FAIL/overview
 
-###
+### Customer absent
+GET {{baseUrl}}/api/customers/CUST-MISSING/overview
 
-# POST TodoItems
-POST {{Web_HostAddress}}/api/TodoItems
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+### Writes require permissions=customers.write. Local: dotnet user-jwts create --project src/Web --claim permissions=customers.write
+### The Development demo reader remains read-only. Never commit real tokens.
+### For OIDC cookie sessions retain the cookie and add X-CSRF-TOKEN from /auth/antiforgery.
+POST {{baseUrl}}/api/customers
+Authorization: Bearer {{writerToken}}
 Content-Type: application/json
 
-// CreateTodoItemCommand
-{
-  "ListId": 1,
-  "Title": "Eat a burrito 🌯"
-}
+{"customerId":"WRITE-1","displayName":"Created customer"}
 
-###
-
-#PUT TodoItems UpdateItemDetails
-PUT {{Web_HostAddress}}/api/TodoItems/UpdateItemDetails?Id=1
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+### Replace all editable fields (no upsert)
+PUT {{baseUrl}}/api/customers/WRITE-1
+Authorization: Bearer {{writerToken}}
 Content-Type: application/json
 
-// UpdateTodoItemDetailCommand
-{
-  "Id": 1,
-  "ListId": 1,
-  "Priority": 3,
-  "Note": "This is a good idea!"
-}
+{"displayName":"Replacement name"}
 
-###
-
-# PUT TodoItems
-PUT {{Web_HostAddress}}/api/TodoItems/1
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+### Partial JSON object; empty objects and null displayName are invalid
+PATCH {{baseUrl}}/api/customers/WRITE-1
+Authorization: Bearer {{writerToken}}
 Content-Type: application/json
 
-// UpdateTodoItemCommand
-{
-  "Id": 1,
-  "Title": "Eat a yummy burrito 🌯",
-  "Done": true
-}
+{"displayName":"Patched name"}
 
-###
+### Delete; returns a 200 envelope with customerId (repeat returns 404)
+DELETE {{baseUrl}}/api/customers/WRITE-1
+Authorization: Bearer {{writerToken}}
 
-# DELETE TodoItem
-DELETE {{Web_HostAddress}}/api/TodoItems/1
-Cookie: {{AuthCookieName}}={{AuthCookieValue}}
+### The deleted customer is absent from the list and its overview returns 404
+GET {{baseUrl}}/api/customers
 
-###
+### No implicit recreation
+GET {{baseUrl}}/api/customers/WRITE-1/overview

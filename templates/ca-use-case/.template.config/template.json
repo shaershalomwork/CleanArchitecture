@@ -1,14 +1,14 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "JasonTaylorDev",
+  "author": "Data-centric baseline maintainers",
   "classifications": [
     "Clean Architecture"
   ],
-  "name": "Clean Architecture Solution Use Case",
-  "description":  "Create a new use case (query or command)",
-  "identity": "Clean.Architecture.Solution.UseCase.CSharp",
-  "groupIdentity": "Clean.Architecture.Solution.UseCase",
-  "shortName": "ca-usecase",
+  "name": "Data-Centric Integration Use Case",
+  "description": "Create a new use case (query or command)",
+  "identity": "DataCentric.Integration.UseCase.CSharp",
+  "groupIdentity": "DataCentric.Integration.UseCase",
+  "shortName": "di-usecase",
   "tags": {
     "language": "C#",
     "type": "item"
@@ -17,9 +17,10 @@
   "preferNameDirectory": false,
   "symbols": {
     "RootNamespace": {
-      "type": "bind",
-      "binding": "msbuild:RootNamespace",
-      "defaultValue": "CleanArchitecture.Application"
+      "type": "parameter",
+      "datatype": "string",
+      "isRequired": true,
+      "description": "Application project root namespace (for example MyIntegration.Application)"
     },
     "parentNamespace": {
       "type": "parameter",
@@ -39,9 +40,18 @@
       "generator": "join",
       "parameters": {
         "symbols": [
-          { "type": "ref", "value": "RootNamespace" },
-          { "type": "ref", "value": "parentNamespace" },
-          { "type": "ref", "value": "featureName" }
+          {
+            "type": "ref",
+            "value": "RootNamespace"
+          },
+          {
+            "type": "ref",
+            "value": "parentNamespace"
+          },
+          {
+            "type": "ref",
+            "value": "featureName"
+          }
         ],
         "separator": ".",
         "removeEmptyValues": true
@@ -77,23 +87,43 @@
       "datatype": "string",
       "isRequired": false,
       "replaces": "TReturnType",
-      "defaultValue": ""
-    },
-    "hasReturnType": {
-      "type": "computed",
-      "value": "(returnType != \"\")"
+      "defaultValue": "NoData"
     },
     "CommonInterfacesNamespace": {
       "type": "generated",
       "generator": "join",
       "parameters": {
         "symbols": [
-          { "type": "ref", "value": "RootNamespace" },
-          { "type": "const", "value": "Common.Interfaces" }
+          {
+            "type": "ref",
+            "value": "RootNamespace"
+          },
+          {
+            "type": "const",
+            "value": "Common.Interfaces"
+          }
         ],
         "separator": "."
       },
       "replaces": "CleanArchitecture.Application.Common.Interfaces"
+    },
+    "CommonResultsNamespace": {
+      "type": "generated",
+      "generator": "join",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "ref",
+            "value": "RootNamespace"
+          },
+          {
+            "type": "const",
+            "value": "Common.Results"
+          }
+        ],
+        "separator": "."
+      },
+      "replaces": "CleanArchitecture.Application.Common.Results"
     }
   },
   "sources": [
@@ -101,11 +131,15 @@
       "modifiers": [
         {
           "condition": "(createCommand)",
-          "exclude": [ "FeatureName/Queries/**/*" ]
+          "exclude": [
+            "FeatureName/Queries/**/*"
+          ]
         },
         {
           "condition": "(createQuery)",
-          "exclude": [ "FeatureName/Commands/**/*" ]
+          "exclude": [
+            "FeatureName/Commands/**/*"
+          ]
         }
       ]
     }

@@ -1,51 +1,85 @@
-using CleanArchitecture.Infrastructure.Data;
+using System.Diagnostics;
+using System.Reflection;
+using CleanArchitecture.Web.Authentication;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
+// The build-time OpenAPI host must not resolve corporate configuration or credentials.
+if (Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider")
+{
+    builder.Environment.EnvironmentName = "Test";
+    builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+    {
+        ["Sources:CustomerRegistry:Mode"] = "Fake", ["Sources:Billing:Mode"] = "Fake",
+        ["Authentication:Mode"] = "Development", ["AZURE_KEY_VAULT_ENDPOINT"] = ""
+    });
+}
 builder.AddServiceDefaults();
-
 builder.AddKeyVaultIfConfigured();
 builder.AddApplicationServices();
 builder.AddInfrastructureServices();
 builder.AddWebServices();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.Use(async (context, next) =>
 {
-    await app.InitialiseDatabaseAsync();
-}
-else
-{
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
+    context.TraceIdentifier = Activity.Current?.TraceId.ToString() ?? ActivityTraceId.CreateRandom().ToString();
+    // Exception handling clears response headers. Set correlation immediately before
+    // headers are sent so binding failures retain the same envelope/header contract.
+    context.Response.OnStarting(() =>
+    {
+        context.Response.Headers["X-Correlation-ID"] = context.TraceIdentifier;
+        return Task.CompletedTask;
+    });
+    await next(context);
+});
+app.UseExceptionHandler();
+app.UseStatusCodePages(context => OperationResultMapper.WriteErrorAsync(context.HttpContext,
+    context.HttpContext.Response.StatusCode, "HTTP." + context.HttpContext.Response.StatusCode, "The request could not be completed."));
+if (!app.Environment.IsDevelopment()) app.UseHsts();
 app.UseHttpsRedirection();
-app.UseCors(static builder => 
-    builder.AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowAnyOrigin());
-
 app.UseFileServer();
-
-app.MapOpenApi();
-app.MapScalarApiReference();
-
-app.UseExceptionHandler(options => { });
-
-#if (UseApiOnly)
-app.Map("/", () => Results.Redirect("/scalar"));
-#endif
-
+app.UseRouting();
+app.UseCors();
+app.UseRequestTimeouts();
+app.UseAuthentication();
+app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    var authentication = context.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult;
+    var bearerAuthenticated = authentication?.Succeeded == true &&
+        authentication.Ticket.AuthenticationScheme == JwtBearerDefaults.AuthenticationScheme &&
+        ReferenceEquals(authentication.Principal, context.User);
+    if (!bearerAuthenticated && context.User.Identity?.IsAuthenticated == true &&
+        context.Request.Method is not ("GET" or "HEAD" or "OPTIONS"))
+    {
+        try { await context.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(context); }
+        catch (AntiforgeryValidationException)
+        {
+            await OperationResultMapper.WriteErrorAsync(context, 400, "REQUEST.CSRF", "The antiforgery token is invalid.");
+            return;
+        }
+    }
+    await next(context);
+});
+app.MapOpenApi().AllowAnonymous();
+app.MapScalarApiReference(options => options.AddPreferredSecuritySchemes("Bearer")).AllowAnonymous();
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
-
-#if (!UseApiOnly)
-app.MapFallbackToFile("index.html");
+#if (UseAngular)
+// Reserved server routes must never return the Angular shell on a typo.
+foreach (var prefix in new[] { "/api", "/auth", "/openapi" })
+    app.Map(prefix + "/{**path}", () => Results.NotFound()).AllowAnonymous().ExcludeFromDescription();
+app.MapFallbackToFile("index.html").AllowAnonymous().WithMetadata(
+    new EndpointSummaryAttribute("Open the Angular application"),
+    new EndpointDescriptionAttribute("Serves the application shell for browser navigation routes. Authentication is not required to load the shell."));
+#else
+app.MapGet("/", [EndpointSummary("Open the API reference")]
+    [EndpointDescription("Redirects to the interactive Scalar API reference. Authentication is not required.")]
+    () => Results.Redirect("/scalar")).AllowAnonymous();
 #endif
-
 app.Run();
+public partial class Program;
