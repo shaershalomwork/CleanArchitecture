@@ -9,7 +9,8 @@ public sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : I
             await OperationResultMapper.WriteErrorAsync(context, 400, "REQUEST.INVALID", "The request could not be read.", cancellationToken);
         else
         {
-            logger.LogError(exception, "Unhandled HTTP failure; correlation {CorrelationId}", context.TraceIdentifier);
+            logger.LogError("Unhandled HTTP failure; code {Code}; exception {ExceptionType}; correlation {CorrelationId}",
+                "APPLICATION.UNEXPECTED", exception.GetType().Name, context.TraceIdentifier);
             await OperationResultMapper.WriteErrorAsync(context, 500, "APPLICATION.UNEXPECTED", "The operation could not be completed.", cancellationToken);
         }
         return true;

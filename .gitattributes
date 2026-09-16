@@ -1,0 +1,5 @@
+# Linux container scripts/configuration must retain LF after checkout on Windows.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yaml text eol=lf
+*.mjs text eol=lf

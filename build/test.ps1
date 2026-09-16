@@ -17,6 +17,15 @@ foreach ($client in $ClientFramework) {
     $path = Join-Path $run $client
     dotnet new di-sln -cf $client --CustomerProvider $CustomerProvider -n IntegrationSmoke -o $path --debug:custom-hive $hive
     if ($LASTEXITCODE -ne 0) { throw "Generation failed: $client" }
+    $dockerfile = Join-Path $path 'Dockerfile'
+    if (!(Test-Path -LiteralPath $dockerfile -PathType Leaf) -or
+        !(Get-Content -LiteralPath $dockerfile -Raw).Contains('IntegrationSmoke.Web.dll')) {
+        throw 'The generated Dockerfile must be a root file with the renamed application entrypoint.'
+    }
+    foreach ($asset in @('compose.yaml', 'deploy/collector/config.yaml', 'deploy/openshift/overlays/production/kustomization.yaml', 'docs/logging.md')) {
+        if (!(Test-Path -LiteralPath (Join-Path $path $asset) -PathType Leaf)) { throw "Missing generated deployment asset: $asset" }
+    }
+    if (Test-Path -LiteralPath (Join-Path $path '.local')) { throw 'Local secrets must not be packaged.' }
     $settings = Get-Content (Join-Path $path 'src/Web/appsettings.json') -Raw | ConvertFrom-Json
     if ($settings.Sources.CustomerRegistry.Provider -ne $CustomerProvider) { throw 'Generated source provider is incorrect.' }
     [xml]$webProject = Get-Content (Join-Path $path 'src/Web/Web.csproj') -Raw

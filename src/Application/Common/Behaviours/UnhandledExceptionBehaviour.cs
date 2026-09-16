@@ -14,7 +14,8 @@ public sealed class UnhandledExceptionBehaviour<TRequest, TResponse>(
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Unexpected failure in {UseCase}; correlation {CorrelationId}", typeof(TRequest).Name, correlation.Id);
+            logger.LogError("Unexpected failure in {UseCase}; code {Code}; exception {ExceptionType}; correlation {CorrelationId}",
+                typeof(TRequest).Name, "APPLICATION.UNEXPECTED", exception.GetType().Name, correlation.Id);
             return TResponse.Failure([new("APPLICATION.UNEXPECTED", "The operation could not be completed.", IssueCategory.Technical, correlation.Id)]);
         }
     }

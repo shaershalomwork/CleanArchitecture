@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../collector
+  - application.yaml
+  - collector.yaml
+  - network-policy.yaml
+configMapGenerator:
+  - name: application-config
+    literals:
+      - OTEL_SERVICE_NAME=webapi
+      - OTEL_EXPORTER_OTLP_LOGS_PROTOCOL=http/protobuf
+      - OTEL_EXPORTER_OTLP_CERTIFICATE=/var/run/service-ca/service-ca.crt
+      - OTEL_BLRP_MAX_QUEUE_SIZE=8192
+      - OTEL_BLRP_MAX_EXPORT_BATCH_SIZE=512
+      - OTEL_BLRP_SCHEDULE_DELAY=1000
+      - Authentication__Mode=External
+      - Sources__CustomerRegistry__Mode=Live
+      - Sources__Billing__Mode=Live
+      - CONFIG_SECRETS_PATH=/run/application-secrets
+      - ASPNETCORE_URLS=https://+:8443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/run/app-tls/tls.crt
+      - ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/run/app-tls/tls.key
+generatorOptions:
+  disableNameSuffixHash: false

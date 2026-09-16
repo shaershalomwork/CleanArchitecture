@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: integration-production
+resources: [../../base]
+replicas:
+  - {name: otel-collector, count: 2}
+configMapGenerator:
+  - name: logging-environment
+    literals:
+      - LOG_ENVIRONMENT=production
+      - ELASTICSEARCH_ENDPOINT=https://replace-production-elasticsearch.example:9200
+  - name: application-config
+    behavior: merge
+    literals:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=https://otel-collector.integration-production.svc:4318/v1/logs
+      - Authentication__Authority=https://replace-production-identity.example
+      - Authentication__Audience=replace-production-audience
+      - Sources__Billing__BaseUrl=https://replace-production-billing.example/

@@ -1,0 +1,39 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata: {name: otel-collector}
+spec:
+  selector:
+    matchLabels: {app: otel-collector}
+  endpoints: [{port: metrics, interval: 30s}]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata: {name: logging-pipeline}
+spec:
+  groups:
+    - name: logging-pipeline
+      rules:
+        - alert: CollectorUnavailable
+          expr: up{service="otel-collector"} == 0
+          for: 2m
+          labels: {severity: critical}
+          annotations: {summary: 'Collector metrics endpoint unavailable; inspect pods and PVCs.'}
+        - alert: CollectorQueueWarning
+          expr: otelcol_exporter_queue_size / otelcol_exporter_queue_capacity > 0.7
+          for: 5m
+          labels: {severity: warning}
+          annotations: {summary: 'Collector persistent queue is over 70% full.'}
+        - alert: CollectorQueueCritical
+          expr: otelcol_exporter_queue_size / otelcol_exporter_queue_capacity > 0.9
+          for: 1m
+          labels: {severity: critical}
+          annotations: {summary: 'Collector persistent queue is over 90% full; ingestion is at risk.'}
+        - alert: CollectorLogDeliveryFailure
+          expr: increase(otelcol_exporter_send_failed_log_records_total[5m]) > 0 or increase(otelcol_exporter_enqueue_failed_log_records_total[5m]) > 0
+          labels: {severity: critical}
+          annotations: {summary: 'Collector failed to export or enqueue logs; inspect pipeline health.'}
+        - alert: CollectorBufferDiskLow
+          expr: kubelet_volume_stats_available_bytes{persistentvolumeclaim=~"buffer-otel-collector-.*"} / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"buffer-otel-collector-.*"} < 0.2
+          for: 5m
+          labels: {severity: critical}
+          annotations: {summary: 'Collector PVC has less than 20% free space. Platform kubelet metrics access is required.'}

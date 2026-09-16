@@ -46,6 +46,8 @@ The customer source supports SQL Server (default), SQLite, and Oracle. Select `-
 
 ## Architecture and operations
 
+- [Console, OpenTelemetry, Elasticsearch and Kibana logging](docs/logging.md) — Compose development, OpenShift deployment, secrets, retention and recovery verification.
+
 - [Interactive HTML handbook](docs/template-guide.html) — an offline, illustrated guide to setup, architecture, feature development, source integration, testing, and maintenance. Open the file in a browser.
 - [Architecture decision](docs/decisions/ADR-004-Data-Centric-Integration.md)
 - [Integration guide and source contracts](docs/integration-guide.md)

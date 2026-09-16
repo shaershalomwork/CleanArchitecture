@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: integration-test
+resources: [../../base]
+configMapGenerator:
+  - name: logging-environment
+    literals:
+      - LOG_ENVIRONMENT=test
+      - ELASTICSEARCH_ENDPOINT=https://replace-test-elasticsearch.example:9200
+  - name: application-config
+    behavior: merge
+    literals:
+      - ASPNETCORE_ENVIRONMENT=Test
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=https://otel-collector.integration-test.svc:4318/v1/logs
+      - Authentication__Authority=https://replace-test-identity.example
+      - Authentication__Audience=replace-test-audience
+      - Sources__Billing__BaseUrl=https://replace-test-billing.example/

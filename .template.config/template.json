@@ -262,6 +262,11 @@
       "target": "./",
       "exclude": [
         ".git/**",
+        ".local/**",
+        "**/.env",
+        "**/secrets.local.yaml",
+        "**/*.key",
+        "**/*.pfx",
         ".github/**",
         ".template.config/**",
         "templates/**",
