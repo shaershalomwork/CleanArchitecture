@@ -11,10 +11,15 @@ namespace CleanArchitecture.Application.FunctionalTests.Observability;
 
 public class OtlpTlsTests
 {
-    [TestCase("trusted")]
-    [TestCase("wrong-ca")]
-    [TestCase("wrong-host")]
-    public async Task PublicCaBundlePreservesTrustAndHostnameValidation(string scenario)
+    [TestCase("trusted", OtlpExportProtocol.HttpProtobuf)]
+    [TestCase("wrong-ca", OtlpExportProtocol.HttpProtobuf)]
+    [TestCase("wrong-host", OtlpExportProtocol.HttpProtobuf)]
+    [TestCase("expired", OtlpExportProtocol.HttpProtobuf)]
+    [TestCase("trusted", OtlpExportProtocol.Grpc)]
+    [TestCase("wrong-ca", OtlpExportProtocol.Grpc)]
+    [TestCase("wrong-host", OtlpExportProtocol.Grpc)]
+    [TestCase("expired", OtlpExportProtocol.Grpc)]
+    public async Task PublicCaBundlePreservesTrustAndHostnameValidation(string scenario, OtlpExportProtocol protocol)
     {
         using var rootKey = RSA.Create(2048);
         var rootRequest = new CertificateRequest("CN=Logging test CA", rootKey, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
@@ -26,7 +31,8 @@ public class OtlpTlsTests
         var san = new SubjectAlternativeNameBuilder();
         san.AddIpAddress(IPAddress.Loopback);
         leafRequest.CertificateExtensions.Add(san.Build());
-        using var publicLeaf = leafRequest.Create(root, DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddHours(1), RandomNumberGenerator.GetBytes(16));
+        using var publicLeaf = leafRequest.Create(root, DateTimeOffset.UtcNow.AddMinutes(-4),
+            scenario == "expired" ? DateTimeOffset.UtcNow.AddMinutes(-1) : DateTimeOffset.UtcNow.AddHours(1), RandomNumberGenerator.GetBytes(16));
         using var ephemeralCertificate = publicLeaf.CopyWithPrivateKey(leafKey);
         // Schannel needs a persisted key when Kestrel acts as a TLS server on Windows.
         using var serverCertificate = X509CertificateLoader.LoadPkcs12(ephemeralCertificate.Export(X509ContentType.Pfx), null,
@@ -46,7 +52,7 @@ public class OtlpTlsTests
             await server.StartAsync();
             var address = server.Urls.Single();
             if (scenario == "wrong-host") address = address.Replace("127.0.0.1", "localhost");
-            var settings = new OtlpSignalSettings(new Uri(address), OtlpExportProtocol.HttpProtobuf, null, 5000, caFile);
+            var settings = new OtlpSignalSettings(new Uri(address), protocol, null, 5000, caFile);
             var options = new OtlpExporterOptions();
             settings.Apply(options);
             using var client = options.HttpClientFactory();

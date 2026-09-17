@@ -20,6 +20,30 @@ namespace CleanArchitecture.Application.FunctionalTests.Observability;
 [NonParallelizable]
 public class LoggingTests
 {
+    [TestCase("CERTIFICATE")]
+    [TestCase("CLIENT_CERTIFICATE")]
+    [TestCase("CLIENT_KEY")]
+    public void SignalCertificateSettingsOverrideGenericWithoutAffectingOtherSignals(string setting)
+    {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "https://localhost:4318",
+            ["OTEL_EXPORTER_OTLP_" + setting] = "shared.pem",
+            ["OTEL_EXPORTER_OTLP_LOGS_" + setting] = "logs.pem"
+        }).Build();
+        static string? Value(OtlpSignalSettings settings, string name) => name switch
+        {
+            "CERTIFICATE" => settings.Certificate,
+            "CLIENT_CERTIFICATE" => settings.ClientCertificate,
+            _ => settings.ClientKey
+        };
+        Value(OtlpSignalSettings.Read(configuration, "logs")!, setting).ShouldBe("logs.pem");
+        Value(OtlpSignalSettings.Read(configuration, "traces")!, setting).ShouldBe("shared.pem");
+        Value(OtlpSignalSettings.Read(configuration, "metrics")!, setting).ShouldBe("shared.pem");
+        configuration["OTEL_EXPORTER_OTLP_LOGS_" + setting] = null;
+        Value(OtlpSignalSettings.Read(configuration, "logs")!, setting).ShouldBe("shared.pem");
+    }
+
     [TestCase(false, false)]
     [TestCase(true, false)]
     [TestCase(false, true)]

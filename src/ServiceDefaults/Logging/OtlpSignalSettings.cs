@@ -29,8 +29,9 @@ public sealed record OtlpSignalSettings(Uri Endpoint, OtlpExportProtocol Protoco
         if (!int.TryParse(timeout, out var milliseconds) || milliseconds <= 0)
             throw new InvalidOperationException("OTLP timeout must be a positive number of milliseconds.");
         return new(uri, protocol, configuration[prefix + "HEADERS"] ?? configuration["OTEL_EXPORTER_OTLP_HEADERS"], milliseconds,
-            configuration["OTEL_EXPORTER_OTLP_CERTIFICATE"], configuration["OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE"],
-            configuration["OTEL_EXPORTER_OTLP_CLIENT_KEY"]);
+            configuration[prefix + "CERTIFICATE"] ?? configuration["OTEL_EXPORTER_OTLP_CERTIFICATE"],
+            configuration[prefix + "CLIENT_CERTIFICATE"] ?? configuration["OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE"],
+            configuration[prefix + "CLIENT_KEY"] ?? configuration["OTEL_EXPORTER_OTLP_CLIENT_KEY"]);
     }
 
     public void Apply(OtlpExporterOptions options)
@@ -39,12 +40,16 @@ public sealed record OtlpSignalSettings(Uri Endpoint, OtlpExportProtocol Protoco
         options.Protocol = Protocol;
         options.Headers = Headers;
         options.TimeoutMilliseconds = TimeoutMilliseconds;
-        if (Protocol == OtlpExportProtocol.HttpProtobuf && !string.IsNullOrWhiteSpace(Certificate))
+        if (!string.IsNullOrWhiteSpace(Certificate) || !string.IsNullOrWhiteSpace(ClientCertificate))
         {
             // OTel 1.18's CA loader calls CreateFromPemFile, which also expects a private
             // key. A trust bundle contains public certificates only. Use the platform TLS
             // chain policy, preserving its normal hostname and validity checks.
-            options.HttpClientFactory = () => new HttpClient(new PemTrustHandler(Certificate, ClientCertificate, ClientKey));
+            options.HttpClientFactory = () => new HttpClient(new PemTrustHandler(Certificate, ClientCertificate, ClientKey))
+            {
+                Timeout = TimeSpan.FromMilliseconds(TimeoutMilliseconds),
+                MaxResponseContentBufferSize = options.MaxResponseSizeBytes
+            };
         }
     }
 
@@ -53,13 +58,17 @@ public sealed record OtlpSignalSettings(Uri Endpoint, OtlpExportProtocol Protoco
         private readonly X509Certificate2Collection _roots = new();
         private readonly X509Certificate2? _client;
 
-        public PemTrustHandler(string caFile, string? clientFile, string? keyFile)
+        public PemTrustHandler(string? caFile, string? clientFile, string? keyFile)
         {
-            _roots.ImportFromPemFile(caFile);
-            if (_roots.Count == 0) throw new InvalidOperationException("OTLP CA bundle contains no certificates.");
-            var chain = new X509ChainPolicy { TrustMode = X509ChainTrustMode.CustomRootTrust, RevocationMode = X509RevocationMode.NoCheck };
-            chain.CustomTrustStore.AddRange(_roots);
-            var ssl = new SslClientAuthenticationOptions { CertificateChainPolicy = chain };
+            var ssl = new SslClientAuthenticationOptions();
+            if (!string.IsNullOrWhiteSpace(caFile))
+            {
+                _roots.ImportFromPemFile(caFile);
+                if (_roots.Count == 0) throw new InvalidOperationException("OTLP CA bundle contains no certificates.");
+                var chain = new X509ChainPolicy { TrustMode = X509ChainTrustMode.CustomRootTrust, RevocationMode = X509RevocationMode.NoCheck };
+                chain.CustomTrustStore.AddRange(_roots);
+                ssl.CertificateChainPolicy = chain;
+            }
             if (!string.IsNullOrWhiteSpace(clientFile))
             {
                 _client = X509Certificate2.CreateFromPemFile(clientFile, keyFile);

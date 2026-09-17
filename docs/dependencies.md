@@ -16,7 +16,9 @@ The Angular application builder avoids the unused webpack development server. A 
 | Aspire.Hosting.Oracle 13.5.3 | TestAppHost-only integration for disposable Oracle Free source contracts. |
 | Microsoft.Extensions.Resilience 10.9.0 / Polly | Shared source-operation execution; no blanket HTTP retries. |
 | EF Core / local Identity / Respawn | Removed from the default runtime/test design. |
-| Aspire 13.5.3 | Optional development diagnostics and disposable source integration tests. |
+| Aspire 13.5.3 | Development orchestration, logging and disposable integration tests. See the [offline development guide](logging-aspire.he.html). Standalone Web remains independent. |
+| Elasticsearch / Kibana 9.5.4, Collector 0.153.0 | Pinned session containers for development logging; no Elasticsearch .NET client. |
+| Node 24.13.0 initialization image | Runs provisioning in Docker; API-only projects need no host Node installation. |
 
 MediatR 13+ and AutoMapper 15+ have commercial/RPL licensing paths. Do not assume the organization's Community eligibility.
 The vendor states that older permissive versions are not supplied with security updates. Do not silently downgrade or suppress licensing logs to bypass review.

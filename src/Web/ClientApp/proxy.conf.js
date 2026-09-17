@@ -12,7 +12,7 @@ const PROXY_CONFIG = [
       "/scalar", "/health", "/alive"
     ],
     target: target,
-    secure: env["NODE_ENV"] !== "development",
+    secure: true,
   }
 ];
 

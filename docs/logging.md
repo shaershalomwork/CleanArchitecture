@@ -10,54 +10,21 @@ OpenShift **4.20**, Logging **6.6** (`observability.openshift.io/v1`). No existi
 cluster is upgraded by these assets. Validate actual installed versions, OTel
 mappings, privileges and TLS trust before rollout; test version upgrades together.
 
-## Run locally
+## Develop with Aspire
 
-Use Docker Compose v2, PowerShell, and Linux containers with at least 8 GiB memory
-and sufficient free disk space. From the repository or generated project root:
+Use the [Hebrew offline development guide](logging-aspire.he.html) for first setup,
+daily startup, dashboard and Kibana usage, certificate trust, clean-run semantics,
+secret lifetimes and troubleshooting. AppHost orchestrates development logging
+only in Development run mode. Standalone Web remains available without Docker.
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File deploy/initialize-local.ps1
-docker compose up --build -d
-docker compose ps -a
-docker compose logs -f web
-powershell -NoProfile -ExecutionPolicy Bypass -File deploy/verify-logging.ps1
+dotnet dev-certs https --trust
+dotnet run --project src/AppHost --launch-profile https
 ```
 
-Initialization creates a local CA, certificates and random password in
-`.local/logging`. The one-shot setup service provisions application retention, a
-limited ingestion API key and a Kibana service token. Secrets are not printed or
-included in source, Docker build contexts or template packages. Protect this local
-directory with your account's filesystem permissions; local bind-mounted files
-must be readable by the different container UIDs. Do not reuse these credentials.
-
-Trust `.local/logging/certs/ca.crt` in your development browser. Open
-<https://localhost:8443> for the app and <https://localhost:5601> for Kibana.
-Kibana's local administrator login is `elastic`, with the password stored in
-`.local/logging/elastic-password`. This login is only for the disposable local stack.
-The app retains Development authentication/fake sources; visit
-`/auth/login?returnUrl=/scalar` to use its normal sign-in flow.
-
-The smoke script sends API requests (expected 401 without authentication), checks
-their correlation headers against Elasticsearch, verifies sensitive markers are
-absent, checks retention, and creates Kibana data view **Application logs**
-(`webapi-logs`, pattern `logs-webapi.otel-*`, time field `@timestamp`).
-In **Discover**, select that view and **Last 15 minutes**. Add the resource,
-severity, body, trace and correlation fields. Example KQL:
-
-```text
-resource.attributes.service.name : "webapi"
-resource.attributes.deployment.environment.name : "Development"
-attributes.CorrelationId : "<X-Correlation-ID response value>"
-```
-
-Confirm field names in Discover after mapping upgrades. `TraceId` and
-`CorrelationId` are also copied to log attributes; OTLP's native trace ID remains.
-Startup logs have null request IDs in stdout; OTLP may omit null attributes.
-Service name, environment and version are present on all records.
-
-`docker compose stop` and `docker compose down` retain the data volumes. Avoid
-`down -v` unless deliberately discarding logs and queued records. Docker stdout
-rotates at 20 MiB × 5 files per container, independently of Elasticsearch retention.
+Each new AppHost process starts fresh session containers and application-log storage.
+The trusted development certificate and AppHost user-secret parameters persist.
+Legacy Docker resources and `.local/logging` are never adopted or removed.
 
 ## Configuration and data policy
 
@@ -71,7 +38,7 @@ rotates at 20 MiB × 5 files per container, independently of Elasticsearch reten
 | `OTEL_EXPORTER_OTLP_LOGS_HEADERS`, `..._TIMEOUT` | Override generic headers/timeout; timeout is milliseconds |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Existing all-signal destination; HTTP appends `/v1/<signal>` |
 | `OTEL_EXPORTER_OTLP_TRACES_*`, `..._METRICS_*` | Independent signal overrides |
-| `OTEL_EXPORTER_OTLP_CERTIFICATE` | PEM CA for the SDK exporter; SDK also supports client certificate/key settings |
+| `OTEL_EXPORTER_OTLP_LOGS_CERTIFICATE`, `..._CLIENT_CERTIFICATE`, `..._CLIENT_KEY` | Signal-specific TLS files, with generic `OTEL_EXPORTER_OTLP_*` fallback; public CA bundles preserve hostname and validity checks |
 | `CONFIG_SECRETS_PATH` | Key-per-file configuration directory; filenames use `__` separators |
 | `ELASTICSEARCH_ENDPOINT`, `LOG_ENVIRONMENT` | Collector destination and data-stream namespace |
 
@@ -178,8 +145,8 @@ Each Collector has a 4 GiB serialized queue and a 10 GiB PVC. Initial sizing ass
 500 records/second averaging 1 KiB with approximately 2× one-hour capacity margin.
 Measure actual sizes and storage overhead. Queue capacity should be at least
 `2 * records_per_second * bytes_per_record * 3600`; reserve at least 2.5× queue
-capacity for storage/compaction. Docker named volumes have no 10 GiB quota; reserve
-equivalent free disk. PVCs request 10 GiB.
+capacity for storage/compaction. Development session filesystems have no 10 GiB
+quota; reserve equivalent free disk. OpenShift PVCs request 10 GiB.
 
 Batching follows durable enqueue (1-second flush, 1 MiB maximum). File storage
 fsyncs writes. The Elasticsearch exporter uses native `retry`, not generic
@@ -192,15 +159,11 @@ Overflow blocks, but upstream timeouts or exhausted
 SDK memory can still lose records. The SDK's 8192-record queue is not a durable
 outbox. Shutdown grace periods allow flushing.
 
-```powershell
-powershell -File deploy/verify-logging.ps1 -Outage
-```
-
-This stops only local Elasticsearch, emits 50 requests, kills/restarts the
-Collector with the same volume, restores Elasticsearch, and verifies recovery.
+The opt-in `LoggingIntegration` tests exercise Aspire startup, clean-run storage,
+authentication, correlated logs and queue recovery across a Collector restart.
 For one-hour qualification, extend the outage to 60 minutes and generate measured
 production traffic; short smoke tests are not endurance certification. In a
-disposable stack, also test a small queue, invalid API key, untrusted CA and
+disposable environment, also test a small queue, invalid API key, untrusted CA and
 429/503 faults, then restore valid configuration. Do not run outage tests against
 corporate services without their separate operational process.
 

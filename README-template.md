@@ -7,7 +7,7 @@ The live customer source supports SQL Server, SQLite, and Oracle. See [SQLite se
 
 ## Run locally
 
-For Console/Elasticsearch logging, Docker Compose, and OpenShift deployment, see the [logging guide](docs/logging.md).
+For development logging with Aspire, see the [Hebrew offline guide](docs/logging-aspire.he.html). AppHost requires Docker. Shared logging policy and OpenShift operations are in the [logging guide](docs/logging.md).
 
 Install the SDK selected by global.json. For Angular, install Node 24 as well.
 
