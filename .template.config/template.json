@@ -24,7 +24,10 @@
   },
   "sourceName": "CleanArchitecture",
   "preferNameDirectory": true,
-  "guids": ["7a87b1cc-f5d8-4bcf-b960-398d18d386af"],
+  "guids": [
+    "7a87b1cc-f5d8-4bcf-b960-398d18d386af",
+    "10c618fd-96bd-4aa8-b942-b484a931ac47"
+  ],
   "symbols": {
     "kestrelHttpPort": {
       "type": "parameter",
@@ -70,28 +73,6 @@
       },
       "replaces": "5001"
     },
-    "appHostHttpPort": {
-      "type": "parameter",
-      "datatype": "integer",
-      "description": "Port number to use for the HTTP endpoint in launchSettings.json of the AppHost project."
-    },
-    "appHostHttpPortGenerated": {
-      "type": "generated",
-      "generator": "port",
-      "parameters": {
-        "low": 15000,
-        "high": 15300
-      }
-    },
-    "appHostHttpPortReplacer": {
-      "type": "generated",
-      "generator": "coalesce",
-      "parameters": {
-        "sourceVariableName": "appHostHttpPort",
-        "fallbackVariableName": "appHostHttpPortGenerated"
-      },
-      "replaces": "15000"
-    },
     "appHostHttpsPort": {
       "type": "parameter",
       "datatype": "integer",
@@ -114,28 +95,6 @@
       },
       "replaces": "17000"
     },
-    "appHostOtlpHttpPort": {
-      "type": "parameter",
-      "datatype": "integer",
-      "description": "Port number to use for the OTLP HTTP endpoint in launchSettings.json of the AppHost project."
-    },
-    "appHostOtlpHttpPortGenerated": {
-      "type": "generated",
-      "generator": "port",
-      "parameters": {
-        "low": 19000,
-        "high": 19300
-      }
-    },
-    "appHostOtlpHttpPortReplacer": {
-      "type": "generated",
-      "generator": "coalesce",
-      "parameters": {
-        "sourceVariableName": "appHostOtlpHttpPort",
-        "fallbackVariableName": "appHostOtlpHttpPortGenerated"
-      },
-      "replaces": "19000"
-    },
     "appHostOtlpHttpsPort": {
       "type": "parameter",
       "datatype": "integer",
@@ -157,28 +116,6 @@
         "fallbackVariableName": "appHostOtlpHttpsPortGenerated"
       },
       "replaces": "21000"
-    },
-    "appHostResourceHttpPort": {
-      "type": "parameter",
-      "datatype": "integer",
-      "description": "Port number to use for the resource service HTTP endpoint in launchSettings.json of the AppHost project."
-    },
-    "appHostResourceHttpPortGenerated": {
-      "type": "generated",
-      "generator": "port",
-      "parameters": {
-        "low": 20000,
-        "high": 20300
-      }
-    },
-    "appHostResourceHttpPortReplacer": {
-      "type": "generated",
-      "generator": "coalesce",
-      "parameters": {
-        "sourceVariableName": "appHostResourceHttpPort",
-        "fallbackVariableName": "appHostResourceHttpPortGenerated"
-      },
-      "replaces": "20000"
     },
     "appHostResourceHttpsPort": {
       "type": "parameter",
@@ -213,7 +150,17 @@
     "CustomerProvider": {
       "type": "parameter",
       "datatype": "choice",
-      "choices": [{ "choice": "SqlServer" }, { "choice": "SQLite" }, { "choice": "Oracle" }],
+      "choices": [
+        {
+          "choice": "SqlServer"
+        },
+        {
+          "choice": "SQLite"
+        },
+        {
+          "choice": "Oracle"
+        }
+      ],
       "defaultValue": "SqlServer",
       "description": "Database provider for the live customer source"
     },
@@ -222,9 +169,18 @@
       "generator": "join",
       "parameters": {
         "symbols": [
-          { "type": "const", "value": "\"Provider\": \"" },
-          { "type": "ref", "value": "CustomerProvider" },
-          { "type": "const", "value": "\"" }
+          {
+            "type": "const",
+            "value": "\"Provider\": \""
+          },
+          {
+            "type": "ref",
+            "value": "CustomerProvider"
+          },
+          {
+            "type": "const",
+            "value": "\""
+          }
         ],
         "separator": ""
       },
@@ -262,6 +218,18 @@
       "target": "./",
       "exclude": [
         ".git/**",
+        ".agents/**",
+        ".codex/**",
+        ".vs/**",
+        ".local/**",
+        "**/.env",
+        "**/secrets.local.yaml",
+        "**/*.key",
+        "**/*.pfx",
+        "**/*.p12",
+        "**/*.pem",
+        "**/*.crt",
+        "**/*.cer",
         ".github/**",
         ".template.config/**",
         "templates/**",

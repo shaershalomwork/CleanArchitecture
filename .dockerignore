@@ -1,0 +1,16 @@
+.git
+.vs
+.agents
+.codex
+.local
+artifacts
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.angular
+**/TestResults
+**/*.pfx
+**/*.key
+**/*.db
+**/.env

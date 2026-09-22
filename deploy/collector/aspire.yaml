@@ -1,0 +1,19 @@
+# Development-only overlay; the canonical OpenShift configuration stays unchanged.
+extensions:
+  bearertokenauth/development:
+    filename: /run/secrets/receiver-token
+receivers:
+  otlp:
+    protocols:
+      http:
+        auth:
+          authenticator: bearertokenauth/development
+        tls:
+          cert_file: ${env:LOG_TLS_CERT}
+          key_file: ${env:LOG_TLS_KEY}
+exporters:
+  elasticsearch:
+    tls:
+      ca_file: ${env:LOG_CA_FILE}
+service:
+  extensions: [health_check, file_storage, bearertokenauth/development]

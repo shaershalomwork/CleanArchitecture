@@ -1,8 +1,10 @@
 <Project Sdk="Aspire.AppHost.Sdk/13.5.3">
-  <PropertyGroup><OutputType>Exe</OutputType><RootNamespace>CleanArchitecture.AppHost</RootNamespace><AssemblyName>CleanArchitecture.AppHost</AssemblyName></PropertyGroup>
+  <PropertyGroup><OutputType>Exe</OutputType><RootNamespace>CleanArchitecture.AppHost</RootNamespace><AssemblyName>CleanArchitecture.AppHost</AssemblyName><UserSecretsId>CleanArchitecture-AppHost-10c618fd-96bd-4aa8-b942-b484a931ac47</UserSecretsId></PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" />
+    <!--#if (UseAngular)-->
     <PackageReference Include="Aspire.Hosting.JavaScript" />
+    <!--#endif-->
     <ProjectReference Include="../Shared/Shared.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="../Web/Web.csproj" />
   </ItemGroup>

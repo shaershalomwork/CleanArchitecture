@@ -17,8 +17,11 @@ if (Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider")
         ["Authentication:Mode"] = "Development", ["AZURE_KEY_VAULT_ENDPOINT"] = ""
     });
 }
-builder.AddServiceDefaults();
 builder.AddKeyVaultIfConfigured();
+// Mounted secret filenames use the same double-underscore convention as environment variables.
+if (builder.Configuration["CONFIG_SECRETS_PATH"] is { Length: > 0 } secretsPath)
+    builder.Configuration.AddKeyPerFile(secretsPath, optional: false);
+builder.AddServiceDefaults();
 builder.AddApplicationServices();
 builder.AddInfrastructureServices();
 builder.AddWebServices();
@@ -27,6 +30,8 @@ var app = builder.Build();
 app.Use(async (context, next) =>
 {
     context.TraceIdentifier = Activity.Current?.TraceId.ToString() ?? ActivityTraceId.CreateRandom().ToString();
+    using var scope = app.Logger.BeginScope(new Dictionary<string, object> { ["CorrelationId"] = context.TraceIdentifier });
+    var started = Stopwatch.GetTimestamp();
     // Exception handling clears response headers. Set correlation immediately before
     // headers are sent so binding failures retain the same envelope/header contract.
     context.Response.OnStarting(() =>
@@ -34,7 +39,13 @@ app.Use(async (context, next) =>
         context.Response.Headers["X-Correlation-ID"] = context.TraceIdentifier;
         return Task.CompletedTask;
     });
-    await next(context);
+    try { await next(context); }
+    finally
+    {
+        if (!context.Request.Path.StartsWithSegments("/alive") && !context.Request.Path.StartsWithSegments("/health"))
+            app.Logger.LogInformation("HTTP request completed with {StatusCode} in {ElapsedMs} ms",
+                context.Response.StatusCode, Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+    }
 });
 app.UseExceptionHandler();
 app.UseStatusCodePages(context => OperationResultMapper.WriteErrorAsync(context.HttpContext,

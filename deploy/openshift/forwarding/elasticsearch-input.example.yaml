@@ -1,0 +1,20 @@
+# Merge into EACH existing Elasticsearch-bound ClusterLogForwarder input, preserving
+# its name, serviceAccount, outputs, filters, and unrelated pipelines. Do not apply as a new CR.
+# All ES-bound pipelines must use the filtered input, not the built-in `application` input.
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: REPLACE_EXISTING_FORWARDER
+  namespace: openshift-logging
+spec:
+  inputs:
+    - name: application-for-elasticsearch
+      type: application
+      application:
+        excludes:
+          - {namespace: integration-test, container: webapi}
+          - {namespace: integration-production, container: webapi}
+  pipelines:
+    - name: REPLACE_EXISTING_ES_PIPELINE
+      inputRefs: [application-for-elasticsearch]
+      outputRefs: [REPLACE_EXISTING_ES_OUTPUT]

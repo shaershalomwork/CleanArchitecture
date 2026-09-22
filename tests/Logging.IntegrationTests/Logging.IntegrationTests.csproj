@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><IsTestProject>true</IsTestProject><RootNamespace>CleanArchitecture.Logging.IntegrationTests</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Aspire.Hosting.Testing" />
+    <PackageReference Include="Microsoft.Playwright" />
+    <ProjectReference Include="../../src/AppHost/AppHost.csproj" />
+  </ItemGroup>
+</Project>

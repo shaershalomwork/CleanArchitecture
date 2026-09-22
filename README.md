@@ -5,7 +5,7 @@ External systems remain the systems of record. C# use cases combine narrow SQL/H
 
 ## Requirements
 
-.NET SDK 10.0.400 (global.json). Node 24 for Angular. Docker only for the opt-in SQL Server and Oracle fixture tests.
+.NET SDK 10.0.400 (global.json). Node 24 for Angular. Docker for AppHost development logging and opt-in integration tests.
 The default generated project is API-only; Angular is the only supported frontend.
 
 ## Develop this repository
@@ -17,7 +17,7 @@ dotnet run --project src/Web --launch-profile https
 
 Development uses fake sources and selectable demo cookie profiles (Reader by default). Open /auth/login?returnUrl=/scalar to sign in. Local dotnet user-jwts tokens also work in Scalar; see [workspace and authentication](docs/workspace.md).
 The fake registry starts empty. Create CUST-001 or CUST-WARN with a writer identity, then GET /api/customers using a reader identity and open a registered customer's overview. CUST-WARN demonstrates partial billing after registration; CUST-FAIL and CUST-MISSING remain error scenarios. See [customer reads and the create-to-delete workflow](docs/customer-reads.md).
-Web runs without Aspire, a database, or corporate credentials. Optional AppHost provides the diagnostics dashboard.
+Web runs without Aspire, a database, or corporate credentials. AppHost orchestrates the full development logging environment; see the [Hebrew offline Aspire guide](docs/logging-aspire.he.html).
 
 ## Verify and package
 
@@ -45,6 +45,8 @@ Use `-cf None` (the default) for API-only. The former single-database option and
 The customer source supports SQL Server (default), SQLite, and Oracle. Select `--CustomerProvider SQLite` or `--CustomerProvider Oracle` when generating a project; see [SQLite setup](docs/sqlite.md) and [Oracle setup](docs/oracle.md). Development still starts with fake sources until a live source is configured. [Customer write examples](docs/customer-writes.md) demonstrate POST, PUT, PATCH, and DELETE with a separate writer permission.
 
 ## Architecture and operations
+
+- [Console, OpenTelemetry, Elasticsearch and Kibana logging](docs/logging.md) — Aspire development, OpenShift deployment, secrets, retention and recovery verification.
 
 - [Interactive HTML handbook](docs/template-guide.html) — an offline, illustrated guide to setup, architecture, feature development, source integration, testing, and maintenance. Open the file in a browser.
 - [Architecture decision](docs/decisions/ADR-004-Data-Centric-Integration.md)

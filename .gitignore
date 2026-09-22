@@ -489,3 +489,8 @@ $RECYCLE.BIN/
 *.db
 *.db-shm
 *.db-wal
+
+# Local logging certificates, keys, credentials, and rendered deployment secrets
+.local/
+.env
+deploy/**/secrets.local.yaml

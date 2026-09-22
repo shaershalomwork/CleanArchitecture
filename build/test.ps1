@@ -17,6 +17,26 @@ foreach ($client in $ClientFramework) {
     $path = Join-Path $run $client
     dotnet new di-sln -cf $client --CustomerProvider $CustomerProvider -n IntegrationSmoke -o $path --debug:custom-hive $hive
     if ($LASTEXITCODE -ne 0) { throw "Generation failed: $client" }
+    $dockerfile = Join-Path $path 'Dockerfile'
+    if (!(Test-Path -LiteralPath $dockerfile -PathType Leaf) -or
+        !(Get-Content -LiteralPath $dockerfile -Raw).Contains('IntegrationSmoke.Web.dll')) {
+        throw 'The generated Dockerfile must be a root file with the renamed application entrypoint.'
+    }
+    foreach ($asset in @('src/AppHost/DevelopmentLogging.cs', 'deploy/elasticsearch/development.mjs', 'deploy/elasticsearch/provision.mjs', 'deploy/collector/config.yaml', 'deploy/collector/aspire.yaml', 'deploy/openshift/overlays/production/kustomization.yaml', 'docs/logging.md', 'docs/logging-aspire.he.html')) {
+        if (!(Test-Path -LiteralPath (Join-Path $path $asset) -PathType Leaf)) { throw "Missing generated deployment asset: $asset" }
+    }
+    if (Test-Path -LiteralPath (Join-Path $path '.local')) { throw 'Local secrets must not be packaged.' }
+    foreach ($obsolete in @('compose.yaml', 'deploy/initialize-local.ps1', 'deploy/elasticsearch/certificates.sh', 'deploy/verify-logging.ps1', 'deploy/elasticsearch/verify.mjs')) {
+        if (Test-Path -LiteralPath (Join-Path $path $obsolete)) { throw "Obsolete development asset was packaged: $obsolete" }
+    }
+    [xml]$appHostProject = Get-Content (Join-Path $path 'src/AppHost/AppHost.csproj') -Raw
+    $appHostSecretId = [string]$appHostProject.Project.PropertyGroup.UserSecretsId
+    if ([string]::IsNullOrWhiteSpace($appHostSecretId) -or $appHostSecretId.Contains('10c618fd-96bd-4aa8-b942-b484a931ac47') -or !$secretIds.Add($appHostSecretId)) {
+        throw 'Generated AppHosts must have distinct user-secrets IDs.'
+    }
+    if ($client -eq 'None' -and (Get-Content (Join-Path $path 'src/AppHost/AppHost.csproj') -Raw).Contains('Aspire.Hosting.JavaScript')) {
+        throw 'API-only AppHosts must not depend on JavaScript hosting.'
+    }
     $settings = Get-Content (Join-Path $path 'src/Web/appsettings.json') -Raw | ConvertFrom-Json
     if ($settings.Sources.CustomerRegistry.Provider -ne $CustomerProvider) { throw 'Generated source provider is incorrect.' }
     [xml]$webProject = Get-Content (Join-Path $path 'src/Web/Web.csproj') -Raw
