@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Text.Json;
 using System.Security.Cryptography;
+using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +32,43 @@ public class TopologyTests
         await using var app = await builder.BuildAsync(timeout.Token);
         await app.StartAsync(timeout.Token);
         await BrowserChecks.Dashboard(app.GetEndpoint("aspire-dashboard", "https"), dashboardToken, ["webapi"], expectTrace: false);
+    }
+
+    [Test, Category("LoggingIntegration"), NonParallelizable]
+    public async Task WebApiStartsAndWritesConsoleLogsWhileLoggingContainersAreStopped()
+    {
+        if (Environment.GetEnvironmentVariable("RUN_LOGGING_INTEGRATION_TESTS") != "1")
+            Assert.Ignore("Opt-in Aspire startup check with logging containers held stopped.");
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+        var ct = timeout.Token;
+        await using var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AppHost>(
+            ["--environment=Development"],
+            (options, settings) => { settings.EnvironmentName = "Development"; options.EnableResourceLogging = false; }, ct);
+        builder.Services.AddLogging(logging => logging.ClearProviders());
+        var containers = builder.Resources.OfType<ContainerResource>().ToArray();
+        Assert.That(containers, Has.Length.EqualTo(5), "This check requires the development logging certificate and resources.");
+        // Keep every logging dependency unavailable without pulling images or requiring Docker.
+        foreach (var container in containers) builder.CreateResourceBuilder(container).WithExplicitStart();
+        await using var app = await builder.BuildAsync(ct);
+        await app.StartAsync(ct);
+        var notifications = app.Services.GetRequiredService<ResourceNotificationService>();
+        await notifications.WaitForResourceHealthyAsync("webapi", ct);
+        using var web = new HttpClient { BaseAddress = app.GetEndpoint("webapi", "https") };
+        using var alive = await web.GetAsync("/alive", ct);
+        Assert.That(alive.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        using var request = await web.GetAsync("/scalar", ct);
+        Assert.That(request.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        var correlation = request.Headers.GetValues("X-Correlation-ID").Single();
+        var model = app.Services.GetRequiredService<DistributedApplicationModel>();
+        var webResource = model.Resources.Single(r => r.Name == "webapi");
+        var logs = app.Services.GetRequiredService<ResourceLoggerService>();
+        await foreach (var batch in logs.WatchAsync(webResource).WithCancellation(ct))
+        {
+            var output = JsonSerializer.Serialize(batch);
+            if (output.Contains("HTTP request completed", StringComparison.Ordinal) && output.Contains(correlation, StringComparison.Ordinal))
+                return;
+        }
+        Assert.Fail("The request completion log was not written to the WebAPI console.");
     }
 
     [TestCase("Test")]

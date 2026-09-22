@@ -17,6 +17,14 @@ daily startup, dashboard and Kibana usage, certificate trust, clean-run semantic
 secret lifetimes and troubleshooting. AppHost orchestrates development logging
 only in Development run mode. Standalone Web remains available without Docker.
 
+WebAPI starts independently of Elasticsearch, Kibana, their initialization jobs and
+the Collector. Logging startup failures or the ten-minute readiness timeout produce
+a warning without stopping AppHost or WebAPI. If the logging certificate or temporary
+directory cannot be prepared, AppHost skips the development logging containers.
+Console JSON logs remain available in Aspire under **webapi → Console logs** (or in
+the terminal when running Web directly), even while OTLP export is unavailable.
+Events emitted before the Collector is ready may not reach Elasticsearch.
+
 ```powershell
 dotnet dev-certs https --trust
 dotnet run --project src/AppHost --launch-profile https

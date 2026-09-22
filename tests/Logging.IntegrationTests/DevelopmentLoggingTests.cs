@@ -57,6 +57,9 @@ public class DevelopmentLoggingTests
             TestContext.Progress.WriteLine($"Run {run}: Elasticsearch authenticated health passed.");
             await notifications.WaitForResourceAsync("elasticsearch-init", KnownResourceStates.Exited, ct);
             TestContext.Progress.WriteLine($"Run {run}: Elasticsearch initialization job exited.");
+            // WebAPI now starts independently; explicitly wait for logging before checking ingestion.
+            await notifications.WaitForResourceHealthyAsync("otel-collector", ct);
+            await notifications.WaitForResourceAsync("kibana-init", KnownResourceStates.Exited, ct);
             await notifications.WaitForResourceHealthyAsync("webapi", ct);
             var model = app.Services.GetRequiredService<DistributedApplicationModel>();
             foreach (var name in new[] { "elasticsearch", "elasticsearch-init", "otel-collector", "kibana", "kibana-init" })

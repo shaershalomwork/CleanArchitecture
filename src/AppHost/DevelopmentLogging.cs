@@ -36,9 +36,18 @@ internal sealed class DevelopmentLogging : IDisposable
     public static DevelopmentLogging? Configure(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> web)
     {
         if (!builder.Environment.IsDevelopment() || !builder.ExecutionContext.IsRunMode) return null;
-        CheckCertificate();
         var root = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, "../.."));
-        var run = new DevelopmentLogging(root);
+        DevelopmentLogging run;
+        try
+        {
+            CheckCertificate();
+            run = new DevelopmentLogging(root);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or CryptographicException or IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            Console.Error.WriteLine("Development logging is unavailable. Check HTTPS certificate trust and temporary directory permissions. WebAPI will continue with console logging.");
+            return null;
+        }
         try { run.AddResources(builder, web, root); return run; }
         catch { run.Dispose(); throw; }
     }
@@ -64,7 +73,7 @@ internal sealed class DevelopmentLogging : IDisposable
 
     private void AddResources(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> web, string root)
     {
-        builder.Services.AddHostedService<StartupDeadline>();
+        builder.Services.AddHostedService<StartupMonitor>();
         IResourceBuilder<ParameterResource> Saved(string name) => builder.AddParameter(name,
             new GenerateParameterDefault { MinLength = 48, Special = false }, secret: true, persist: true);
         var password = Saved("logging-elastic-password");
@@ -156,10 +165,11 @@ internal sealed class DevelopmentLogging : IDisposable
                 return Task.CompletedTask;
             }).WaitForCompletion(elasticInit);
         AddHealth(builder, kibana, password, "/api/status", "status.overall.level", "available");
-        var kibanaInit = Init("kibana-init", "kibana")
+        Init("kibana-init", "kibana")
             .WithEnvironment("KIBANA_ENDPOINT", "https://kibana.dev.localhost:5601").WaitFor(kibana, WaitBehavior.StopOnResourceUnavailable);
-        web.WaitFor(collector).WaitForCompletion(kibanaInit)
-            .WithEnvironment("OTEL_BLRP_MAX_QUEUE_SIZE", "8192")
+        // Logging is optional: the API starts even while the logging containers are unavailable.
+        // OTLP exports in the background; the independent console provider always writes to stdout.
+        web.WithEnvironment("OTEL_BLRP_MAX_QUEUE_SIZE", "8192")
             .WithEnvironment("OTEL_BLRP_MAX_EXPORT_BATCH_SIZE", "512")
             .WithEnvironment("OTEL_BLRP_SCHEDULE_DELAY", "1000")
             .WithEnvironment("OTEL_EXPORTER_OTLP_LOGS_ENDPOINT", ReferenceExpression.Create($"{collector.GetEndpoint("https")}/v1/logs"))
@@ -202,8 +212,8 @@ internal sealed class DevelopmentLogging : IDisposable
         if (Directory.Exists(_handoff)) Directory.Delete(_handoff, recursive: true);
     }
 
-    private sealed class StartupDeadline(ResourceNotificationService notifications, IHostApplicationLifetime lifetime,
-        ILogger<StartupDeadline> logger) : BackgroundService
+    private sealed class StartupMonitor(ResourceNotificationService notifications,
+        ILogger<StartupMonitor> logger) : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -218,10 +228,10 @@ internal sealed class DevelopmentLogging : IDisposable
                 if (!notifications.TryGetCurrentState("kibana-init", out var completed) || completed.Snapshot.ExitCode != 0)
                     throw new InvalidOperationException();
             }
-            catch (Exception) when (!stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
+            catch (Exception)
             {
-                logger.LogError("Development logging startup failed or exceeded ten minutes. Check resource health, initialization output and HTTPS trust.");
-                lifetime.StopApplication();
+                logger.LogWarning("Development logging startup failed or exceeded ten minutes. WebAPI will continue with console logging. Check resource health, initialization output and HTTPS trust.");
             }
         }
     }

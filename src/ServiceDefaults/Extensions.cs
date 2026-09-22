@@ -29,6 +29,7 @@ public static class Extensions
         var traces = OtlpSignalSettings.Read(builder.Configuration, "traces");
         var metrics = OtlpSignalSettings.Read(builder.Configuration, "metrics");
         builder.Logging.ClearProviders();
+        // Keep console output available independently of OTLP/Elasticsearch readiness.
         builder.Logging.AddConsole(o => { o.FormatterName = "safe-json"; o.LogToStandardErrorThreshold = LogLevel.None; })
             .AddConsoleFormatter<SafeJsonConsoleFormatter, ConsoleFormatterOptions>();
         builder.Logging.AddOpenTelemetry(o =>
