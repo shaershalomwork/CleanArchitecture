@@ -27,6 +27,7 @@ builder.AddInfrastructureServices();
 builder.AddWebServices();
 
 var app = builder.Build();
+app.UseForwardedHeaders();
 app.Use(async (context, next) =>
 {
     context.TraceIdentifier = Activity.Current?.TraceId.ToString() ?? ActivityTraceId.CreateRandom().ToString();
@@ -52,6 +53,16 @@ app.UseStatusCodePages(context => OperationResultMapper.WriteErrorAsync(context.
     context.HttpContext.Response.StatusCode, "HTTP." + context.HttpContext.Response.StatusCode, "The request could not be completed."));
 if (!app.Environment.IsDevelopment()) app.UseHsts();
 app.UseHttpsRedirection();
+if (!app.Configuration.GetValue("Authentication:EnableRuntimeApiReference", !app.Environment.IsProduction()))
+    app.Use(async (context, next) =>
+    {
+        if (context.Request.Path.StartsWithSegments("/openapi") || context.Request.Path.StartsWithSegments("/scalar"))
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            return;
+        }
+        await next(context);
+    });
 app.UseFileServer();
 app.UseRouting();
 app.UseCors();
@@ -76,8 +87,11 @@ app.Use(async (context, next) =>
     }
     await next(context);
 });
-app.MapOpenApi().AllowAnonymous();
-app.MapScalarApiReference(options => options.AddPreferredSecuritySchemes("Bearer")).AllowAnonymous();
+if (app.Configuration.GetValue("Authentication:EnableRuntimeApiReference", !app.Environment.IsProduction()))
+{
+    app.MapOpenApi().AllowAnonymous();
+    app.MapScalarApiReference(options => options.AddPreferredSecuritySchemes("Bearer")).AllowAnonymous();
+}
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
 #if (UseAngular)
@@ -90,7 +104,9 @@ app.MapFallbackToFile("index.html").AllowAnonymous().WithMetadata(
 #else
 app.MapGet("/", [EndpointSummary("Open the API reference")]
     [EndpointDescription("Redirects to the interactive Scalar API reference. Authentication is not required.")]
-    () => Results.Redirect("/scalar")).AllowAnonymous();
+    (IConfiguration configuration, IWebHostEnvironment environment) =>
+        configuration.GetValue("Authentication:EnableRuntimeApiReference", !environment.IsProduction())
+            ? Results.Redirect("/scalar") : Results.NotFound()).AllowAnonymous();
 #endif
 app.Run();
 public partial class Program;

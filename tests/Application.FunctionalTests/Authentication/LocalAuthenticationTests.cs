@@ -29,6 +29,7 @@ public class LocalAuthenticationTests
                 ["Authentication:Mode"] = external ? "External" : "Development",
                 ["Authentication:Authority"] = "https://external.example", ["Authentication:Audience"] = "external-api",
                 ["Authentication:ClientId"] = "fixture", ["Authentication:ClientSecret"] = "fixture",
+                ["Authentication:PublicOrigin"] = "https://localhost/",
                 ["Authentication:Schemes:Bearer:ValidIssuer"] = "dotnet-user-jwts",
                 ["Authentication:Schemes:Bearer:ValidAudiences:0"] = "local-api",
                 ["Authentication:Schemes:Bearer:SigningKeys:0:Issuer"] = "dotnet-user-jwts",

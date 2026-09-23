@@ -18,7 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace CleanArchitecture.Application.FunctionalTests.Authentication;
 public class AuthenticationTests
 {
-    private sealed class Factory(bool jwt = false, string environment = "Test") : WebApplicationFactory<Program>
+    private sealed class Factory(bool jwt = false, string environment = "Test", bool apiReference = true) : WebApplicationFactory<Program>
     {
         public static readonly SymmetricSecurityKey Key = new(Encoding.UTF8.GetBytes("fixture-only-signing-key-at-least-32-characters"));
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -28,7 +28,9 @@ public class AuthenticationTests
                 ["Sources:CustomerRegistry:Mode"] = "Fake", ["Sources:Billing:Mode"] = "Fake",
                 ["Authentication:Mode"] = jwt ? "External" : "Development",
                 ["Authentication:Authority"] = "https://issuer.example", ["Authentication:Audience"] = "integration",
-                ["Authentication:ClientId"] = "fixture", ["Authentication:ClientSecret"] = "fixture"
+                ["Authentication:ClientId"] = "fixture", ["Authentication:ClientSecret"] = "fixture",
+                ["Authentication:PublicOrigin"] = "https://localhost/",
+                ["Authentication:EnableRuntimeApiReference"] = apiReference.ToString()
             }));
             if (jwt) builder.ConfigureTestServices(services =>
             {
@@ -54,16 +56,70 @@ public class AuthenticationTests
         await using var factory = new Factory(jwt: true);
         using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
         await CustomerFixtures.RegisterAsync(factory.Services, "CUST-001");
-        var claims = new List<Claim> { new("sub", "user") };
+        var claims = new List<Claim> { new("sub", "user"), new("iat", new DateTimeOffset(DateTime.UtcNow.AddMinutes(expired ? -20 : -1)).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64) };
         if (permission) claims.Add(new("permissions", "customers.read"));
         var signingKey = invalidSignature
             ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes("different-fixture-signing-key-at-least-32-characters")) : Factory.Key;
-        var token = new JwtSecurityToken(issuer, audience, claims, DateTime.UtcNow.AddMinutes(-20),
+        var token = new JwtSecurityToken(issuer, audience, claims, DateTime.UtcNow.AddMinutes(expired ? -20 : -1),
             DateTime.UtcNow.AddMinutes(expired ? -10 : 5), new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256));
         client.DefaultRequestHeaders.Authorization = new("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
         var response = await client.GetAsync("/api/customers/CUST-001/overview");
         ((int)response.StatusCode).ShouldBe(expected);
         if (expected == 401) response.Headers.WwwAuthenticate.Single().Scheme.ShouldBe("Bearer");
+    }
+    [Test]
+    public async Task RejectsAccessTokenOlderThanFiveMinutesEvenWhenUnexpired()
+    {
+        await using var factory = new Factory(jwt: true);
+        using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
+        var claims = new[] { new Claim("sub", "user"), new Claim("permissions", "customers.read"),
+            new Claim("iat", DateTimeOffset.UtcNow.AddMinutes(-6).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64) };
+        var token = new JwtSecurityToken("https://issuer.example", "integration", claims, DateTime.UtcNow.AddMinutes(-6),
+            DateTime.UtcNow.AddMinutes(5), new SigningCredentials(Factory.Key, SecurityAlgorithms.HmacSha256));
+        client.DefaultRequestHeaders.Authorization = new("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
+        (await client.GetAsync("/api/customers/CUST-001/overview")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+    [TestCase(-1, 200)]
+    [TestCase(6, 401)]
+    [TestCase(null, 401)]
+    public async Task AccessTokenRequiresRecentIssuance(int? issuedMinutesFromNow, int expected)
+    {
+        await using var factory = new Factory(jwt: true);
+        using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
+        await CustomerFixtures.RegisterAsync(factory.Services, "CUST-001");
+        var claims = new List<Claim> { new("sub", "user"), new("permissions", "customers.read") };
+        if (issuedMinutesFromNow is { } minutes)
+            claims.Add(new Claim("iat", DateTimeOffset.UtcNow.AddMinutes(minutes).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64));
+        var token = new JwtSecurityToken("https://issuer.example", "integration", claims, DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddMinutes(10), new SigningCredentials(Factory.Key, SecurityAlgorithms.HmacSha256));
+        client.DefaultRequestHeaders.Authorization = new("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
+        ((int)(await client.GetAsync("/api/customers/CUST-001/overview")).StatusCode).ShouldBe(expected);
+    }
+    [Test]
+    public async Task MultivaluedPermissionsAuthorizeEachCapability()
+    {
+        await using var factory = new Factory(jwt: true);
+        using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
+        var claims = new[] { new Claim("sub", "user"), new Claim("permissions", "customers.read"),
+            new Claim("permissions", "customers.write"),
+            new Claim("iat", DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64) };
+        var token = new JwtSecurityToken("https://issuer.example", "integration", claims, DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddMinutes(5), new SigningCredentials(Factory.Key, SecurityAlgorithms.HmacSha256));
+        client.DefaultRequestHeaders.Authorization = new("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
+        var me = await client.GetFromJsonAsync<JsonElement>("/auth/me");
+        me.GetProperty("permissions").EnumerateArray().Select(value => value.GetString()).ShouldBe(["customers.read", "customers.write"], ignoreOrder: true);
+        me.GetProperty("capabilities").GetProperty("canReadCustomers").GetBoolean().ShouldBeTrue();
+        me.GetProperty("capabilities").GetProperty("canWriteCustomers").GetBoolean().ShouldBeTrue();
+    }
+    [Test]
+    public async Task DisabledRuntimeReferenceBlocksMappedAndStaticDocuments()
+    {
+        await using var factory = new Factory(apiReference: false);
+        using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
+        (await client.GetAsync("/scalar")).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        (await client.GetAsync("/openapi/v1.json")).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        var options = await client.GetFromJsonAsync<JsonElement>("/auth/options");
+        options.GetProperty("apiReferenceAvailable").GetBoolean().ShouldBeFalse();
     }
     [Test] public async Task CookieSignInRejectsOpenRedirectAndLogoutRequiresCsrf()
     {
@@ -85,7 +141,7 @@ public class AuthenticationTests
     {
         await using var factory = new Factory(jwt: true);
         using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
-        var claims = new[] { new Claim("sub", "writer"), new Claim("permissions", writePermission ? "customers.write" : "customers.read") };
+        var claims = new[] { new Claim("sub", "writer"), new Claim("permissions", writePermission ? "customers.write" : "customers.read"), new Claim("iat", DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64) };
         var token = new JwtSecurityToken("https://issuer.example", "integration", claims, DateTime.UtcNow.AddMinutes(-1),
             DateTime.UtcNow.AddMinutes(5), new SigningCredentials(Factory.Key, SecurityAlgorithms.HmacSha256));
         client.DefaultRequestHeaders.Authorization = new("Bearer", new JwtSecurityTokenHandler().WriteToken(token));
