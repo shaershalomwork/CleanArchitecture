@@ -1,6 +1,8 @@
 using System.Text.Json;
 using CleanArchitecture.Application.FunctionalTests.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 
@@ -31,7 +33,7 @@ public class SqliteCustomerApiTests
                     ["Sources:CustomerRegistry:Mode"] = "Live",
                     ["Sources:CustomerRegistry:Provider"] = "SQLite",
                     ["ConnectionStrings:CustomerRegistry"] = connectionString
-                })));
+                })).ConfigureTestServices(services => services.AddSqliteCustomerRegistry()));
             using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost") });
             client.DefaultRequestHeaders.Add("X-Test-User", "reader");
             var response = await client.GetAsync("/api/customers/" + id + "/overview");

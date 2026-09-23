@@ -22,7 +22,7 @@ jobs:
           global-json-file: global.json
       - uses: actions/download-artifact@v4
         with:
-          name: tested-package-None-SqlServer
+          name: tested-package-None-None
           path: artifacts/template-packages
       - name: Publish tested package to configured organizational feed
         shell: pwsh

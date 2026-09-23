@@ -12,7 +12,7 @@ public sealed class SqliteCustomerSourceAdapter(SqliteConnectionFactory connecti
     IOptions<CustomerRegistryOptions> options, ICorrelationContext correlation, TimeProvider clock) : ICustomerSourceAdapter
 {
     public Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), token => Task.Run(() =>
+        executor.ExecuteSQLiteAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), token => Task.Run(() =>
         {
             using var connection = connections.Open(options.Value.ConnectionName, token);
             var rows = connection.Query<CustomerRow>("SELECT Id, DisplayName FROM Customers",
@@ -21,7 +21,7 @@ public sealed class SqliteCustomerSourceAdapter(SqliteConnectionFactory connecti
         }, token), cancellationToken);
 
     public Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), token => Task.Run(() =>
+        executor.ExecuteSQLiteAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), token => Task.Run(() =>
         {
             // Sqlite has synchronous I/O; isolate the bounded point lookup from workflow dispatch.
             using var connection = connections.Open(options.Value.ConnectionName, token);

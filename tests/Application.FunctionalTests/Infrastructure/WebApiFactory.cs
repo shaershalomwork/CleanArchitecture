@@ -14,7 +14,7 @@ public class WebApiFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseEnvironment("Test").ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
+        builder.UseEnvironment("Development").ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["Sources:CustomerRegistry:Mode"] = "Fake", ["Sources:Billing:Mode"] = "Fake", ["Authentication:Mode"] = "Development"
         }));

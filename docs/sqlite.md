@@ -1,12 +1,12 @@
 # SQLite customer source
 
-SQL Server remains the default. SQLite is available in both Angular and API-only templates:
+The default template has no database provider. SQLite is an optional project in both Angular and API-only templates:
 
 ```powershell
 dotnet new di-sln -n MyIntegration -cf Angular --CustomerProvider SQLite
 ```
 
-An existing project can select SQLite with `Sources:CustomerRegistry:Provider=SQLite`.
+For an existing base project, first reference examples/Databases/SQLite/SQLite.csproj and call builder.Services.AddSqliteCustomerRegistry() before building Web. Then configure Sources:CustomerRegistry:Provider=SQLite. See [the guide](template-guide.html#database).
 Development starts with fake adapters regardless of provider. To use a real SQLite file, supply these environment settings before running Web:
 
 ```powershell
@@ -26,9 +26,9 @@ The shared executor emits the same correlation, latency and outcome telemetry as
 
 Microsoft.Data.Sqlite uses synchronous I/O and internally waits/retries on busy locks. The adapter offloads its small point lookup and bounds lock waiting with the attempt timeout, rounded up to whole seconds. Caller cancellation is checked before opening and after reading. An in-progress native call cannot be promised an immediate hard abort; allow for that granularity when tuning request budgets. See Microsoft's [async limitations](https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/async) and [locking/timeouts](https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/database-errors).
 
-SQLite tests use disposable files, run in the normal offline suite, and need no Docker:
+SQLite tests use disposable files, run in the optional database suite, and need no Docker:
 
 ```powershell
-dotnet test tests/Infrastructure.IntegrationTests --filter FullyQualifiedName~SqliteCustomerTests
+pwsh build/verify.ps1 -DatabaseExamples
 pwsh build/test.ps1 -CustomerProvider SQLite -BrowserTests
 ```

@@ -14,8 +14,8 @@ Each consumer owns its actual source contracts, credentials, data access permiss
 ## Release gates
 
 1. Build and test the source with the pinned SDK.
-2. Run build/test.ps1 -BrowserTests against the actual package, covering Angular and API-only, renamed namespaces, nested generated use cases, publish and browser tests.
-3. Run SourceIntegration against disposable SQL Server. A skipped fixture is not a passed source-contract check.
+2. Run build/test.ps1 -BrowserTests for each CustomerProvider choice (None, SqlServer, SQLite, Oracle) against the actual package, covering Angular and API-only, renamed namespaces, nested generated use cases, publish and browser tests.
+3. Run build/verify.ps1 -DatabaseExamples for optional SQLite/provider tests, then SourceIntegration against disposable SQL Server and Oracle. A skipped fixture is not a passed source-contract check.
 4. Review package contents and license notices, package inventory, vulnerabilities, and production MediatR entitlement.
 5. Publish a candidate to the configured organizational feed, then run one pilot against its real IdP and sources.
 6. Review source permissions, schema contracts, budgets, warning rates, and trace correlation. Promote the same tested artifact only after the pilot.
@@ -30,4 +30,10 @@ Rollback a template release by selecting the previous package; application rollo
 Core functional tests replace sources and authentication in-process and require no corporate network.
 SourceIntegration creates its own database through TestAppHost, initializes only that disposable connection, and never accepts a user-supplied corporate connection string.
 Browser tests consume a published Development application through TEST_BASE_URL.
-The source audit was performed on 705d77f before a compatible SDK was available; no successful pre-migration build is claimed.
+The default solution excludes optional database projects and their fixture host. Verification checks restored transitive dependencies as well as API contracts.
+
+## Migrating an existing generated application
+
+Move the selected database code and package references into its optional project, add that project reference to Web, and add its builder.Services.Add...CustomerRegistry() registration. Preserve the existing Provider, ConnectionName, and Live connection settings. Do not change routes or DTOs.
+
+Fake sources now require Development; update automated hosts that previously used an environment named Test. The base generation default changes from SqlServer to None. Existing explicit provider choices remain supported. The provider-specific tests and disposable scripts move to examples/Databases/Database.Tests.

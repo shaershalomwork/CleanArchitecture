@@ -1,0 +1,1171 @@
+{
+  "paths": {
+    "/auth/login": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "Login",
+        "parameters": [
+          {
+            "name": "returnUrl",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profile",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {},
+          "400": {}
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "Logout",
+        "responses": {
+          "200": {},
+          "400": {},
+          "401": {},
+          "403": {}
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "Me",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {},
+          "401": {},
+          "403": {}
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/auth/antiforgery": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "Antiforgery",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AntiforgeryResponse"
+                }
+              }
+            }
+          },
+          "400": {}
+        }
+      }
+    },
+    "/auth/options": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "GetAuthenticationOptions",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticationUiOptionsResponse"
+                }
+              }
+            }
+          },
+          "400": {}
+        }
+      }
+    },
+    "/api/customers": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "operationId": "GetCustomers",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfIReadOnlyListOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfIReadOnlyListOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfIReadOnlyListOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfIReadOnlyListOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfIReadOnlyListOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfIReadOnlyListOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfIReadOnlyListOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfIReadOnlyListOfCustomerResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "operationId": "CreateCustomer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/customers/{customerId}/overview": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "operationId": "GetCustomerOverview",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerOverviewResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/customers/{customerId}": {
+      "put": {
+        "tags": [
+          "Customers"
+        ],
+        "operationId": "ReplaceCustomer",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceCustomerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Customers"
+        ],
+        "operationId": "PatchCustomer",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchCustomerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Customers"
+        ],
+        "operationId": "DeleteCustomer",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOperationResponseOfCustomerDeletionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AntiforgeryResponse": {
+        "required": [
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ApiIssue": {
+        "required": [
+          "code",
+          "message",
+          "category",
+          "correlationId",
+          "target"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "correlationId": {
+            "type": "string"
+          },
+          "target": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ApiOperationResponseOfCustomerDeletionResponse": {
+        "required": [
+          "status",
+          "data",
+          "issues",
+          "correlationId"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CustomerDeletionResponse"
+              }
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiIssue"
+            }
+          },
+          "correlationId": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiOperationResponseOfCustomerOverviewResponse": {
+        "required": [
+          "status",
+          "data",
+          "issues",
+          "correlationId"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CustomerOverviewResponse"
+              }
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiIssue"
+            }
+          },
+          "correlationId": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiOperationResponseOfCustomerResponse": {
+        "required": [
+          "status",
+          "data",
+          "issues",
+          "correlationId"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CustomerResponse"
+              }
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiIssue"
+            }
+          },
+          "correlationId": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiOperationResponseOfIReadOnlyListOfCustomerResponse": {
+        "required": [
+          "status",
+          "data",
+          "issues",
+          "correlationId"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/CustomerResponse"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiIssue"
+            }
+          },
+          "correlationId": {
+            "type": "string"
+          }
+        }
+      },
+      "AuthenticationUiOptionsResponse": {
+        "required": [
+          "loginAvailable",
+          "developmentProfiles",
+          "apiReferenceAvailable"
+        ],
+        "type": "object",
+        "properties": {
+          "loginAvailable": {
+            "type": "boolean"
+          },
+          "developmentProfiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DevelopmentProfileResponse"
+            }
+          },
+          "apiReferenceAvailable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateCustomerRequest": {
+        "required": [
+          "customerId",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "CurrentSessionResponse": {
+        "required": [
+          "id",
+          "name",
+          "roles",
+          "permissions",
+          "capabilities"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/SessionCapabilities"
+          }
+        }
+      },
+      "CustomerDeletionResponse": {
+        "required": [
+          "customerId"
+        ],
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string"
+          }
+        }
+      },
+      "CustomerOverviewResponse": {
+        "required": [
+          "customerId",
+          "displayName",
+          "billingAvailable",
+          "outstandingBalance",
+          "currency",
+          "hasOutstandingBalance",
+          "customerObservedAt",
+          "billingObservedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "billingAvailable": {
+            "type": "boolean"
+          },
+          "outstandingBalance": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "currency": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasOutstandingBalance": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "customerObservedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "billingObservedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "CustomerResponse": {
+        "required": [
+          "customerId",
+          "displayName",
+          "observedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DevelopmentProfileResponse": {
+        "required": [
+          "id",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "PatchCustomerRequest": {
+        "required": [
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReplaceCustomerRequest": {
+        "required": [
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "SessionCapabilities": {
+        "required": [
+          "canReadCustomers",
+          "canWriteCustomers"
+        ],
+        "type": "object",
+        "properties": {
+          "canReadCustomers": {
+            "type": "boolean"
+          },
+          "canWriteCustomers": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Json Web Token"
+      }
+    }
+  }
+}

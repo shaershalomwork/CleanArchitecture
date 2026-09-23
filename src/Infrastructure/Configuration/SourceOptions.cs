@@ -2,11 +2,11 @@ using System.ComponentModel.DataAnnotations;
 namespace CleanArchitecture.Infrastructure.Configuration;
 
 public enum SourceMode { Live, Fake }
-public enum CustomerDatabaseProvider { SqlServer, SQLite, Oracle }
+public enum CustomerDatabaseProvider { SqlServer, SQLite, Oracle, None }
 public sealed class CustomerRegistryOptions
 {
     public SourceMode Mode { get; set; } = SourceMode.Live;
-    public CustomerDatabaseProvider Provider { get; set; } = CustomerDatabaseProvider.SqlServer;
+    public CustomerDatabaseProvider Provider { get; set; } = CustomerDatabaseProvider.None;
     public string ConnectionName { get; set; } = "CustomerRegistry";
 }
 public sealed class BillingOptions

@@ -14,7 +14,7 @@
     "Web API"
   ],
   "name": "Data-Centric Integration Solution",
-  "description": "C# integration baseline with explicit source adapters, unified results and offline development.",
+  "description": "Organizational application template with a database-free Development start and optional database examples.",
   "identity": "DataCentric.Integration.Solution.CSharp",
   "groupIdentity": "DataCentric.Integration.Solution",
   "shortName": "di-sln",
@@ -152,6 +152,10 @@
       "datatype": "choice",
       "choices": [
         {
+          "choice": "None",
+          "description": "No database packages; use Development sample sources"
+        },
+        {
           "choice": "SqlServer"
         },
         {
@@ -161,8 +165,9 @@
           "choice": "Oracle"
         }
       ],
-      "defaultValue": "SqlServer",
-      "description": "Database provider for the live customer source"
+      "defaultValue": "None",
+      "description": "Optional customer database project to reference; Development still uses sample sources",
+      "replaces": "__CustomerProvider__"
     },
     "CustomerProviderSetting": {
       "type": "generated",
@@ -184,7 +189,7 @@
         ],
         "separator": ""
       },
-      "replaces": "\"Provider\": \"SqlServer\""
+      "replaces": "\"Provider\": \"None\""
     },
     "ClientFramework": {
       "type": "parameter",
@@ -210,6 +215,18 @@
     "UseApiOnly": {
       "type": "computed",
       "value": "(ClientFramework == \"None\")"
+    },
+    "CUSTOMER_SQLSERVER": {
+      "type": "computed",
+      "value": "(CustomerProvider == \"SqlServer\")"
+    },
+    "CUSTOMER_SQLITE": {
+      "type": "computed",
+      "value": "(CustomerProvider == \"SQLite\")"
+    },
+    "CUSTOMER_ORACLE": {
+      "type": "computed",
+      "value": "(CustomerProvider == \"Oracle\")"
     }
   },
   "sources": [

@@ -13,7 +13,7 @@ public sealed class OracleCustomerSourceAdapter(OracleConnectionFactory connecti
     ICorrelationContext correlation, TimeProvider clock) : ICustomerSourceAdapter
 {
     public Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), async token =>
+        executor.ExecuteOracleAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), async token =>
         {
             await using var connection = await connections.OpenAsync(options.Value.ConnectionName, token);
             var rows = await connection.QueryAsync<CustomerRow>(new CommandDefinition(
@@ -23,7 +23,7 @@ public sealed class OracleCustomerSourceAdapter(OracleConnectionFactory connecti
         }, cancellationToken);
 
     public Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), async token =>
+        executor.ExecuteOracleAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), async token =>
         {
             await using var connection = await connections.OpenAsync(options.Value.ConnectionName, token);
             var rows = (await connection.QueryAsync<CustomerRow>(new CommandDefinition(

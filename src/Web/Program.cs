@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // The build-time OpenAPI host must not resolve corporate configuration or credentials.
 if (Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider")
 {
-    builder.Environment.EnvironmentName = "Test";
+    builder.Environment.EnvironmentName = "Development";
     builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
     {
         ["Sources:CustomerRegistry:Mode"] = "Fake", ["Sources:Billing:Mode"] = "Fake",
@@ -24,9 +24,23 @@ if (builder.Configuration["CONFIG_SECRETS_PATH"] is { Length: > 0 } secretsPath)
 builder.AddServiceDefaults();
 builder.AddApplicationServices();
 builder.AddInfrastructureServices();
+#if CUSTOMER_SQLSERVER
+builder.Services.AddSqlServerCustomerRegistry();
+#elif CUSTOMER_SQLITE
+builder.Services.AddSqliteCustomerRegistry();
+#elif CUSTOMER_ORACLE
+builder.Services.AddOracleCustomerRegistry();
+#endif
 builder.AddWebServices();
 
 var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    if (string.Equals(app.Configuration["Sources:CustomerRegistry:Mode"], "Fake", StringComparison.OrdinalIgnoreCase))
+        app.Logger.LogWarning("DEVELOPMENT SAMPLE MODE: CustomerRegistry is in-memory. It starts empty; customer changes are lost on restart. See docs/template-guide.html#setup.");
+    if (string.Equals(app.Configuration["Sources:Billing:Mode"], "Fake", StringComparison.OrdinalIgnoreCase))
+        app.Logger.LogWarning("DEVELOPMENT SAMPLE MODE: Billing responses are simulated. See docs/template-guide.html#setup.");
+}
 app.UseForwardedHeaders();
 app.Use(async (context, next) =>
 {

@@ -18,7 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace CleanArchitecture.Application.FunctionalTests.Authentication;
 public class AuthenticationTests
 {
-    private sealed class Factory(bool jwt = false, string environment = "Test", bool apiReference = true) : WebApplicationFactory<Program>
+    private sealed class Factory(bool jwt = false, string environment = "Development", bool apiReference = true) : WebApplicationFactory<Program>
     {
         public static readonly SymmetricSecurityKey Key = new(Encoding.UTF8.GetBytes("fixture-only-signing-key-at-least-32-characters"));
         protected override void ConfigureWebHost(IWebHostBuilder builder)

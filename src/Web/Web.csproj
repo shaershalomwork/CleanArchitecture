@@ -22,6 +22,24 @@
     <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" PrivateAssets="all" />
     <PackageReference Include="Scalar.AspNetCore" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(CustomerProvider)' == 'SqlServer'">
+    <DefineConstants>$(DefineConstants);CUSTOMER_SQLSERVER</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CustomerProvider)' == 'SqlServer'">
+    <ProjectReference Include="../../examples/Databases/SqlServer/SqlServer.csproj" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(CustomerProvider)' == 'SQLite'">
+    <DefineConstants>$(DefineConstants);CUSTOMER_SQLITE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CustomerProvider)' == 'SQLite'">
+    <ProjectReference Include="../../examples/Databases/SQLite/SQLite.csproj" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(CustomerProvider)' == 'Oracle'">
+    <DefineConstants>$(DefineConstants);CUSTOMER_ORACLE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CustomerProvider)' == 'Oracle'">
+    <ProjectReference Include="../../examples/Databases/Oracle/Oracle.csproj" />
+  </ItemGroup>
   <Target Name="PublishClient" AfterTargets="ComputeFilesToPublish" Condition="'$(ClientFramework)' == 'Angular'">
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm ci" />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />

@@ -1,7 +1,7 @@
 param(
     [string[]]$ClientFramework = @('None', 'Angular'),
     [string]$Version = '0.1.0',
-    [ValidateSet('SqlServer', 'SQLite', 'Oracle')][string]$CustomerProvider = 'SqlServer',
+    [ValidateSet('None', 'SqlServer', 'SQLite', 'Oracle')][string]$CustomerProvider = 'None',
     [switch]$BrowserTests
 )
 $ErrorActionPreference = 'Stop'

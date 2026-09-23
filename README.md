@@ -1,60 +1,43 @@
-# Data-Centric Integration Baseline
+# Organizational application template
 
-An organizational integration template derived from Jason Taylor's Clean Architecture.
-External systems remain the systems of record. C# use cases combine narrow SQL/HTTP capabilities and return explicit Success, Warning or Error outcomes.
+A .NET application starting point with customer APIs, validation, authentication, and tests. Development starts with an empty in-memory registry and simulated billing; the base application has no database driver dependency.
 
-## Requirements
+**Start with the [developer guide](docs/template-guide.html).** It covers purpose, first run, adding an API, and connecting a database with parameterized query and stored-procedure examples.
 
-.NET SDK 10.0.400 (global.json). Node 24 for Angular. Docker for AppHost development logging and opt-in integration tests.
-The default generated project is API-only; Angular is the only supported frontend.
-
-## Develop this repository
-
-```powershell
-dotnet build
+~~~powershell
+dotnet dev-certs https --trust
 dotnet run --project src/Web --launch-profile https
-```
+~~~
 
-Development uses fake sources and selectable demo cookie profiles (Reader by default). Open /auth/login?returnUrl=/scalar to sign in. Local dotnet user-jwts tokens also work in Scalar; see [workspace and authentication](docs/workspace.md).
-The fake registry starts empty. Create CUST-001 or CUST-WARN with a writer identity, then GET /api/customers using a reader identity and open a registered customer's overview. CUST-WARN demonstrates partial billing after registration; CUST-FAIL and CUST-MISSING remain error scenarios. See [customer reads and the create-to-delete workflow](docs/customer-reads.md).
-Web runs without Aspire, a database, or corporate credentials. AppHost orchestrates the full development logging environment; see the [Hebrew offline Aspire guide](docs/logging-aspire.he.html).
+Use the HTTPS address printed by Web. The guide includes sign-in and sample CRUD calls. Sample data belongs to one process and disappears on restart. Fake sources are restricted to Development, including automated hosts that previously used an environment named Test.
 
-## Verify and package
+## Maintainer commands
 
-```powershell
+Use the SDK selected by `global.json` and PowerShell 7.
+
+~~~powershell
 pwsh build/verify.ps1
+pwsh build/verify.ps1 -DatabaseExamples
 pwsh build/verify.ps1 -SourceIntegration
-pwsh build/test.ps1 -BrowserTests
-pwsh build/test.ps1 -CustomerProvider SQLite -BrowserTests
-pwsh build/test.ps1 -CustomerProvider Oracle -BrowserTests
-```
+pwsh build/test.ps1 -CustomerProvider None -BrowserTests
+~~~
 
-The first command is offline with respect to corporate sources; package restore still requires your NuGet feed.
-The second starts disposable SQL Server and Oracle Free instances using Docker. The last three commands cover all six provider/frontend combinations in isolated template hives, including generated use cases, publishing, HTTP smoke tests for every published app, and Angular browser tests with sign-in and sign-out.
-Published smoke tests use Development authentication and fake sources. Real SQLite source/HTTP tests run in the offline suite; disposable SQL Server and Oracle contracts run with SourceIntegration. Corporate identity-provider and upstream connectivity require deployment-specific verification.
-Do not point fixture tests at corporate databases.
-For local browser verification with an installed Chrome or Edge, set PLAYWRIGHT_BROWSER_CHANNEL to chrome or msedge. CI uses Playwright's pinned Chromium.
+Default verification has no database or Docker requirement. Optional database verification uses disposable SQLite files; SourceIntegration also starts disposable SQL Server and Oracle containers.
 
-```powershell
-pwsh build/repack.ps1 -Version 0.1.0
+Database implementations, readiness probes, and fixtures live under `examples/Databases`, outside the default solution and dependency graph. Provider generation choices reference only the selected implementation.
+
+## Package and generate
+
+~~~powershell
+pwsh build/repack.ps1
 dotnet new install ./artifacts/template-packages/DataCentric.Integration.Solution.Template.0.1.0.nupkg
-dotnet new di-sln -n MyIntegration -cf Angular
-```
+dotnet new di-sln -n MyApplication -cf None
+~~~
 
-Use `-cf None` (the default) for API-only. The former single-database option and React frontend are removed.
-The customer source supports SQL Server (default), SQLite, and Oracle. Select `--CustomerProvider SQLite` or `--CustomerProvider Oracle` when generating a project; see [SQLite setup](docs/sqlite.md) and [Oracle setup](docs/oracle.md). Development still starts with fake sources until a live source is configured. [Customer write examples](docs/customer-writes.md) demonstrate POST, PUT, PATCH, and DELETE with a separate writer permission.
+`-cf None` and `--CustomerProvider None` are defaults. Optional provider choices are SQLite, SqlServer, and Oracle; Development still uses simulated sources until Live is selected. Use `-cf Angular` for a browser application, which additionally needs Node 24. API-only development runs Web directly; AppHost remains an optional Aspire launcher.
 
-## Architecture and operations
+The package matrix covers all four provider choices and both clients. See [maintenance and release](docs/template-maintenance.md), [dependency inventory](docs/dependencies.md), and [architecture decisions](docs/decisions/README.md).
 
-- [Console, OpenTelemetry, Elasticsearch and Kibana logging](docs/logging.md) — Aspire development, OpenShift deployment, secrets, retention and recovery verification.
+## Provenance
 
-- [Interactive HTML handbook](docs/template-guide.html) — an offline, illustrated guide to setup, architecture, feature development, source integration, testing, and maintenance. Open the file in a browser.
-- [Architecture decision](docs/decisions/ADR-004-Data-Centric-Integration.md)
-- [Integration guide and source contracts](docs/integration-guide.md)
-- [Dependencies and licensing](docs/dependencies.md)
-- [Maintenance and rollout](docs/template-maintenance.md)
-
-The baseline retains MediatR 14.2.0. Verify production entitlement for every consuming team; template MIT licensing does not cover third-party commercial licensing.
-Store its key in configuration as MediatR:LicenseKey, never in source control.
-
-Copyright notices from the original template are retained in LICENSE.
+Derived from [Jason Taylor's Clean Architecture](https://github.com/jasontaylordev/CleanArchitecture), with organizational adaptations. The repository retains its MIT [license](LICENSE). Generated applications record their baseline in `.template-version.json` and evolve independently.

@@ -14,7 +14,7 @@ public sealed class SqlCustomerSourceAdapter(SqlConnectionFactory connections, S
     : ICustomerSourceAdapter
 {
     public Task<OperationResult<IReadOnlyList<Customer>>> GetCustomersAsync(CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), async token =>
+        executor.ExecuteSqlServerAsync(new("CUSTOMER", "GetCustomers", IsReadOnly: true), async token =>
         {
             await using var lease = await connections.OpenAsync(options.Value.ConnectionName, token);
             var parameters = new DynamicParameters();
@@ -27,7 +27,7 @@ public sealed class SqlCustomerSourceAdapter(SqlConnectionFactory connections, S
         }, cancellationToken);
 
     public Task<OperationResult<Customer>> GetCustomerAsync(string customerId, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), async token =>
+        executor.ExecuteSqlServerAsync(new("CUSTOMER", "GetCustomer", IsReadOnly: true), async token =>
         {
             await using var lease = await connections.OpenAsync(options.Value.ConnectionName, token);
             var parameters = new DynamicParameters();

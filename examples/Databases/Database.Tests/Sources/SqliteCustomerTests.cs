@@ -138,11 +138,15 @@ public class SqliteCustomerTests
 
     [Test] public async Task ConfigurationSelectsSqliteAndItsReadinessProbe()
     {
-        var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = "Test" });
+        var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = "Development" });
         builder.Configuration.AddConfiguration(_configuration);
+        builder.Configuration["Sources:CustomerRegistry:Mode"] = "Live";
         builder.Configuration["Sources:CustomerRegistry:Provider"] = "SQLite";
         builder.Configuration["Sources:Billing:Mode"] = "Fake";
         builder.AddInfrastructureServices();
+        builder.Services.AddSqlServerCustomerRegistry();
+        builder.Services.AddSqliteCustomerRegistry();
+        builder.Services.AddOracleCustomerRegistry();
         using var host = builder.Build();
         using var scope = host.Services.CreateScope();
         scope.ServiceProvider.GetRequiredService<ICustomerSourceAdapter>().ShouldBeOfType<SqliteCustomerSourceAdapter>();

@@ -17,6 +17,12 @@ public class DependencyTests
         domain.GetReferencedAssemblies().ShouldNotContain(a => a.Name!.Contains("MediatR", StringComparison.Ordinal));
         domain.GetReferencedAssemblies().ShouldNotContain(a => forbidden.Any(f => a.Name!.Contains(f, StringComparison.Ordinal)));
     }
+    [Test] public void BaseInfrastructureDoesNotReferenceDatabasePackages()
+    {
+        var forbidden = new[] { "Dapper", "SqlClient", "Sqlite", "Oracle", "Database." };
+        typeof(SourceExecutor).Assembly.GetReferencedAssemblies()
+            .ShouldNotContain(a => forbidden.Any(name => a.Name!.Contains(name, StringComparison.OrdinalIgnoreCase)));
+    }
     [Test] public void HandlersAndAdaptersCannotNestMediatorDispatch()
     {
         var types = typeof(GetCustomerOverviewQueryHandler).Assembly.GetTypes()

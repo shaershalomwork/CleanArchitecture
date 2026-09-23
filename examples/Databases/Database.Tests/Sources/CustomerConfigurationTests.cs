@@ -17,13 +17,16 @@ public class CustomerConfigurationTests
     [TestCase("Oracle", "Fake", "Fake")]
     public void ResolvesBothCapabilitiesWithoutOpeningConnections(string provider, string mode, string prefix)
     {
-        var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = "Test" });
+        var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = "Development" });
         builder.Configuration["Sources:CustomerRegistry:Provider"] = provider;
         builder.Configuration["Sources:CustomerRegistry:Mode"] = mode;
         builder.Configuration["Sources:CustomerRegistry:ConnectionName"] = "CustomName";
         if (mode == "Live") builder.Configuration["ConnectionStrings:CustomName"] = "Data Source=not-contacted";
         builder.Configuration["Sources:Billing:Mode"] = "Fake";
         builder.AddInfrastructureServices();
+        builder.Services.AddSqlServerCustomerRegistry();
+        builder.Services.AddSqliteCustomerRegistry();
+        builder.Services.AddOracleCustomerRegistry();
         using var host = builder.Build();
         using var scope = host.Services.CreateScope();
         scope.ServiceProvider.GetRequiredService<ICustomerSourceAdapter>().GetType().Name.ShouldBe(prefix + "CustomerSourceAdapter");
@@ -40,6 +43,9 @@ public class CustomerConfigurationTests
         builder.Configuration["Sources:CustomerRegistry:Mode"] = mode;
         builder.Configuration["Sources:CustomerRegistry:ConnectionName"] = "NotConfigured";
         builder.AddInfrastructureServices();
+        builder.Services.AddSqlServerCustomerRegistry();
+        builder.Services.AddSqliteCustomerRegistry();
+        builder.Services.AddOracleCustomerRegistry();
         using var host = builder.Build();
         // Invalid enum text fails binding; other invalid settings fail options validation.
         Should.Throw<Exception>(() => host.Services.GetRequiredService<IOptions<CustomerRegistryOptions>>().Value);

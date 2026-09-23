@@ -22,7 +22,7 @@ public sealed class SqlCustomerWriteSourceAdapter(SqlConnectionFactory connectio
         SaveAsync("PatchCustomer", "dbo.UpdateCustomer", customerId, displayName, cancellationToken);
 
     private Task<OperationResult<Customer>> SaveAsync(string operation, string procedure, string customerId, string displayName, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", operation), async token =>
+        executor.ExecuteSqlServerAsync(new("CUSTOMER", operation), async token =>
         {
             await using var lease = await connections.OpenAsync(options.Value.ConnectionName, token);
             await using var transaction = await lease.Connection.BeginTransactionAsync(token);
@@ -46,7 +46,7 @@ public sealed class SqlCustomerWriteSourceAdapter(SqlConnectionFactory connectio
         }, cancellationToken);
 
     public Task<OperationResult<NoData>> DeleteAsync(string customerId, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "DeleteCustomer"), async token =>
+        executor.ExecuteSqlServerAsync(new("CUSTOMER", "DeleteCustomer"), async token =>
         {
             await using var lease = await connections.OpenAsync(options.Value.ConnectionName, token);
             await using var transaction = await lease.Connection.BeginTransactionAsync(token);

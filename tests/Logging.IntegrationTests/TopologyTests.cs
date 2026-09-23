@@ -21,10 +21,10 @@ public class TopologyTests
         var dashboardUrl = "https://localhost:" + FreePort();
         var dashboardToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
         await using var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AppHost>(
-            ["--environment=Test", "--ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=https://localhost:" + FreePort(),
+            ["--environment=Development", "--ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=https://localhost:" + FreePort(),
                 "--ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL=https://localhost:" + FreePort(),
                 "--ASPIRE_ALLOW_UNSECURED_TRANSPORT=false", "--ASPIRE_DASHBOARD_FRONTEND_BROWSERTOKEN=" + dashboardToken],
-            (options, settings) => { settings.EnvironmentName = "Test"; options.DisableDashboard = false; options.EnableResourceLogging = false; }, timeout.Token);
+            (options, settings) => { settings.EnvironmentName = "Development"; options.DisableDashboard = false; options.EnableResourceLogging = false; }, timeout.Token);
         builder.Configuration["ASPNETCORE_URLS"] = dashboardUrl;
         builder.Configuration["urls"] = dashboardUrl;
         builder.Configuration["ASPIRE_ALLOW_UNSECURED_TRANSPORT"] = "false";

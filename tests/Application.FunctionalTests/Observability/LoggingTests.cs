@@ -96,7 +96,7 @@ public class LoggingTests
                 ["OTEL_EXPORTER_OTLP_LOGS_PROTOCOL"] = "http/protobuf",
                 ["Logging:LogLevel:Default"] = "Information"
             });
-            builder.Environment.EnvironmentName = "Test";
+            builder.Environment.EnvironmentName = "Development";
             builder.AddServiceDefaults();
             using var host = builder.Build();
             var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("SafeTest");
@@ -136,7 +136,7 @@ public class LoggingTests
                 {
                     record.RootElement.GetProperty("service.name").GetString().ShouldBe("logging-test");
                     record.RootElement.GetProperty("service.version").GetString().ShouldBe("1.2.3-test");
-                    record.RootElement.GetProperty("deployment.environment.name").GetString().ShouldBe("Test");
+                    record.RootElement.GetProperty("deployment.environment.name").GetString().ShouldBe("Development");
                     record.RootElement.GetProperty("TraceId").GetString().ShouldBe(activity.TraceId.ToHexString());
                     record.RootElement.GetProperty("CorrelationId").GetString().ShouldBe(activity.TraceId.ToHexString());
                 }

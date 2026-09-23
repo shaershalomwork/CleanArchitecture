@@ -4,9 +4,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" /><PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" /><PackageReference Include="Shouldly" />
-    <PackageReference Include="Aspire.Hosting.Testing" />
     <ProjectReference Include="../../src/Infrastructure/Infrastructure.csproj" />
-    <ProjectReference Include="../TestAppHost/TestAppHost.csproj" />
   </ItemGroup>
-  <ItemGroup><None Update="Fixtures/*.sql" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="CleanArchitecture.Database.Tests" /></ItemGroup>
 </Project>

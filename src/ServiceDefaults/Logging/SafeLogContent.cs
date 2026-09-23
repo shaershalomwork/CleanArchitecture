@@ -15,7 +15,9 @@ public static partial class SafeLogContent
         "Unhandled HTTP failure; code {Code}; exception {ExceptionType}; correlation {CorrelationId}",
         "HTTP request completed with {StatusCode} in {ElapsedMs} ms",
         "Application started. Press Ctrl+C to shut down.",
-        "Application is shutting down..."
+        "Application is shutting down...",
+        "DEVELOPMENT SAMPLE MODE: CustomerRegistry is in-memory. It starts empty; customer changes are lost on restart. See docs/template-guide.html#setup.",
+        "DEVELOPMENT SAMPLE MODE: Billing responses are simulated. See docs/template-guide.html#setup."
     ];
 
     public static (string Message, Dictionary<string, object?> Attributes) Project(

@@ -54,6 +54,20 @@ public class SqlCustomerTests
         if (expected == OperationStatus.Success) result.Data.DisplayName.ShouldBe("Fixture Customer");
         else result.Issues[0].Code.ShouldBe("CUSTOMER.NOT_FOUND");
     }
+    [TestCase("CUST-001")]
+    [TestCase("CUST-MISSING")]
+    [TestCase("' OR 1=1 --")]
+    public async Task DocumentedQueriesAndProceduresBindParameters(string id)
+    {
+        await using var connection = new SqlConnection(_configuration.GetConnectionString("CustomerRegistry"));
+        await connection.OpenAsync();
+        var query = await SqlQueryExamples.FindWithQueryAsync(connection, id, default);
+        var procedure = await SqlQueryExamples.FindWithProcedureAsync(connection, id, default);
+        query?.Id.ShouldBe(procedure?.Id);
+        if (id == "CUST-001") query!.DisplayName.ShouldBe("Fixture Customer");
+        else { query.ShouldBeNull(); procedure.ShouldBeNull(); }
+    }
+
     [Test] public async Task NamedConnectionsCarryAndClearCorrelation()
     {
         var factory = new SqlConnectionFactory(_configuration, new SourceExecutorTests.Correlation());

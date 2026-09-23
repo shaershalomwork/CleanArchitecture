@@ -1,47 +1,46 @@
-# CleanArchitecture
+# Application template
 
-Generated from DataCentric.Integration.Solution.Template version __BaselineVersion__, based on upstream commit 705d77f.
-See .template-version.json for provenance.
-Open the [interactive HTML handbook](docs/template-guide.html) in a browser for an offline, illustrated guide to the architecture and end-to-end development workflow.
-The live customer source supports SQL Server, SQLite, and Oracle. See [SQLite setup](docs/sqlite.md), [Oracle setup](docs/oracle.md), and [customer write examples](docs/customer-writes.md) for contracts and configuration.
+A starting structure for organizational applications with consistent APIs, validation, authentication, and tests. The customer workflow is a working example.
 
-## Run locally
+Start with the [developer guide](docs/template-guide.html): purpose, initial setup, adding an API, and connecting a database.
 
-For development logging with Aspire, see the [Hebrew offline guide](docs/logging-aspire.he.html). AppHost requires Docker. Shared logging policy and OpenShift operations are in the [logging guide](docs/logging.md).
+## Run without a database
 
-Install the SDK selected by global.json. For Angular, install Node 24 as well.
+Install a .NET SDK compatible with `global.json`, then run from the application root:
 
-```powershell
-dotnet build
+~~~powershell
+dotnet dev-certs https --trust
 dotnet run --project src/Web --launch-profile https
-```
+~~~
 
-Development uses fake sources and selectable demo profiles (Reader by default). API-only opens Scalar; sign in at /auth/login?returnUrl=/scalar. Local Bearer tokens from dotnet user-jwts also work. See [workspace and authentication](docs/workspace.md) for the access matrix, token commands, themes, and API/workflow inventory.
-For Angular, run `dotnet run --project src/AppHost` and open the frontend URL from the dashboard.
-The fake registry starts empty. Create CUST-001 (complete) or CUST-WARN (partial billing) with a writer identity, then list and view registered customers using a reader identity. CUST-FAIL and CUST-MISSING remain reserved error scenarios. See [customer reads and the create-to-delete workflow](docs/customer-reads.md).
+Use the HTTPS address printed by Web and open `/scalar`. Development uses an empty in-memory customer registry and simulated billing. Changes disappear on restart. Sign in using `/auth/login?profile=reader-writer&returnUrl=/scalar` to exercise writes; the guide includes cookie and antiforgery examples.
 
-## Verify
+Fake sources are permitted only in Development. Automated test hosts also use Development; an environment named Test does not permit Fake sources. Deployments require Live sources and external authentication.
 
-```powershell
+## Add a database when needed
+
+The default application has no database driver or Dapper dependency. Optional examples live under `examples/Databases`:
+
+| Provider | Project | Registration on builder.Services |
+| --- | --- | --- |
+| SQLite | SQLite/SQLite.csproj | AddSqliteCustomerRegistry() |
+| SqlServer | SqlServer/SqlServer.csproj | AddSqlServerCustomerRegistry() |
+| Oracle | Oracle/Oracle.csproj | AddOracleCustomerRegistry() |
+
+Add the chosen project reference and registration, then configure the named connection string, Provider, and Live mode. Alternatively choose `--CustomerProvider SQLite`, `SqlServer`, or `Oracle` when generating a new application. The [guide](docs/template-guide.html#database) includes local SQLite setup, parameterized SQL, and stored-procedure execution.
+
+## Verify and extend
+
+~~~powershell
 pwsh build/verify.ps1
+pwsh build/verify.ps1 -DatabaseExamples
 pwsh build/verify.ps1 -SourceIntegration
-```
+~~~
 
-The default suite requires no corporate connections or Docker. SourceIntegration starts disposable SQL Server and Oracle Free fixtures and requires Docker.
-Browser tests require TEST_BASE_URL pointing to the published Development application and the Playwright browser installed.
-Production configuration rejects fake sources and development authentication.
+The first command needs no database or Docker. The second builds the optional examples and runs local SQLite/provider tests. The third also starts disposable SQL Server and Oracle fixtures and requires Docker. Use PowerShell 7.
 
-## Add a use case
+Follow the guide's complete API tutorial, or run `dotnet new di-usecase` inside `src/Application` after installing the matching package. Preserve existing HTTP contracts and approve intentional new operations in the saved API contract.
 
-Run inside src/Application:
+Angular applications additionally need Node 24: build Web, run `npm --prefix src/Web/ClientApp ci`, then `dotnet run --project src/AppHost`. Aspire and external telemetry are optional for API-only applications.
 
-```powershell
-dotnet new di-usecase -n GetReport -fn Reports -ut query -rt NoData --RootNamespace CleanArchitecture.Application
-dotnet new di-usecase -n SubmitReport -fn Reports -ut command --RootNamespace CleanArchitecture.Application
-```
-
-The return type is the payload of OperationResult<T>. Replace NoData with an Application model for data-returning queries.
-The stub returns USE_CASE.NOT_IMPLEMENTED until real behavior is added. Inject narrow source interfaces, never a context or nested mediator.
-Install the matching DataCentric.Integration.Solution.Template version if the item template is unavailable.
-
-Read [the integration guide](docs/integration-guide.md), [licensing](docs/dependencies.md), and [upgrade policy](docs/template-maintenance.md) before connecting real systems.
+See [API contracts](docs/customer-writes.md), [authentication](docs/workspace.md), [dependencies](docs/dependencies.md), and [template maintenance](docs/template-maintenance.md). Baseline provenance is recorded in `.template-version.json`.

@@ -65,13 +65,17 @@ public class CustomerWriteContractTests(CustomerDatabaseProvider provider)
                     await connection.ExecuteAsync(new CommandDefinition(batch, cancellationToken: budget.Token));
             }
         }
-        var services = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = "Test" });
+        var services = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = "Development" });
         services.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
+            ["Sources:CustomerRegistry:Mode"] = "Live",
             ["Sources:CustomerRegistry:Provider"] = provider.ToString(), ["Sources:CustomerRegistry:ConnectionName"] = "SecondName",
             ["ConnectionStrings:SecondName"] = _connectionString, ["Sources:Billing:Mode"] = "Fake"
         });
         services.AddInfrastructureServices();
+        services.Services.AddSqlServerCustomerRegistry();
+        services.Services.AddSqliteCustomerRegistry();
+        services.Services.AddOracleCustomerRegistry();
         _services = services.Build();
     }
 

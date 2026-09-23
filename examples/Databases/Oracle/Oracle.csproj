@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>CleanArchitecture.Infrastructure</RootNamespace>
+    <AssemblyName>CleanArchitecture.Database.Oracle</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/Infrastructure/Infrastructure.csproj" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" />
+    <InternalsVisibleTo Include="CleanArchitecture.Database.Tests" />
+    <Using Include="CleanArchitecture.Application.Common.Results" />
+  </ItemGroup>
+</Project>

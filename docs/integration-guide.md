@@ -18,7 +18,7 @@ Keep any transaction inside one adapter and one database. Multi-system writes ne
 CustomerRegistry uses ConnectionStrings:<ConnectionName>, defaulting to CustomerRegistry.
 dbo.GetCustomer accepts @CustomerId nvarchar(50) and returns one row with Id and DisplayName.
 Return code 0 means a valid row; 404 means absent with no row. Other codes, missing fields, or mismatched IDs are invalid responses.
-The schema in tests/Infrastructure.IntegrationTests/Fixtures is only for the disposable fixture; the application never executes it.
+The schemas in examples/Databases/Database.Tests/Fixtures are only for disposable database fixtures; the application never executes them.
 `dbo.GetCustomers` takes no input and returns all Id/DisplayName rows with return code 0, including an empty result. Deploy this source-owned procedure and its execute grant before the updated application. SQLite and Oracle use the existing Customers table for listing. See [customer reads](customer-reads.md) for validation, ordering, empty results, and registry-first overview behavior.
 
 Billing uses an HTTPS BaseUrl ending in / and an ApiKey sent as X-Api-Key.
@@ -34,7 +34,7 @@ SQL session context carries CorrelationId and is cleared on disposal. A failed c
 CustomerRegistry supports SqlServer (default), SQLite, and Oracle. [Oracle setup](oracle.md) documents named connections, secret configuration, session correlation, and the sample table contract. [Customer writes](customer-writes.md) documents the separate write capability, SQL Server procedures, partial-update semantics, and writer permission. Source schemas remain externally owned; fixture SQL is never run by the application.
 
 Base appsettings.json selects Live and External. appsettings.Development.json selects Fake and Development.
-Per-source options allow independent mode selection in Development/Test. Non-development startup rejects all fake modes.
+Per-source options allow independent mode selection in Development. Non-development startup rejects all fake modes.
 Live settings validate at startup without probing corporate sources. Readiness probes are separate from configuration validation.
 
 Use user secrets or environment variables during development and a secret provider in deployments.
@@ -54,7 +54,7 @@ CustomerOverview.Read requires the permissions claim customers.read for both cus
 Customer.Write requires the permissions claim customers.write for POST, PUT, PATCH, and DELETE. The development reader keeps read-only access.
 Angular uses server-side OIDC code flow with PKCE and secure cookies; configure ClientId and ClientSecret and register /signin-oidc and /signout-callback-oidc.
 Use HTTPS in deployments and the HTTPS launch profile locally. Persist/protect ASP.NET Core Data Protection keys using the organization's deployment platform for multiple instances.
-Development sign-in is available only in Development/Test mode. It defaults to Reader and offers fixed Writer, Reader/writer, and No access profiles. Roles do not implicitly grant customer permissions.
+Development sign-in is available only in Development mode. It defaults to Reader and offers fixed Writer, Reader/writer, and No access profiles. Roles do not implicitly grant customer permissions.
 Cookie-authenticated mutations require antiforgery tokens; /auth/antiforgery supplies one. Logout uses a browser form so OIDC redirects work.
 
 The API returns 401/403 rather than login redirects. Angular and the API share an origin; any additional CORS origins must be explicitly configured.

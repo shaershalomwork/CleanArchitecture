@@ -3,58 +3,33 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using CleanArchitecture.Application.FunctionalTests.Infrastructure;
-using Dapper;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Configuration;
 
 namespace CleanArchitecture.Application.FunctionalTests.Customers;
 
-[TestFixture(false)]
-[TestFixture(true)]
-public class CustomerWriteApiTests(bool sqlite)
+public abstract class CustomerWriteApiContractTests
 {
-    private WebApiFactory _baseline = null!;
     private WebApplicationFactory<Program> _factory = null!;
     private HttpClient _client = null!;
-    private string? _path;
+    protected virtual WebApplicationFactory<Program> CreateFactory() => new WebApiFactory();
 
     [SetUp] public async Task Setup()
     {
-        _baseline = new();
-        _factory = _baseline;
-        if (sqlite)
-        {
-            _path = Path.Combine(TestContext.CurrentContext.WorkDirectory, Guid.NewGuid().ToString("N") + ".db");
-            var connectionString = new SqliteConnectionStringBuilder { DataSource = _path, Pooling = false }.ConnectionString;
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                connection.Open();
-                connection.Execute("CREATE TABLE Customers (Id TEXT PRIMARY KEY, DisplayName TEXT NOT NULL); INSERT INTO Customers VALUES ('CUST-001', 'Example Customer');");
-            }
-            _factory = _baseline.WithWebHostBuilder(builder => builder.ConfigureAppConfiguration((_, config) =>
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["Sources:CustomerRegistry:Mode"] = "Live", ["Sources:CustomerRegistry:Provider"] = "SQLite",
-                    ["ConnectionStrings:CustomerRegistry"] = connectionString
-                })));
-        }
+        _factory = CreateFactory();
         _client = _factory.CreateClient(new() { BaseAddress = new("https://localhost"), AllowAutoRedirect = false });
         _client.DefaultRequestHeaders.Add("X-Test-User", "reader-writer");
         var csrf = await _client.GetFromJsonAsync<JsonElement>("/auth/antiforgery");
         _client.DefaultRequestHeaders.Add("X-CSRF-TOKEN", csrf.GetProperty("token").GetString());
-        if (!sqlite) await CustomerFixtures.RegisterAsync(_factory.Services, "CUST-001");
+        await CustomerFixtures.RegisterAsync(_factory.Services, "CUST-001");
     }
 
     [TearDown] public async Task Cleanup()
     {
         _client.Dispose();
-        if (!ReferenceEquals(_factory, _baseline)) await _factory.DisposeAsync();
-        await _baseline.DisposeAsync();
-        if (_path is not null) { SqliteConnection.ClearAllPools(); File.Delete(_path); }
+        await _factory.DisposeAsync();
     }
 
-    private async Task<JsonElement> Send(string method, string path, string? body, int status)
+    protected async Task<JsonElement> Send(string method, string path, string? body, int status)
     {
         using var request = new HttpRequestMessage(new HttpMethod(method), path);
         if (body is not null) request.Content = new StringContent(body, Encoding.UTF8, "application/json");
@@ -139,10 +114,12 @@ public class CustomerWriteApiTests(bool sqlite)
         await Send(method, route, body, 200);
         await Send("GET", "/api/customers/CUST-001/overview", null, 403);
     }
+}
 
+public sealed class CustomerWriteApiTests : CustomerWriteApiContractTests
+{
     [Test] public async Task FakeWriteFailureReportsUnknownOutcome()
     {
-        if (sqlite) Assert.Ignore("Deterministic fake fault scenario.");
         var response = await Send("PATCH", "/api/customers/CUST-FAIL", """{"displayName":"Name"}""", 502);
         response.GetProperty("issues")[0].GetProperty("code").GetString().ShouldBe("CUSTOMER.OUTCOME_UNKNOWN");
     }

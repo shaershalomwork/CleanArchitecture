@@ -12,5 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <ProjectReference Include="../../src/Web/Web.csproj" />
+    <None Update="Customers/api-contract.json" CopyToOutputDirectory="PreserveNewest" />
+    <InternalsVisibleTo Include="CleanArchitecture.Database.Tests" />
   </ItemGroup>
 </Project>

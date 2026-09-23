@@ -23,7 +23,7 @@ public class LocalAuthenticationTests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment("Test").ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(new Dictionary<string, string?>
+            builder.UseEnvironment("Development").ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["Sources:CustomerRegistry:Mode"] = "Fake", ["Sources:Billing:Mode"] = "Fake",
                 ["Authentication:Mode"] = external ? "External" : "Development",

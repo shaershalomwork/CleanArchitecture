@@ -1,14 +1,16 @@
 # Oracle customer source
 
-Oracle is an optional CustomerRegistry provider. SQL Server remains the default; Development/Test still use fakes until Live is explicitly selected.
+Oracle is an optional CustomerRegistry provider. The default template has no database provider; Development uses fakes until Live is explicitly selected.
 
 ```powershell
 dotnet new di-sln -n MyIntegration -cf None --CustomerProvider Oracle
 ```
 
-The Infrastructure project uses Dapper and Oracle.ManagedDataAccess.Core 23.26.300. This targets the existing .NET 10 application and requires a 64-bit runtime and Oracle Database 19c or newer. No Oracle EF Core integration or native Oracle client installation is required. See [Oracle system requirements](https://docs.oracle.com/en/database/oracle/oracle-database/26/odpnt/InstallSystemRequirements.html).
+The optional examples/Databases/Oracle project uses Dapper and Oracle.ManagedDataAccess.Core 23.26.300. This targets the existing .NET 10 application and requires a 64-bit runtime and Oracle Database 19c or newer. No Oracle EF Core integration or native Oracle client installation is required. See [Oracle system requirements](https://docs.oracle.com/en/database/oracle/oracle-database/26/odpnt/InstallSystemRequirements.html).
 
 ## Configure an existing application
+
+First reference examples/Databases/Oracle/Oracle.csproj and call builder.Services.AddOracleCustomerRegistry() in Web before builder.Build(). Generation adds these for new applications; changing a runtime Provider setting alone cannot install the implementation.
 
 Set `Sources:CustomerRegistry:Provider=Oracle`, `Mode=Live`, and supply the connection named by `ConnectionName` (default `CustomerRegistry`). Web includes a UserSecretsId; generated projects receive a distinct ID.
 
@@ -28,7 +30,7 @@ Keep source credentials separate from caller identity. Read-only deployments nee
 
 The connected schema owns `Customers(Id NVARCHAR2(50) PRIMARY KEY, DisplayName NVARCHAR2(200) NOT NULL)`. Point reads use parameterized SQL with a two-row limit; missing customers map to `CUSTOMER.NOT_FOUND`. Listing selects all Id/DisplayName rows from the same table. Malformed or duplicate rows are invalid responses. Queries bind by name, including updates whose SQL parameter order differs from the supplied parameter object. See [customer reads](customer-reads.md).
 
-POST inserts a new row; PUT/PATCH update DisplayName; DELETE removes one row. Each mutation uses an explicit local transaction and commits before returning success. Duplicate inserts map to `CUSTOMER.CONFLICT`. Zero-row updates/deletes map to not found. The application never creates or migrates the source schema. The SQL file in `tests/Infrastructure.IntegrationTests/Fixtures/customer-registry.oracle.sql` is only a disposable test contract.
+POST inserts a new row; PUT/PATCH update DisplayName; DELETE removes one row. Each mutation uses an explicit local transaction and commits before returning success. Duplicate inserts map to `CUSTOMER.CONFLICT`. Zero-row updates/deletes map to not found. The application never creates or migrates the source schema. The SQL file in `examples/Databases/Database.Tests/Fixtures/customer-registry.oracle.sql` is only a disposable test contract.
 
 Each execution attempt owns and disposes its connection. `ClientId` carries correlation; ODP.NET Core resets it on disposal before pooling. Oracle errors become safe source issues. Reads can retry transient failures through SourceExecutor; writes never automatically retry. A write timeout or disconnect reports `CUSTOMER.OUTCOME_UNKNOWN` (HTTP 502), requiring reconciliation with the source. Avoid provider replay, pipelining, or additional connection retry policies that bypass these execution guarantees.
 

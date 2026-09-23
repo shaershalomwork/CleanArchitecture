@@ -9,10 +9,10 @@ The Angular application builder avoids the unused webpack development server. A 
 | MediatR 14.2.0 | Retain for top-level dispatch; verify production entitlement for all consuming teams. Configure MediatR:LicenseKey through secrets. |
 | AutoMapper | Removed; manual mapping is the default. Versions 15+ have newer licensing requirements. |
 | Mapperly | Not installed. Apache-2.0 source generation is an option if mapping repetition warrants an ADR. |
-| Dapper 2.1.79 | Apache-2.0; explicit source queries and stored procedures. |
-| Microsoft.Data.SqlClient 7.0.2 | Concrete SQL Server provider, confined to Infrastructure. |
-| Microsoft.Data.Sqlite 10.0.11 | SQLite provider, confined to Infrastructure; no EF Core dependency. |
-| Oracle.ManagedDataAccess.Core 23.26.300 | Managed Oracle provider, confined to Infrastructure; .NET 10, Oracle Database 19c+, no EF Core dependency. Review the vendor package terms when adopting Oracle. |
+| Dapper 2.1.79 | Apache-2.0; optional database projects only, for explicit queries and stored procedures. |
+| Microsoft.Data.SqlClient 7.0.2 | Optional SQL Server example project; absent from the default dependency graph. |
+| Microsoft.Data.Sqlite 10.0.11 | Optional SQLite example project; absent from the default dependency graph; no EF Core dependency. |
+| Oracle.ManagedDataAccess.Core 23.26.300 | Optional Oracle example project, absent from the default dependency graph; .NET 10, Oracle Database 19c+, no EF Core dependency. Review the vendor package terms when adopting Oracle. |
 | Aspire.Hosting.Oracle 13.5.3 | TestAppHost-only integration for disposable Oracle Free source contracts. |
 | Microsoft.Extensions.Resilience 10.9.0 / Polly | Shared source-operation execution; no blanket HTTP retries. |
 | EF Core / local Identity / Respawn | Removed from the default runtime/test design. |

@@ -1,14 +1,13 @@
 using CleanArchitecture.Application.Common.Interfaces;
 using CleanArchitecture.Application.Customers.Sources;
 using CleanArchitecture.Infrastructure.Configuration;
-using CleanArchitecture.Infrastructure.Connections;
 using CleanArchitecture.Infrastructure.Execution;
 using CleanArchitecture.Infrastructure.Fakes;
 using CleanArchitecture.Infrastructure.Observability;
 using CleanArchitecture.Infrastructure.Sources.Billing;
-using CleanArchitecture.Infrastructure.Sources.CustomerRegistry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -16,14 +15,17 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
-        var local = builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Test");
+        var local = builder.Environment.IsDevelopment();
         builder.Services.AddOptions<CustomerRegistryOptions>().Bind(builder.Configuration.GetSection("Sources:CustomerRegistry"))
             .Validate(o => Enum.IsDefined(o.Provider), "Unknown customer database provider.")
-            .Validate(o => Enum.IsDefined(o.Mode) && (local || o.Mode == SourceMode.Live), "Fake sources are restricted to Development and Test.")
+            .Validate(o => Enum.IsDefined(o.Mode) && (local || o.Mode == SourceMode.Live), "Fake sources are restricted to Development.")
             .Validate(o => o.Mode == SourceMode.Fake || !string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString(o.ConnectionName)), "CustomerRegistry requires its named connection string.")
+            .Validate(o => o.Mode == SourceMode.Fake || new[] { typeof(ICustomerSourceAdapter), typeof(ICustomerWriteSourceAdapter), typeof(IHealthCheck) }
+                .All(type => builder.Services.Any(s => s.ServiceType == type && s.IsKeyedService && Equals(s.ServiceKey, o.Provider))),
+                "Live CustomerRegistry requires an optional database project and its Add...CustomerRegistry registration. See docs/template-guide.html#database.")
             .ValidateOnStart();
         builder.Services.AddOptions<BillingOptions>().Bind(builder.Configuration.GetSection("Sources:Billing"))
-            .Validate(o => Enum.IsDefined(o.Mode) && (local || o.Mode == SourceMode.Live), "Fake sources are restricted to Development and Test.")
+            .Validate(o => Enum.IsDefined(o.Mode) && (local || o.Mode == SourceMode.Live), "Fake sources are restricted to Development.")
             .Validate(o => o.Mode == SourceMode.Fake || (Uri.TryCreate(o.BaseUrl, UriKind.Absolute, out var uri) &&
                 (uri.Scheme == "https" || (local && uri.Scheme == "http")) && o.BaseUrl.EndsWith('/') &&
                 !string.IsNullOrWhiteSpace(o.ApiKey)), "Billing requires an HTTPS base URL ending in / and an API key.")
@@ -36,19 +38,9 @@ public static class DependencyInjection
         builder.Services.AddScoped<ICorrelationContext, CorrelationContext>();
         builder.Services.AddSingleton<SourcePipelines>();
         builder.Services.AddScoped<SourceExecutor>();
-        builder.Services.AddScoped<SqlConnectionFactory>();
-        builder.Services.AddScoped<SqliteConnectionFactory>();
-        builder.Services.AddScoped<SqliteWriteConnectionFactory>();
-        builder.Services.AddScoped<OracleConnectionFactory>();
-        builder.Services.AddScoped<OracleCustomerSourceAdapter>();
-        builder.Services.AddScoped<OracleCustomerWriteSourceAdapter>();
-        builder.Services.AddScoped<SqlCustomerWriteSourceAdapter>();
-        builder.Services.AddScoped<SqliteCustomerWriteSourceAdapter>();
         builder.Services.AddSingleton<FakeCustomerStore>();
         builder.Services.AddScoped<FakeCustomerWriteSourceAdapter>();
-        builder.Services.AddScoped<SqliteCustomerSourceAdapter>();
         builder.Services.AddScoped<FakeCustomerSourceAdapter>();
-        builder.Services.AddScoped<SqlCustomerSourceAdapter>();
         builder.Services.AddScoped<FakeBillingSourceAdapter>();
         builder.Services.AddHttpClient("Billing", (sp, client) =>
         {
@@ -62,25 +54,13 @@ public static class DependencyInjection
         {
             var source = sp.GetRequiredService<IOptions<CustomerRegistryOptions>>().Value;
             if (source.Mode == SourceMode.Fake) return sp.GetRequiredService<FakeCustomerSourceAdapter>();
-            return source.Provider switch
-            {
-                CustomerDatabaseProvider.SqlServer => sp.GetRequiredService<SqlCustomerSourceAdapter>(),
-                CustomerDatabaseProvider.SQLite => sp.GetRequiredService<SqliteCustomerSourceAdapter>(),
-                CustomerDatabaseProvider.Oracle => sp.GetRequiredService<OracleCustomerSourceAdapter>(),
-                _ => throw new InvalidOperationException("Unknown customer database provider.")
-            };
+            return sp.GetRequiredKeyedService<ICustomerSourceAdapter>(source.Provider);
         });
         builder.Services.AddScoped<ICustomerWriteSourceAdapter>(sp =>
         {
             var source = sp.GetRequiredService<IOptions<CustomerRegistryOptions>>().Value;
             if (source.Mode == SourceMode.Fake) return sp.GetRequiredService<FakeCustomerWriteSourceAdapter>();
-            return source.Provider switch
-            {
-                CustomerDatabaseProvider.SqlServer => sp.GetRequiredService<SqlCustomerWriteSourceAdapter>(),
-                CustomerDatabaseProvider.SQLite => sp.GetRequiredService<SqliteCustomerWriteSourceAdapter>(),
-                CustomerDatabaseProvider.Oracle => sp.GetRequiredService<OracleCustomerWriteSourceAdapter>(),
-                _ => throw new InvalidOperationException("Unknown customer database provider.")
-            };
+            return sp.GetRequiredKeyedService<ICustomerWriteSourceAdapter>(source.Provider);
         });
         builder.Services.AddScoped<IBillingSourceAdapter>(sp => sp.GetRequiredService<IOptions<BillingOptions>>().Value.Mode == SourceMode.Fake
             ? sp.GetRequiredService<FakeBillingSourceAdapter>() : sp.GetRequiredService<HttpBillingSourceAdapter>());

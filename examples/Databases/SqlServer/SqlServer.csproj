@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>CleanArchitecture.Infrastructure</RootNamespace>
+    <AssemblyName>CleanArchitecture.Database.SqlServer</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/Infrastructure/Infrastructure.csproj" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <InternalsVisibleTo Include="CleanArchitecture.Database.Tests" />
+    <Using Include="CleanArchitecture.Application.Common.Results" />
+  </ItemGroup>
+</Project>

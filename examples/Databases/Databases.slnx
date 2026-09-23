@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="SqlServer/SqlServer.csproj" />
+  <Project Path="SQLite/SQLite.csproj" />
+  <Project Path="Oracle/Oracle.csproj" />
+  <Project Path="Database.Tests/Database.Tests.csproj" />
+  <Project Path="TestAppHost/TestAppHost.csproj" />
+</Solution>

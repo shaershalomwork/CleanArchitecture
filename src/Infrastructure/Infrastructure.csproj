@@ -5,14 +5,12 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Dapper" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" />
-    <PackageReference Include="Microsoft.Data.SqlClient" />
-    <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Extensions.Resilience" />
     <ProjectReference Include="../Application/Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="$(AssemblyName).IntegrationTests" />
+    <InternalsVisibleTo Include="CleanArchitecture.Database.SqlServer" />
+    <InternalsVisibleTo Include="CleanArchitecture.Database.SQLite" />
+    <InternalsVisibleTo Include="CleanArchitecture.Database.Oracle" />
   </ItemGroup>
 </Project>

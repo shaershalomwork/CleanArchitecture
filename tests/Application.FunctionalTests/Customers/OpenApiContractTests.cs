@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using CleanArchitecture.Application.Common.Results;
 using CleanArchitecture.Application.FunctionalTests.Infrastructure;
 using CleanArchitecture.Web.Contracts;
@@ -12,6 +13,33 @@ namespace CleanArchitecture.Application.FunctionalTests.Customers;
 
 public class OpenApiContractTests
 {
+    [Test] public async Task PublicApiMatchesThePreSimplificationContract()
+    {
+        await using var factory = new WebApiFactory();
+        using var client = factory.CreateClient(new() { BaseAddress = new("https://localhost") });
+        var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!.AsObject();
+        var paths = new JsonObject();
+        foreach (var path in document["paths"]!.AsObject())
+            if (path.Key.StartsWith("/api/", StringComparison.Ordinal) || path.Key.StartsWith("/auth/", StringComparison.Ordinal))
+                paths.Add(path.Key, path.Value!.DeepClone());
+        var actual = new JsonObject { ["paths"] = paths, ["components"] = document["components"]!.DeepClone() };
+        RemoveProse(actual);
+        var expected = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Customers/api-contract.json")));
+        JsonNode.DeepEquals(expected, actual).ShouldBeTrue("routes, inputs, response schemas, security and operation IDs must remain compatible");
+    }
+
+    private static void RemoveProse(JsonNode? node)
+    {
+        if (node is JsonObject obj)
+        {
+            obj.Remove("summary");
+            obj.Remove("description");
+            foreach (var child in obj.ToArray()) RemoveProse(child.Value);
+        }
+        else if (node is JsonArray array)
+            foreach (var child in array) RemoveProse(child);
+    }
+
     [Test] public async Task DocumentsEveryHandlerAndPreservesExistingContracts()
     {
         await using var factory = new WebApiFactory();

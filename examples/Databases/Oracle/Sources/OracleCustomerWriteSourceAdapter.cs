@@ -21,7 +21,7 @@ public sealed class OracleCustomerWriteSourceAdapter(OracleConnectionFactory con
         SaveAsync("PatchCustomer", false, customerId, displayName, cancellationToken);
 
     private Task<OperationResult<Customer>> SaveAsync(string operation, bool create, string customerId, string displayName, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", operation), async token =>
+        executor.ExecuteOracleAsync(new("CUSTOMER", operation), async token =>
         {
             await using var connection = await connections.OpenAsync(options.Value.ConnectionName, token);
             await using var transaction = await connection.BeginTransactionAsync(token);
@@ -45,7 +45,7 @@ public sealed class OracleCustomerWriteSourceAdapter(OracleConnectionFactory con
         }, cancellationToken);
 
     public Task<OperationResult<NoData>> DeleteAsync(string customerId, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "DeleteCustomer"), async token =>
+        executor.ExecuteOracleAsync(new("CUSTOMER", "DeleteCustomer"), async token =>
         {
             await using var connection = await connections.OpenAsync(options.Value.ConnectionName, token);
             await using var transaction = await connection.BeginTransactionAsync(token);

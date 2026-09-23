@@ -20,7 +20,7 @@ public sealed class SqliteCustomerWriteSourceAdapter(SqliteWriteConnectionFactor
         SaveAsync("PatchCustomer", false, customerId, displayName, cancellationToken);
 
     private Task<OperationResult<Customer>> SaveAsync(string operation, bool create, string customerId, string displayName, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", operation), token => Task.Run(() =>
+        executor.ExecuteSQLiteAsync(new("CUSTOMER", operation), token => Task.Run(() =>
         {
             using var connection = connections.Open(options.Value.ConnectionName, token);
             using var transaction = connection.BeginTransaction();
@@ -45,7 +45,7 @@ public sealed class SqliteCustomerWriteSourceAdapter(SqliteWriteConnectionFactor
         }, token), cancellationToken);
 
     public Task<OperationResult<NoData>> DeleteAsync(string customerId, CancellationToken cancellationToken) =>
-        executor.ExecuteAsync(new("CUSTOMER", "DeleteCustomer"), token => Task.Run(() =>
+        executor.ExecuteSQLiteAsync(new("CUSTOMER", "DeleteCustomer"), token => Task.Run(() =>
         {
             using var connection = connections.Open(options.Value.ConnectionName, token);
             using var transaction = connection.BeginTransaction();
