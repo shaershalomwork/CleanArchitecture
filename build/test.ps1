@@ -87,7 +87,7 @@ foreach ($client in $ClientFramework) {
                 if ($client -ne 'None') {
                     Push-Location src/Web/ClientApp
                     try {
-                        npm test -- --watch=false --browsers=ChromeHeadless
+                        node node_modules/@angular/cli/bin/ng.js test --watch=false --browsers=ChromeHeadlessNoGpu
                         if ($LASTEXITCODE -ne 0) { throw 'Angular unit tests failed.' }
                     } finally { Pop-Location }
                     dotnet test tests/Web.AcceptanceTests --no-build -c Release

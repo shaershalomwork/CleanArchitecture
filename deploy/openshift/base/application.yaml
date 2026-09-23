@@ -16,7 +16,10 @@ kind: Deployment
 metadata:
   name: webapi
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
   selector:
     matchLabels: {app: webapi}
   template:
@@ -26,6 +29,12 @@ spec:
       serviceAccountName: webapi
       automountServiceAccountToken: false
       terminationGracePeriodSeconds: 45
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels: {app: webapi}
       securityContext:
         runAsNonRoot: true
         seccompProfile: {type: RuntimeDefault}
@@ -42,18 +51,21 @@ spec:
             requests: {cpu: 100m, memory: 256Mi}
             limits: {cpu: '1', memory: 512Mi}
           startupProbe:
-            httpGet: {path: /alive, port: https, scheme: HTTPS}
+            httpGet: {path: /alive, port: https, scheme: HTTPS, httpHeaders: [{name: Host, value: replace-application-host.example}]}
             failureThreshold: 30
             periodSeconds: 5
           livenessProbe:
-            httpGet: {path: /alive, port: https, scheme: HTTPS}
+            httpGet: {path: /alive, port: https, scheme: HTTPS, httpHeaders: [{name: Host, value: replace-application-host.example}]}
           readinessProbe:
-            httpGet: {path: /health, port: https, scheme: HTTPS}
+            httpGet: {path: /health, port: https, scheme: HTTPS, httpHeaders: [{name: Host, value: replace-application-host.example}]}
           volumeMounts:
             - {name: app-tls, mountPath: /run/app-tls, readOnly: true}
             - {name: app-secrets, mountPath: /run/application-secrets, readOnly: true}
             - {name: service-ca, mountPath: /var/run/service-ca, readOnly: true}
             - {name: tmp, mountPath: /tmp}
+            - {name: data-protection-keys, mountPath: /var/run/data-protection}
+            - {name: data-protection-certificate, mountPath: /run/data-protection-certificate, readOnly: true}
+            - {name: keycloak-ca, mountPath: /run/keycloak-ca, readOnly: true}
       volumes:
         - name: app-tls
           secret: {secretName: webapi-tls}
@@ -63,6 +75,12 @@ spec:
           configMap: {name: service-ca}
         - name: tmp
           emptyDir: {sizeLimit: 128Mi}
+        - name: data-protection-keys
+          persistentVolumeClaim: {claimName: webapi-data-protection}
+        - name: data-protection-certificate
+          secret: {secretName: webapi-data-protection-certificate}
+        - name: keycloak-ca
+          configMap: {name: keycloak-ca}
 ---
 apiVersion: v1
 kind: Service
@@ -78,7 +96,9 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: webapi
+  labels: {route-visibility: replace-private-ingress-label}
 spec:
+  host: replace-application-host.example
   to: {kind: Service, name: webapi}
   port: {targetPort: https}
   tls:
@@ -90,6 +110,15 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata: {name: webapi}
 spec:
-  maxUnavailable: 1
+  minAvailable: 1
   selector:
     matchLabels: {app: webapi}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: webapi-data-protection}
+spec:
+  accessModes: [ReadWriteMany]
+  storageClassName: replace-rwx-storage-class
+  resources:
+    requests: {storage: 1Gi}

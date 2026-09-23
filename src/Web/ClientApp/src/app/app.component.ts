@@ -7,6 +7,7 @@ import { ThemeService } from './core/theme.service';
 export class AppComponent implements OnInit {
   readonly session = inject(SessionService); readonly theme = inject(ThemeService);
   readonly menu = signal(false); readonly logoutError = signal(''); readonly signingOut = signal(false);
+  readonly apiReferenceAvailable = signal(false);
   readonly router = inject(Router);
   constructor() { this.router.events.subscribe(event => { if (event instanceof NavigationEnd) { this.menu.set(false); this.logoutError.set(''); document.getElementById('main-content')?.focus(); } }); }
   get customerActive() { return this.router.url.split('?')[0] === '/customers' || /^\/customers\/[^/]+\/overview/.test(this.router.url); }
@@ -25,7 +26,12 @@ export class AppComponent implements OnInit {
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   }
-  ngOnInit() { void this.session.load(); }
+  ngOnInit() {
+    void this.session.load();
+    void fetch('/auth/options').then(response => response.json())
+      .then(options => this.apiReferenceAvailable.set(options.apiReferenceAvailable === true))
+      .catch(() => this.apiReferenceAvailable.set(false));
+  }
   async logout() {
     this.signingOut.set(true); this.logoutError.set('');
     try { await this.session.logout(); }

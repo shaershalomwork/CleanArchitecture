@@ -73,7 +73,9 @@ public sealed class Authentication : IEndpointGroup
     {
         context.Response.Headers.CacheControl = "no-store";
         var development = options.Value.Mode == "Development";
-        return Results.Ok(new AuthenticationUiOptionsResponse(development || AuthenticationRegistration.HasSpa, development ? Profiles : []));
+        return Results.Ok(new AuthenticationUiOptionsResponse(development || AuthenticationRegistration.HasSpa, development ? Profiles : [],
+            context.RequestServices.GetRequiredService<IConfiguration>().GetValue("Authentication:EnableRuntimeApiReference",
+                !context.RequestServices.GetRequiredService<IHostEnvironment>().IsProduction())));
     }
     [EndpointSummary("Get an antiforgery request token")]
     [EndpointDescription("Returns a token and sets its paired antiforgery cookie. Retain the cookie and send the token in X-CSRF-TOKEN for cookie-authenticated POST, PUT, PATCH, and DELETE requests.")]

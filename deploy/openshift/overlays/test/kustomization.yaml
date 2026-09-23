@@ -2,7 +2,30 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: integration-test
 resources: [../../base]
+patches:
+  - target: {kind: Route, name: webapi}
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: replace-test-app.example
+      - op: replace
+        path: /metadata/labels/route-visibility
+        value: replace-test-private-ingress-label
+  - target: {kind: Deployment, name: webapi}
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/startupProbe/httpGet/httpHeaders/0/value
+        value: replace-test-app.example
+      - op: replace
+        path: /spec/template/spec/containers/0/livenessProbe/httpGet/httpHeaders/0/value
+        value: replace-test-app.example
+      - op: replace
+        path: /spec/template/spec/containers/0/readinessProbe/httpGet/httpHeaders/0/value
+        value: replace-test-app.example
 configMapGenerator:
+  - name: keycloak-ca
+    literals:
+      - ca.crt=replace-with-test-keycloak-ca-pem
   - name: logging-environment
     literals:
       - LOG_ENVIRONMENT=test
@@ -14,4 +37,10 @@ configMapGenerator:
       - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=https://otel-collector.integration-test.svc:4318/v1/logs
       - Authentication__Authority=https://replace-test-identity.example
       - Authentication__Audience=replace-test-audience
+      - Authentication__PublicOrigin=https://replace-test-app.example/
+      - Authentication__DataProtectionApplicationName=replace-app-test
+      - Authentication__TrustedProxies__0=192.0.2.1
+      - Authentication__EnableRuntimeApiReference=true
+      - Authentication__ClientId=replace-test-browser-client-id
+      - ASPNETCORE_ALLOWEDHOSTS=replace-test-app.example
       - Sources__Billing__BaseUrl=https://replace-test-billing.example/

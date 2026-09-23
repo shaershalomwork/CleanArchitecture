@@ -15,6 +15,11 @@ configMapGenerator:
       - OTEL_BLRP_MAX_EXPORT_BATCH_SIZE=512
       - OTEL_BLRP_SCHEDULE_DELAY=1000
       - Authentication__Mode=External
+      - Authentication__MaximumAgeSeconds=300
+      - Authentication__DataProtectionKeysPath=/var/run/data-protection
+      - Authentication__DataProtectionCertificatePath=/run/data-protection-certificate/tls.pfx
+      - Authentication__CaBundlePath=/run/keycloak-ca/ca.crt
+      - Authentication__EnableRuntimeApiReference=false
       - Sources__CustomerRegistry__Mode=Live
       - Sources__Billing__Mode=Live
       - CONFIG_SECRETS_PATH=/run/application-secrets
